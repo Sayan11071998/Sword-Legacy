@@ -15,10 +15,11 @@ public class Sword_Legacy : ModuleRules
 			"Engine",
 			"InputCore",
 			"EnhancedInput",
-			"GameplayTags"
+			"GameplayTags",
+			"AnimGraphRuntime"
 		});
 
-		PrivateDependencyModuleNames.AddRange(new string[] {  });
+		PrivateDependencyModuleNames.AddRange(new string[] { });
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
