@@ -37,8 +37,6 @@ ASL_PlayerCharacter::ASL_PlayerCharacter()
 void ASL_PlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	Debug::Print(TEXT("Init"));
 }
 
 void ASL_PlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -59,8 +57,33 @@ void ASL_PlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 
 void ASL_PlayerCharacter::Input_Move(const FInputActionValue& InputActionValue)
 {
+	const FVector2D MovementVector = InputActionValue.Get<FVector2D>();
+	const FRotator MovementRotation(0.f, Controller->GetControlRotation().Yaw, 0.f);
+	
+	if (MovementVector.Y != 0.f)
+	{
+		const FVector ForwardDirection = MovementRotation.RotateVector(FVector::ForwardVector);
+		AddMovementInput(ForwardDirection, MovementVector.Y);
+	}
+	
+	if (MovementVector.X != 0.f)
+	{
+		const FVector RightDirection = MovementRotation.RotateVector(FVector::RightVector);
+		AddMovementInput(RightDirection, MovementVector.X);
+	}
 }
 
 void ASL_PlayerCharacter::Input_Look(const FInputActionValue& InputActionValue)
 {
+	const FVector2D LookAxisVectorVector = InputActionValue.Get<FVector2D>();
+	
+	if (LookAxisVectorVector.X != 0.f)
+	{
+		AddControllerYawInput(LookAxisVectorVector.X);
+	}
+	
+	if (LookAxisVectorVector.Y != 0.f)
+	{
+		AddControllerPitchInput(LookAxisVectorVector.Y);
+	}
 }
