@@ -19,14 +19,14 @@ public:
 		const TObjectPtr<USL_DataAsset_InputConfig> InInputConfig,
 		const FGameplayTag& InInputTag,
 		ETriggerEvent TriggerEvent,
-		TObjectPtr<UserObject> ContextObject,
+		UserObject* ContextObject,
 		CallbackFunc Func
 	);
 };
 
 template <class UserObject, typename CallbackFunc>
 void USL_EnhancedInputComponent::BindNativeInputAction(const TObjectPtr<USL_DataAsset_InputConfig> InInputConfig,
-	const FGameplayTag& InInputTag, ETriggerEvent TriggerEvent, TObjectPtr<UserObject> ContextObject, CallbackFunc Func)
+	const FGameplayTag& InInputTag, ETriggerEvent TriggerEvent, UserObject* ContextObject, CallbackFunc Func)
 {
 	checkf(InInputConfig, TEXT("Input Config Data Asset is Null. Can't Proceed with Binding"));
 	

@@ -1,8 +1,12 @@
 #include "Characters/SL_PlayerCharacter.h"
+#include "EnhancedInputSubsystems.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/Input/SL_EnhancedInputComponent.h"
+#include "DataAssets/Input/SL_DataAsset_InputConfig.h"
+#include "Utilities/SL_GameplayTags.h"
 
 #include "SL_DebugHelper.h"
 
@@ -39,7 +43,18 @@ void ASL_PlayerCharacter::BeginPlay()
 
 void ASL_PlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	checkf(InputConfigDataAsset, TEXT("Forgot to Assign a Valid Data Asset as Input Config"));
+	
+	ULocalPlayer* LocalPlayer = GetController<APlayerController>()->GetLocalPlayer();
+	
+	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer);
+	check(Subsystem);
+	
+	Subsystem->AddMappingContext(InputConfigDataAsset->DefaultMappingContext, 0);
+	USL_EnhancedInputComponent* EnhancedInputComponent = CastChecked<USL_EnhancedInputComponent>(PlayerInputComponent);
+	
+	EnhancedInputComponent->BindNativeInputAction(InputConfigDataAsset, SL_GameplayTags::InputTag_Move, ETriggerEvent::Triggered, this, &ASL_PlayerCharacter::Input_Move);
+	EnhancedInputComponent->BindNativeInputAction(InputConfigDataAsset, SL_GameplayTags::InputTag_Look, ETriggerEvent::Triggered, this, &ASL_PlayerCharacter::Input_Look);
 }
 
 void ASL_PlayerCharacter::Input_Move(const FInputActionValue& InputActionValue)

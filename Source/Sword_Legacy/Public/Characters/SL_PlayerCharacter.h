@@ -33,7 +33,7 @@ private:
 	
 #pragma region Input
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USL_DataAsset_InputConfig> InputConfigDataAsset;
 	
 	void Input_Move(const FInputActionValue& InputActionValue);
