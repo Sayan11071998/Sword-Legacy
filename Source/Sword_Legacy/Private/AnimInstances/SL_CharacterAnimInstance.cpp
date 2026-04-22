@@ -19,5 +19,6 @@ void USL_CharacterAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSecon
 	
 	GroundSpeed = OwningCharacter->GetVelocity().Size2D();
 	bHasAcceleration = OwningMovementComponent->GetCurrentAcceleration().SizeSquared2D() > 0.f;
+	bIsSprinting = GroundSpeed > 250.f && bHasAcceleration;
 	LocomotionDirection = UKismetAnimationLibrary::CalculateDirection(OwningCharacter->GetVelocity(), OwningCharacter->GetActorRotation());
 }

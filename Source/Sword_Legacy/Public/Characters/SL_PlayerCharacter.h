@@ -35,11 +35,19 @@ private:
 	
 #pragma region Input
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CharacterData", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USL_DataAsset_InputConfig> InputConfigDataAsset;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CharacterData", meta = (AllowPrivateAccess = "true"))
+	float MaxWalkSpeed = 200.f;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CharacterData", meta = (AllowPrivateAccess = "true"))
+	float MaxSprintSpeed = 500.f;
 	
 	void Input_Move(const FInputActionValue& InputActionValue);
 	void Input_Look(const FInputActionValue& InputActionValue);
+	void Input_SprintStarted(const FInputActionValue& InputActionValue);
+	void Input_SprintCompleted(const FInputActionValue& InputActionValue);
 	
 #pragma endregion
 };

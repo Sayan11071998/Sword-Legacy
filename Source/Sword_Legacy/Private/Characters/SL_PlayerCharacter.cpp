@@ -8,8 +8,6 @@
 #include "DataAssets/Input/SL_DataAsset_InputConfig.h"
 #include "Utilities/SL_GameplayTags.h"
 
-#include "SL_DebugHelper.h"
-
 ASL_PlayerCharacter::ASL_PlayerCharacter()
 {
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.f);
@@ -30,7 +28,7 @@ ASL_PlayerCharacter::ASL_PlayerCharacter()
 	
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 500.f, 0.f);
-	GetCharacterMovement()->MaxWalkSpeed = 400.f;
+	GetCharacterMovement()->MaxWalkSpeed = MaxWalkSpeed;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 }
 
@@ -53,6 +51,9 @@ void ASL_PlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	
 	EnhancedInputComponent->BindNativeInputAction(InputConfigDataAsset, SL_GameplayTags::InputTag_Move, ETriggerEvent::Triggered, this, &ASL_PlayerCharacter::Input_Move);
 	EnhancedInputComponent->BindNativeInputAction(InputConfigDataAsset, SL_GameplayTags::InputTag_Look, ETriggerEvent::Triggered, this, &ASL_PlayerCharacter::Input_Look);
+
+	EnhancedInputComponent->BindNativeInputAction(InputConfigDataAsset, SL_GameplayTags::InputTag_Sprint, ETriggerEvent::Triggered, this, &ASL_PlayerCharacter::Input_SprintStarted);
+	EnhancedInputComponent->BindNativeInputAction(InputConfigDataAsset, SL_GameplayTags::InputTag_Sprint, ETriggerEvent::Completed, this, &ASL_PlayerCharacter::Input_SprintCompleted);
 }
 
 void ASL_PlayerCharacter::Input_Move(const FInputActionValue& InputActionValue)
@@ -86,4 +87,17 @@ void ASL_PlayerCharacter::Input_Look(const FInputActionValue& InputActionValue)
 	{
 		AddControllerPitchInput(LookAxisVectorVector.Y);
 	}
+}
+
+void ASL_PlayerCharacter::Input_SprintStarted(const FInputActionValue& InputActionValue)
+{
+	if (GetCharacterMovement()->GetCurrentAcceleration().SizeSquared2D() > 0.f)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = MaxSprintSpeed;
+	}
+}
+
+void ASL_PlayerCharacter::Input_SprintCompleted(const FInputActionValue& InputActionValue)
+{
+	GetCharacterMovement()->MaxWalkSpeed = MaxWalkSpeed;
 }

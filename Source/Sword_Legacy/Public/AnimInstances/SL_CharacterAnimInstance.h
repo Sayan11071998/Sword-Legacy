@@ -32,5 +32,8 @@ protected:
 	bool bHasAcceleration;
 	
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "AnimData|LocomotionData")
+	bool bIsSprinting;
+	
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "AnimData|LocomotionData")
 	float LocomotionDirection;
 };
