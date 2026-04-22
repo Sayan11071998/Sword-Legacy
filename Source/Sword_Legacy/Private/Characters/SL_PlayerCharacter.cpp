@@ -36,3 +36,16 @@ void ASL_PlayerCharacter::BeginPlay()
 	
 	Debug::Print(TEXT("Init"));
 }
+
+void ASL_PlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+}
+
+void ASL_PlayerCharacter::Input_Move(const FInputActionValue& InputActionValue)
+{
+}
+
+void ASL_PlayerCharacter::Input_Look(const FInputActionValue& InputActionValue)
+{
+}
