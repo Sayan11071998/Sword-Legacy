@@ -9,6 +9,21 @@ ASL_BaseCharacter::ASL_BaseCharacter()
 	
 	GetMesh()->bReceivesDecals = true;
 	
-	AbilitySystemComponent = CreateDefaultSubobject<USL_AbilitySystemComponent>(TEXT("AbilitySystemComponent"));
-	AttributeSet = CreateDefaultSubobject<USL_AttributeSet>(TEXT("AttributeSet"));
+	CharacterAbilitySystemComponent = CreateDefaultSubobject<USL_AbilitySystemComponent>(TEXT("AbilitySystemComponent"));
+	CharacterAttributeSet = CreateDefaultSubobject<USL_AttributeSet>(TEXT("AttributeSet"));
+}
+
+UAbilitySystemComponent* ASL_BaseCharacter::GetAbilitySystemComponent() const
+{
+	return GetCharacterAbilitySystemComponent();
+}
+
+void ASL_BaseCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	
+	if (CharacterAbilitySystemComponent)
+	{
+		CharacterAbilitySystemComponent->InitAbilityActorInfo(this, this);
+	}
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AbilitySystemInterface.h"
 #include "GameFramework/Character.h"
 #include "SL_BaseCharacter.generated.h"
 
@@ -8,21 +9,29 @@ class USL_AttributeSet;
 class USL_AbilitySystemComponent;
 
 UCLASS()
-class SWORD_LEGACY_API ASL_BaseCharacter : public ACharacter
+class SWORD_LEGACY_API ASL_BaseCharacter : public ACharacter, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
 public:
 	ASL_BaseCharacter();
 	
+	// ~ Begin IAbilitySystemInterface Interface
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	// ~ End IAbilitySystemInterface Interface
+	
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AbilitySystem")
-	TObjectPtr<USL_AbilitySystemComponent> AbilitySystemComponent;
+	// ~ Begin APawn Interface
+	virtual void PossessedBy(AController* NewController) override;
+	// ~ End APawn Interface
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AbilitySystem")
-	TObjectPtr<USL_AttributeSet> AttributeSet;
+	TObjectPtr<USL_AbilitySystemComponent> CharacterAbilitySystemComponent;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AbilitySystem")
+	TObjectPtr<USL_AttributeSet> CharacterAttributeSet;
 	
 public:
-	FORCEINLINE TObjectPtr<USL_AbilitySystemComponent> GetAbilitySystemComponent() const { return AbilitySystemComponent; }
-	FORCEINLINE TObjectPtr<USL_AttributeSet> GetAttributeSet() const { return AttributeSet; }
+	FORCEINLINE TObjectPtr<USL_AbilitySystemComponent> GetCharacterAbilitySystemComponent() const { return CharacterAbilitySystemComponent; }
+	FORCEINLINE TObjectPtr<USL_AttributeSet> GetCharacterAttributeSet() const { return CharacterAttributeSet; }
 };

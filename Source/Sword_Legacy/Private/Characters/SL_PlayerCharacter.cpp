@@ -7,6 +7,9 @@
 #include "Components/Input/SL_EnhancedInputComponent.h"
 #include "DataAssets/Input/SL_DataAsset_InputConfig.h"
 #include "Utilities/SL_GameplayTags.h"
+#include "AbilitySystem/SL_AbilitySystemComponent.h"
+
+#include "SL_DebugHelper.h"
 
 ASL_PlayerCharacter::ASL_PlayerCharacter()
 {
@@ -54,6 +57,19 @@ void ASL_PlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 
 	EnhancedInputComponent->BindNativeInputAction(InputConfigDataAsset, SL_GameplayTags::InputTag_Sprint, ETriggerEvent::Triggered, this, &ASL_PlayerCharacter::Input_SprintStarted);
 	EnhancedInputComponent->BindNativeInputAction(InputConfigDataAsset, SL_GameplayTags::InputTag_Sprint, ETriggerEvent::Completed, this, &ASL_PlayerCharacter::Input_SprintCompleted);
+}
+
+void ASL_PlayerCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	
+	if (CharacterAbilitySystemComponent && CharacterAttributeSet)
+	{
+		const FString ASCText = FString::Printf(TEXT("Owner Actor: %s, Avatar Actor: %s"), *CharacterAbilitySystemComponent->GetOwnerActor()->GetActorLabel(), *CharacterAbilitySystemComponent->GetAvatarActor()->GetActorLabel());
+		
+		Debug::Print(TEXT("Ability System Component Valid. ") + ASCText, FColor::Green);
+		Debug::Print(TEXT("Attribute Set Valid. ") + ASCText, FColor::Green);
+	}
 }
 
 void ASL_PlayerCharacter::Input_Move(const FInputActionValue& InputActionValue)
