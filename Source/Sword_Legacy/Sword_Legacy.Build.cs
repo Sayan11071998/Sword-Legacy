@@ -16,7 +16,8 @@ public class Sword_Legacy : ModuleRules
 			"InputCore",
 			"EnhancedInput",
 			"GameplayTags",
-			"AnimGraphRuntime"
+			"AnimGraphRuntime",
+			"GameplayTasks"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });
