@@ -13,7 +13,7 @@ class SWORD_LEGACY_API USL_DataAsset_StartupData_Base : public UDataAsset
 	GENERATED_BODY()
 	
 public:
-	virtual void GiveToAbilitySystemComponent(TObjectPtr<USL_AbilitySystemComponent> InCharacterASCToGive, int32 ApplyLevel = 1);
+	virtual void GiveToAbilitySystemComponent(TObjectPtr<USL_AbilitySystemComponent> InASCToGive, int32 ApplyLevel = 1);
 	
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Startup Data")
@@ -24,7 +24,7 @@ protected:
 	
 	void GrantAbilities(
 		const TArray<TSubclassOf<USL_GameplayAbility>>& InAbilitiesToGive,
-		TObjectPtr<USL_AbilitySystemComponent> InCharacterASCToGive,
+		TObjectPtr<USL_AbilitySystemComponent> InASCToGive,
 		int32 ApplyLevel = 1
 	);
 };

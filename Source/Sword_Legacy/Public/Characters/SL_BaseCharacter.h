@@ -5,6 +5,7 @@
 #include "GameFramework/Character.h"
 #include "SL_BaseCharacter.generated.h"
 
+class USL_DataAsset_StartupData_Base;
 class USL_AttributeSet;
 class USL_AbilitySystemComponent;
 
@@ -30,6 +31,9 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AbilitySystem")
 	TObjectPtr<USL_AttributeSet> CharacterAttributeSet;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CharacterData")
+	TSoftObjectPtr<USL_DataAsset_StartupData_Base> CharacterStartupData;
 	
 public:
 	FORCEINLINE TObjectPtr<USL_AbilitySystemComponent> GetCharacterAbilitySystemComponent() const { return CharacterAbilitySystemComponent; }
