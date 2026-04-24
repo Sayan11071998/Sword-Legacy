@@ -3,6 +3,7 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Components/Combat/SL_PlayerCombatComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/Input/SL_EnhancedInputComponent.h"
 #include "DataAssets/Input/SL_DataAsset_InputConfig.h"
@@ -31,6 +32,8 @@ ASL_PlayerCharacter::ASL_PlayerCharacter()
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 500.f, 0.f);
 	GetCharacterMovement()->MaxWalkSpeed = MaxWalkSpeed;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
+	
+	PlayerCombatComponent = CreateDefaultSubobject<USL_PlayerCombatComponent>(TEXT("PlayerCombatComponent"));
 }
 
 void ASL_PlayerCharacter::BeginPlay()

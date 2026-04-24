@@ -8,6 +8,7 @@ struct FInputActionValue;
 class USL_DataAsset_InputConfig;
 class UCameraComponent;
 class USpringArmComponent;
+class USL_PlayerCombatComponent;
 
 UCLASS()
 class SWORD_LEGACY_API ASL_PlayerCharacter : public ASL_BaseCharacter
@@ -35,6 +36,9 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UCameraComponent> FollowCamera;
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USL_PlayerCombatComponent> PlayerCombatComponent;
+	
 #pragma endregion
 	
 #pragma region Input
@@ -54,4 +58,7 @@ private:
 	void Input_SprintCompleted(const FInputActionValue& InputActionValue);
 	
 #pragma endregion
+	
+public:
+	FORCEINLINE TObjectPtr<USL_PlayerCombatComponent> GetPlayerCombatComponent() const { return PlayerCombatComponent; }
 };
