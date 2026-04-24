@@ -1,0 +1,1 @@
+#include "DataAssets/StartupData/SL_DataAsset_StartupData_Player.h"
