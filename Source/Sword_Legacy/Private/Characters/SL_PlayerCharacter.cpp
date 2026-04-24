@@ -7,9 +7,7 @@
 #include "Components/Input/SL_EnhancedInputComponent.h"
 #include "DataAssets/Input/SL_DataAsset_InputConfig.h"
 #include "Utilities/SL_GameplayTags.h"
-#include "AbilitySystem/SL_AbilitySystemComponent.h"
-
-#include "SL_DebugHelper.h"
+#include "DataAssets/StartupData/SL_DataAsset_StartupData_Player.h"
 
 ASL_PlayerCharacter::ASL_PlayerCharacter()
 {
@@ -63,12 +61,12 @@ void ASL_PlayerCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 	
-	if (CharacterAbilitySystemComponent && CharacterAttributeSet)
+	if (!CharacterStartupData.IsNull())
 	{
-		const FString ASCText = FString::Printf(TEXT("Owner Actor: %s, Avatar Actor: %s"), *CharacterAbilitySystemComponent->GetOwnerActor()->GetActorLabel(), *CharacterAbilitySystemComponent->GetAvatarActor()->GetActorLabel());
-		
-		Debug::Print(TEXT("Ability System Component Valid. ") + ASCText, FColor::Green);
-		Debug::Print(TEXT("Attribute Set Valid. ") + ASCText, FColor::Green);
+		if (USL_DataAsset_StartupData_Base* LoadedData = CharacterStartupData.LoadSynchronous())
+		{
+			LoadedData->GiveToAbilitySystemComponent(CharacterAbilitySystemComponent);
+		}
 	}
 }
 

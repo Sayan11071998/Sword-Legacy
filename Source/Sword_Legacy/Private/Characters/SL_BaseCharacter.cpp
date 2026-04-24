@@ -25,5 +25,7 @@ void ASL_BaseCharacter::PossessedBy(AController* NewController)
 	if (CharacterAbilitySystemComponent)
 	{
 		CharacterAbilitySystemComponent->InitAbilityActorInfo(this, this);
+		
+		ensureMsgf(!CharacterStartupData.IsNull(), TEXT("Forgot to assign start up data to %s"), *GetName());
 	}
 }
