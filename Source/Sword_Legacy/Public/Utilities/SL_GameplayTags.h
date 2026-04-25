@@ -13,4 +13,7 @@ namespace SL_GameplayTags
 	
 	/** Player Tags **/
 	SWORD_LEGACY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player_Weapon_Katana);
+	
+	SWORD_LEGACY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player_Event_Equip_Katana);
+	SWORD_LEGACY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player_Event_Unequip_Katana);
 }
