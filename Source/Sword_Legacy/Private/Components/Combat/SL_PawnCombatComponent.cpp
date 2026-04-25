@@ -1,4 +1,7 @@
 #include "Components/Combat/SL_PawnCombatComponent.h"
+#include "Items/Weapons/SL_WeaponBase.h"
+
+#include "SL_DebugHelper.h"
 
 void USL_PawnCombatComponent::RegisterSpawnedWeapon(FGameplayTag InWeaponTagToRegister,
 	ASL_WeaponBase* InWeaponToRegister, bool bRegisterAsEquippedWeapon)
@@ -12,6 +15,9 @@ void USL_PawnCombatComponent::RegisterSpawnedWeapon(FGameplayTag InWeaponTagToRe
 	{
 		CurrentEquippedWeaponTag = InWeaponTagToRegister;
 	}
+	
+	const FString WeaponString = FString::Printf(TEXT("A weapon named: %s has been registered using the tag %s"), *InWeaponToRegister->GetName(), *InWeaponTagToRegister.ToString());
+	Debug::Print(WeaponString);
 }
 
 ASL_WeaponBase* USL_PawnCombatComponent::GetCharacterCarriedWeaponByTag(FGameplayTag InWeaponTagToGet) const
