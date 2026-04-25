@@ -21,3 +21,8 @@ ASL_PlayerController* USL_PlayerGameplayAbility::GetPlayerControllerFromActorInf
 	
 	return CachedPlayerController.IsValid() ? CachedPlayerController.Get() : nullptr;
 }
+
+USL_PlayerCombatComponent* USL_PlayerGameplayAbility::GetPlayerCombatComponentFromActorInfo()
+{
+	return GetPlayerCharacterFromActorInfo()->GetPlayerCombatComponent();
+}
