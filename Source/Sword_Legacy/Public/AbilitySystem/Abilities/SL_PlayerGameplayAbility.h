@@ -4,6 +4,7 @@
 #include "AbilitySystem/Abilities/SL_GameplayAbility.h"
 #include "SL_PlayerGameplayAbility.generated.h"
 
+class ASL_PlayerController;
 class ASL_PlayerCharacter;
 
 UCLASS()
@@ -15,6 +16,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Player|Ability")
 	ASL_PlayerCharacter* GetPlayerCharacterFromActorInfo();
 	
+	UFUNCTION(BlueprintPure, Category = "Player|Ability")
+	ASL_PlayerController* GetPlayerControllerFromActorInfo();
+	
 private:
 	TWeakObjectPtr<ASL_PlayerCharacter> CachedPlayerCharacter;
+	TWeakObjectPtr<ASL_PlayerController> CachedPlayerController;
 };
