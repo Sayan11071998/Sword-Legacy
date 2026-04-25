@@ -4,6 +4,7 @@
 #include "Abilities/GameplayAbility.h"
 #include "SL_GameplayAbility.generated.h"
 
+class USL_AbilitySystemComponent;
 class USL_PawnCombatComponent;
 
 UENUM(BlueprintType)
@@ -26,6 +27,9 @@ protected:
 	
 	UFUNCTION(BlueprintPure, Category = "Pawn|Ability")
 	USL_PawnCombatComponent* GetPawnCombatComponentFromActorInfo() const;
+	
+	UFUNCTION(BlueprintPure, Category = "Pawn|Ability")
+	USL_AbilitySystemComponent* GetPawnAbilitySystemComponentFromActorInfo() const;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "CharacterAbility")
 	ESL_AbilityActivationPolicy AbilityActivationPolicy = ESL_AbilityActivationPolicy::OnTriggered;

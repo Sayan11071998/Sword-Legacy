@@ -34,3 +34,8 @@ USL_PawnCombatComponent* USL_GameplayAbility::GetPawnCombatComponentFromActorInf
 {
 	return GetAvatarActorFromActorInfo()->FindComponentByClass<USL_PawnCombatComponent>();
 }
+
+USL_AbilitySystemComponent* USL_GameplayAbility::GetPawnAbilitySystemComponentFromActorInfo() const
+{
+	return Cast<USL_AbilitySystemComponent>(CurrentActorInfo->AbilitySystemComponent);
+}
