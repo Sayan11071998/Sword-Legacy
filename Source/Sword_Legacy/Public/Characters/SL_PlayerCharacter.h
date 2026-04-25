@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "Characters/SL_BaseCharacter.h"
 #include "SL_PlayerCharacter.generated.h"
 
@@ -56,6 +57,9 @@ private:
 	void Input_Look(const FInputActionValue& InputActionValue);
 	void Input_SprintStarted(const FInputActionValue& InputActionValue);
 	void Input_SprintCompleted(const FInputActionValue& InputActionValue);
+	
+	void Input_AbilityInputPressed(FGameplayTag InInputTag);
+	void Input_AbilityInputRelease(FGameplayTag InInputTag);
 	
 #pragma endregion
 	
