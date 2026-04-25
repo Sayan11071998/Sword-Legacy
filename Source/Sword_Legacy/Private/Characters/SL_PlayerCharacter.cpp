@@ -1,5 +1,6 @@
 #include "Characters/SL_PlayerCharacter.h"
 #include "EnhancedInputSubsystems.h"
+#include "AbilitySystem/SL_AbilitySystemComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
@@ -123,9 +124,10 @@ void ASL_PlayerCharacter::Input_SprintCompleted(const FInputActionValue& InputAc
 
 void ASL_PlayerCharacter::Input_AbilityInputPressed(FGameplayTag InInputTag)
 {
-	
+	CharacterAbilitySystemComponent->OnAbilityInputPressed(InInputTag);
 }
 
 void ASL_PlayerCharacter::Input_AbilityInputRelease(FGameplayTag InInputTag)
 {
+	CharacterAbilitySystemComponent->OnAbilityInputReleased(InInputTag);
 }

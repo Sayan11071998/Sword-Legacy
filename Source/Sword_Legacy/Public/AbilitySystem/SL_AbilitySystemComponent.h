@@ -10,5 +10,6 @@ class SWORD_LEGACY_API USL_AbilitySystemComponent : public UAbilitySystemCompone
 	GENERATED_BODY()
 	
 public:
-	
+	void OnAbilityInputPressed(const FGameplayTag& InInputTag);
+	void OnAbilityInputReleased(const FGameplayTag& InInputTag);
 };
