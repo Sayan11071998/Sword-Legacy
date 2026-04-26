@@ -3,6 +3,7 @@
 #include "GameplayTagContainer.h"
 #include "SL_PawnStructTypes.generated.h"
 
+class UInputMappingContext;
 class USL_GameplayAbility;
 class USL_PlayerLinkedAnimLayer;
 
@@ -27,4 +28,10 @@ struct FSL_PlayerWeaponData
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<USL_PlayerLinkedAnimLayer> WeaponAnimLayerToLink;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UInputMappingContext> WeaponInputMappingContext;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (TitleProperty = "InputTag"))
+	TArray<FSL_PlayerAbilitySet> DefaultWeaponAbilities;
 };
