@@ -16,4 +16,7 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Pawn|Ability", meta = (ApplyLevel = "1"))
 	void GrantPlayerWeaponAbilities(const TArray<FSL_PlayerAbilitySet>& InDefaultWeaponAbilities, int32 ApplyLevel, TArray<FGameplayAbilitySpecHandle>& OutGrantedAbilitySpecHandles);
+	
+	UFUNCTION(BlueprintCallable, Category = "Pawn|Ability")
+	void RemoveGrantedPlayerWeaponAbilities(UPARAM(ref) TArray<FGameplayAbilitySpecHandle>& InSpecHandlesToRemove);
 };

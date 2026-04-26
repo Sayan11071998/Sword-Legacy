@@ -91,6 +91,7 @@ void USL_GA_Player_EquipKatana::HandleEquipWeapon(ASL_PlayerWeapon* InWeapon)
 	{
 		TArray<FGameplayAbilitySpecHandle> OutHandles;
 		ASCToGive->GrantPlayerWeaponAbilities(WeaponData.DefaultWeaponAbilities, GetAbilityLevel(), OutHandles);
+		InWeapon->AssignGrantedAbilitySpecHandles(OutHandles);
 	}
 	
 	if (WeaponData.WeaponInputMappingContext)

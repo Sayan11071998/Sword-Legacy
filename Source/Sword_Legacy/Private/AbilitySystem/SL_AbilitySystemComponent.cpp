@@ -34,3 +34,19 @@ void USL_AbilitySystemComponent::GrantPlayerWeaponAbilities(
 		OutGrantedAbilitySpecHandles.AddUnique(GiveAbility(AbilitySpec));
 	}
 }
+
+void USL_AbilitySystemComponent::RemoveGrantedPlayerWeaponAbilities(
+	TArray<FGameplayAbilitySpecHandle>& InSpecHandlesToRemove)
+{
+	if (InSpecHandlesToRemove.IsEmpty()) return;
+	
+	for (const FGameplayAbilitySpecHandle& SpecHandle : InSpecHandlesToRemove)
+	{
+		if (SpecHandle.IsValid())
+		{
+			ClearAbility(SpecHandle);
+		}
+	}
+	
+	InSpecHandlesToRemove.Empty();
+}
