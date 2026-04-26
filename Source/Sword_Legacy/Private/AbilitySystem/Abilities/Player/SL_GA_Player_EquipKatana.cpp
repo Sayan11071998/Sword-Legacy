@@ -3,6 +3,8 @@
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Items/Weapons/SL_WeaponBase.h"
 #include "Components/Combat/SL_PlayerCombatComponent.h"
+#include "Items/Weapons/SL_PlayerWeapon.h"
+#include "AnimInstances/Player/SL_PlayerLinkedAnimLayer.h"
 
 void USL_GA_Player_EquipKatana::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
@@ -59,6 +61,17 @@ void USL_GA_Player_EquipKatana::OnEquipEventReceived(FGameplayEventData Payload)
 			true
 		);
 		Weapon->AttachToComponent(SkeletalMesh, AttachRules, EquipSocketName);
+		
+		if (ASL_PlayerWeapon* PlayerWeapon = Cast<ASL_PlayerWeapon>(Weapon))
+		{
+			if (PlayerWeapon->PlayerWeaponData.WeaponAnimLayerToLink)
+			{
+				if (UAnimInstance* AnimInstance = SkeletalMesh->GetAnimInstance())
+				{
+					AnimInstance->LinkAnimClassLayers(PlayerWeapon->PlayerWeaponData.WeaponAnimLayerToLink.Get());
+				}
+			}
+		}
 	}
 
 	CombatComponent->CurrentEquippedWeaponTag = WeaponTagToEquip;
