@@ -8,8 +8,8 @@ namespace SL_GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Sprint, "InputTag.Sprint");
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_EquipKatana, "InputTag.EquipKatana");
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_UnequipKatana, "InputTag.UnequipKatana");
-	UE_DEFINE_GAMEPLAY_TAG(InputTag_LightAttack, "InputTag.LightAttack");
-	UE_DEFINE_GAMEPLAY_TAG(InputTag_HeavyAttack, "InputTag.HeavyAttack");
+	UE_DEFINE_GAMEPLAY_TAG(InputTag_LightAttack_Katana, "InputTag.LightAttack.Katana");
+	UE_DEFINE_GAMEPLAY_TAG(InputTag_HeavyAttack_Katana, "InputTag.HeavyAttack.Katana");
 	
 	/** Player Tags **/
 	UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Equip_Katana, "Player.Ability.Equip.Katana");
