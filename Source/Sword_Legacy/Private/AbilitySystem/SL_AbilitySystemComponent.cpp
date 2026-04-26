@@ -18,7 +18,7 @@ void USL_AbilitySystemComponent::OnAbilityInputReleased(const FGameplayTag& InIn
 }
 
 void USL_AbilitySystemComponent::GrantPlayerWeaponAbilities(
-	const TArray<FSL_PlayerAbilitySet>& InDefaultWeaponAbilities, int32 ApplyLevel)
+	const TArray<FSL_PlayerAbilitySet>& InDefaultWeaponAbilities, int32 ApplyLevel, TArray<FGameplayAbilitySpecHandle>& OutGrantedAbilitySpecHandles)
 {
 	if (InDefaultWeaponAbilities.IsEmpty()) return;
 	
@@ -31,6 +31,6 @@ void USL_AbilitySystemComponent::GrantPlayerWeaponAbilities(
 		AbilitySpec.Level = ApplyLevel;
 		AbilitySpec.DynamicAbilityTags.AddTag(AbilitySet.InputTag);
 		
-		GiveAbility(AbilitySpec);
+		OutGrantedAbilitySpecHandles.AddUnique(GiveAbility(AbilitySpec));
 	}
 }
