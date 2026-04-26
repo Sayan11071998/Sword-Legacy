@@ -1,23 +1,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameplayTagContainer.h"
 #include "DataAssets/StartupData/SL_DataAsset_StartupData_Base.h"
 #include "SL_DataAsset_StartupData_Player.generated.h"
 
-USTRUCT(BlueprintType)
-struct FSL_PlayerAbilitySet
-{
-	GENERATED_BODY()
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (Categories = "InputTag"))
-	FGameplayTag InputTag;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<USL_GameplayAbility> AbilityToGrant;
-	
-	bool IsValid() const;
-};
+struct FSL_PlayerAbilitySet;
 
 UCLASS()
 class SWORD_LEGACY_API USL_DataAsset_StartupData_Player : public USL_DataAsset_StartupData_Base
