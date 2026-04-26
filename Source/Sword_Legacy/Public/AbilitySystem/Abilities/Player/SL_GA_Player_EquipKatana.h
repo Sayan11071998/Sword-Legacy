@@ -4,6 +4,8 @@
 #include "AbilitySystem/Abilities/SL_PlayerGameplayAbility.h"
 #include "SL_GA_Player_EquipKatana.generated.h"
 
+class ASL_PlayerWeapon;
+
 UCLASS()
 class SWORD_LEGACY_API USL_GA_Player_EquipKatana : public USL_PlayerGameplayAbility
 {
@@ -37,4 +39,6 @@ private:
 	
 	UFUNCTION()
 	void OnEquipEventReceived(FGameplayEventData Payload);
+
+	void HandleEquipWeapon(ASL_PlayerWeapon* InWeapon);
 };

@@ -1,10 +1,12 @@
 #include "AbilitySystem/Abilities/Player/SL_GA_Player_EquipKatana.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
-#include "Items/Weapons/SL_WeaponBase.h"
 #include "Components/Combat/SL_PlayerCombatComponent.h"
 #include "Items/Weapons/SL_PlayerWeapon.h"
 #include "AnimInstances/Player/SL_PlayerLinkedAnimLayer.h"
+#include "EnhancedInputSubsystems.h"
+#include "AbilitySystem/SL_AbilitySystemComponent.h"
+#include "Controllers/SL_PlayerController.h"
 
 void USL_GA_Player_EquipKatana::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
@@ -47,7 +49,7 @@ void USL_GA_Player_EquipKatana::OnEquipEventReceived(FGameplayEventData Payload)
 	USL_PlayerCombatComponent* CombatComponent = GetPlayerCombatComponentFromActorInfo();
 	if (!CombatComponent) return;
 
-	ASL_WeaponBase* Weapon = CombatComponent->GetCharacterCarriedWeaponByTag(WeaponTagToEquip);
+	ASL_PlayerWeapon* Weapon = CombatComponent->GetPlayerCarriedWeaponByTag(WeaponTagToEquip);
 	if (!Weapon) return;
 
 	Weapon->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
@@ -62,17 +64,46 @@ void USL_GA_Player_EquipKatana::OnEquipEventReceived(FGameplayEventData Payload)
 		);
 		Weapon->AttachToComponent(SkeletalMesh, AttachRules, EquipSocketName);
 		
-		if (ASL_PlayerWeapon* PlayerWeapon = Cast<ASL_PlayerWeapon>(Weapon))
+		HandleEquipWeapon(Weapon);
+	}
+
+	CombatComponent->CurrentEquippedWeaponTag = WeaponTagToEquip;
+}
+
+void USL_GA_Player_EquipKatana::HandleEquipWeapon(ASL_PlayerWeapon* InWeapon)
+{
+	if (!InWeapon) return;
+
+	const FSL_PlayerWeaponData& WeaponData = InWeapon->PlayerWeaponData;
+	
+	if (WeaponData.WeaponAnimLayerToLink)
+	{
+		if (USkeletalMeshComponent* SkeletalMesh = GetActorInfo().SkeletalMeshComponent.Get())
 		{
-			if (PlayerWeapon->PlayerWeaponData.WeaponAnimLayerToLink)
+			if (UAnimInstance* AnimInstance = SkeletalMesh->GetAnimInstance())
 			{
-				if (UAnimInstance* AnimInstance = SkeletalMesh->GetAnimInstance())
+				AnimInstance->LinkAnimClassLayers(WeaponData.WeaponAnimLayerToLink);
+			}
+		}
+	}
+	
+	if (USL_AbilitySystemComponent* ASCToGive = GetPawnAbilitySystemComponentFromActorInfo())
+	{
+		TArray<FGameplayAbilitySpecHandle> OutHandles;
+		ASCToGive->GrantPlayerWeaponAbilities(WeaponData.DefaultWeaponAbilities, GetAbilityLevel(), OutHandles);
+	}
+	
+	if (WeaponData.WeaponInputMappingContext)
+	{
+		if (ASL_PlayerController* PC = GetPlayerControllerFromActorInfo())
+		{
+			if (ULocalPlayer* LocalPlayer = PC->GetLocalPlayer())
+			{
+				if (UEnhancedInputLocalPlayerSubsystem* Subsystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
 				{
-					AnimInstance->LinkAnimClassLayers(PlayerWeapon->PlayerWeaponData.WeaponAnimLayerToLink.Get());
+					Subsystem->AddMappingContext(WeaponData.WeaponInputMappingContext, 1);
 				}
 			}
 		}
 	}
-
-	CombatComponent->CurrentEquippedWeaponTag = WeaponTagToEquip;
 }
