@@ -26,4 +26,10 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Spawn")
 	FName SocketNameToAttachTo;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Spawn")
+	FGameplayTag WeaponTagToRegister;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Spawn")
+	bool bRegisterAsEquippedWeapon = false;
 };

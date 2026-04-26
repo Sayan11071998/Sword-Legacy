@@ -1,5 +1,6 @@
 #include "AbilitySystem/Abilities/SL_GameplayAbility.h"
 #include "AbilitySystem/SL_AbilitySystemComponent.h"
+#include "Components/Combat/SL_PawnCombatComponent.h"
 
 void USL_GameplayAbility::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
@@ -27,4 +28,14 @@ void USL_GameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle,
 			ActorInfo->AbilitySystemComponent->ClearAbility(Handle);
 		}
 	}
+}
+
+USL_PawnCombatComponent* USL_GameplayAbility::GetPawnCombatComponentFromActorInfo() const
+{
+	return GetAvatarActorFromActorInfo()->FindComponentByClass<USL_PawnCombatComponent>();
+}
+
+USL_AbilitySystemComponent* USL_GameplayAbility::GetPawnAbilitySystemComponentFromActorInfo() const
+{
+	return Cast<USL_AbilitySystemComponent>(CurrentActorInfo->AbilitySystemComponent);
 }
