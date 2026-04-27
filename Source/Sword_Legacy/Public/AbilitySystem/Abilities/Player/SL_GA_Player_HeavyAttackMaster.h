@@ -11,4 +11,27 @@ class SWORD_LEGACY_API USL_GA_Player_HeavyAttackMaster : public USL_PlayerGamepl
 	
 public:
 	USL_GA_Player_HeavyAttackMaster();
+
+protected:
+	// ~ Begin UGameplayAbility Interface
+	virtual void ActivateAbility(
+		const FGameplayAbilitySpecHandle Handle,
+		const FGameplayAbilityActorInfo* ActorInfo,
+		const FGameplayAbilityActivationInfo ActivationInfo,
+		const FGameplayEventData* TriggerEventData
+	) override;
+	// ~ End UGameplayAbility Interface
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+	TMap<int32, TObjectPtr<UAnimMontage>> HeavyAttackMontagesMap;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+	float ComboResetTime;
+	
+private:
+	UFUNCTION()
+	void OnMontageCompleted();
+	
+	int32 CurrentHeavyAttackComboCount = 1;
+	float LastAttackTime = 0.f;
 };
