@@ -27,7 +27,7 @@ public:
 	static void AddGameplayToActorIfNone(AActor* InActor, FGameplayTag TagToAdd);
 	
 	UFUNCTION(BlueprintCallable, Category = "Pawn|Function Library")
-	static void RemoveGameplayFromActorIfFound(AActor* InActor, FGameplayTag TagToRemove);
+	static void RemoveGameplayTagFromActorIfFound(AActor* InActor, FGameplayTag TagToRemove);
 	
 	UFUNCTION(BlueprintCallable, Category = "Pawn|Function Library", meta = (DisplayName = "Does Actor Have Tag", ExpandEnumAsExecs = "OutConfirmType"))
 	static void BP_DoesActorHaveTag(AActor* InActor, FGameplayTag TagToCheck, ESL_ConfirmType& OutConfirmType);

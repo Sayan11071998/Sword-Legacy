@@ -24,7 +24,7 @@ void USL_FunctionLibrary::AddGameplayToActorIfNone(AActor* InActor, FGameplayTag
 	}
 }
 
-void USL_FunctionLibrary::RemoveGameplayFromActorIfFound(AActor* InActor, FGameplayTag TagToRemove)
+void USL_FunctionLibrary::RemoveGameplayTagFromActorIfFound(AActor* InActor, FGameplayTag TagToRemove)
 {
 	USL_AbilitySystemComponent* ASC = NativeGetASCFromActor(InActor);
 	
