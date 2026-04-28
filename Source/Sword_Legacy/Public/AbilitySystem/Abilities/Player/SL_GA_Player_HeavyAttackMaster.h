@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/Abilities/SL_PlayerGameplayAbility.h"
+#include "Utilities/SL_GameplayTags.h"
 #include "SL_GA_Player_HeavyAttackMaster.generated.h"
 
 UCLASS()
@@ -21,13 +22,13 @@ protected:
 		const FGameplayEventData* TriggerEventData
 	) override;
 	// ~ End UGameplayAbility Interface
-	
+
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	TMap<int32, TObjectPtr<UAnimMontage>> HeavyAttackMontagesMap;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	float ComboResetTime;
-	
+
 private:
 	UFUNCTION()
 	void OnMontageCompleted();
