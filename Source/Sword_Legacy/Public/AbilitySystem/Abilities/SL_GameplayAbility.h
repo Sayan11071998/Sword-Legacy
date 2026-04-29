@@ -4,6 +4,9 @@
 #include "Abilities/GameplayAbility.h"
 #include "SL_GameplayAbility.generated.h"
 
+class USL_AbilitySystemComponent;
+class USL_PawnCombatComponent;
+
 UENUM(BlueprintType)
 enum class ESL_AbilityActivationPolicy : uint8
 {
@@ -21,6 +24,12 @@ protected:
 	virtual void OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 	// ~ End UGameplayAbility Interface
+	
+	UFUNCTION(BlueprintPure, Category = "Pawn|Ability")
+	USL_PawnCombatComponent* GetPawnCombatComponentFromActorInfo() const;
+	
+	UFUNCTION(BlueprintPure, Category = "Pawn|Ability")
+	USL_AbilitySystemComponent* GetPawnAbilitySystemComponentFromActorInfo() const;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "CharacterAbility")
 	ESL_AbilityActivationPolicy AbilityActivationPolicy = ESL_AbilityActivationPolicy::OnTriggered;

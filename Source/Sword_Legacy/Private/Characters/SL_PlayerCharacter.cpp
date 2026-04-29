@@ -1,8 +1,10 @@
 #include "Characters/SL_PlayerCharacter.h"
 #include "EnhancedInputSubsystems.h"
+#include "AbilitySystem/SL_AbilitySystemComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Components/Combat/SL_PlayerCombatComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/Input/SL_EnhancedInputComponent.h"
 #include "DataAssets/Input/SL_DataAsset_InputConfig.h"
@@ -31,6 +33,8 @@ ASL_PlayerCharacter::ASL_PlayerCharacter()
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 500.f, 0.f);
 	GetCharacterMovement()->MaxWalkSpeed = MaxWalkSpeed;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
+	
+	PlayerCombatComponent = CreateDefaultSubobject<USL_PlayerCombatComponent>(TEXT("PlayerCombatComponent"));
 }
 
 void ASL_PlayerCharacter::BeginPlay()
@@ -55,6 +59,8 @@ void ASL_PlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 
 	EnhancedInputComponent->BindNativeInputAction(InputConfigDataAsset, SL_GameplayTags::InputTag_Sprint, ETriggerEvent::Triggered, this, &ASL_PlayerCharacter::Input_SprintStarted);
 	EnhancedInputComponent->BindNativeInputAction(InputConfigDataAsset, SL_GameplayTags::InputTag_Sprint, ETriggerEvent::Completed, this, &ASL_PlayerCharacter::Input_SprintCompleted);
+
+	EnhancedInputComponent->BindAbilityInputAction(InputConfigDataAsset, this, &ASL_PlayerCharacter::Input_AbilityInputPressed, &ASL_PlayerCharacter::Input_AbilityInputRelease);
 }
 
 void ASL_PlayerCharacter::PossessedBy(AController* NewController)
@@ -114,4 +120,14 @@ void ASL_PlayerCharacter::Input_SprintStarted(const FInputActionValue& InputActi
 void ASL_PlayerCharacter::Input_SprintCompleted(const FInputActionValue& InputActionValue)
 {
 	GetCharacterMovement()->MaxWalkSpeed = MaxWalkSpeed;
+}
+
+void ASL_PlayerCharacter::Input_AbilityInputPressed(FGameplayTag InInputTag)
+{
+	CharacterAbilitySystemComponent->OnAbilityInputPressed(InInputTag);
+}
+
+void ASL_PlayerCharacter::Input_AbilityInputRelease(FGameplayTag InInputTag)
+{
+	CharacterAbilitySystemComponent->OnAbilityInputReleased(InInputTag);
 }
