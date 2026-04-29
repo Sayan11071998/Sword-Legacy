@@ -4,8 +4,8 @@
 #include "SL_PawnStructTypes.generated.h"
 
 class UInputMappingContext;
-class USL_GameplayAbility;
 class USL_PlayerLinkedAnimLayer;
+class USL_PlayerGameplayAbility;
 
 USTRUCT(BlueprintType)
 struct FSL_PlayerAbilitySet
@@ -16,7 +16,7 @@ struct FSL_PlayerAbilitySet
 	FGameplayTag InputTag;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<USL_GameplayAbility> AbilityToGrant;
+	TSubclassOf<USL_PlayerGameplayAbility> AbilityToGrant;
 	
 	bool IsValid() const;
 };
