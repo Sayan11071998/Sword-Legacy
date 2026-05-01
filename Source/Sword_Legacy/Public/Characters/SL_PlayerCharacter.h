@@ -19,10 +19,10 @@ class SWORD_LEGACY_API ASL_PlayerCharacter : public ASL_BaseCharacter
 public:
 	ASL_PlayerCharacter();
 	
-	// ~ Begin ACharacter interface
+	// ~ Begin ACharacter Interface
 	virtual void BeginPlay() override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
-	// ~ End ACharacter interface
+	// ~ End ACharacter Interface
 	
 	// ~ Begin APawn Interface
 	virtual void PossessedBy(AController* NewController) override;

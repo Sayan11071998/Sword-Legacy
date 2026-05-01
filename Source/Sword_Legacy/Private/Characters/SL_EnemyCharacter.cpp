@@ -2,6 +2,10 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/Combat/SL_EnemyCombatComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Engine/AssetManager.h"
+#include "DataAssets/StartupData/SL_DataAsset_StartupData_Enemy.h"
+
+#include "SL_DebugHelper.h"
 
 ASL_EnemyCharacter::ASL_EnemyCharacter()
 {
@@ -28,4 +32,31 @@ void ASL_EnemyCharacter::BeginPlay()
 	Super::BeginPlay();
 	
 	GetMesh()->HideBoneByName(FName(TEXT("weapon_l")), PBO_Term);
+}
+
+void ASL_EnemyCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	
+	InitEnemyStartupData();
+}
+
+void ASL_EnemyCharacter::InitEnemyStartupData()
+{
+	if (CharacterStartupData.IsNull()) return;
+	
+	UAssetManager::GetStreamableManager().RequestAsyncLoad(
+		CharacterStartupData.ToSoftObjectPath(),
+		FStreamableDelegate::CreateLambda(
+			[this]()
+			{
+				if (USL_DataAsset_StartupData_Base* LoadedData = CharacterStartupData.Get())
+				{
+					LoadedData->GiveToAbilitySystemComponent(CharacterAbilitySystemComponent);
+					
+					Debug::Print(TEXT("Enemy Startup Data Loaded"), FColor::Green);
+				}
+			}
+		)
+	);
 }
