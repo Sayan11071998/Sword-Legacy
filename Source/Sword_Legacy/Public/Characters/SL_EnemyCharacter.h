@@ -13,6 +13,7 @@ class SWORD_LEGACY_API ASL_EnemyCharacter : public ASL_BaseCharacter
 	
 public:
 	ASL_EnemyCharacter();
+	virtual void BeginPlay() override;
 	
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")

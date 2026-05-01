@@ -18,3 +18,10 @@ ASL_EnemyCharacter::ASL_EnemyCharacter()
 	
 	EnemyCombatComponent = CreateDefaultSubobject<USL_EnemyCombatComponent>(TEXT("EnemyCombatComponent"));
 }
+
+void ASL_EnemyCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	GetMesh()->HideBoneByName(FName(TEXT("weapon_l")), PBO_Term);
+}
