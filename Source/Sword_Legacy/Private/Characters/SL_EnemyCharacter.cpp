@@ -5,8 +5,6 @@
 #include "Engine/AssetManager.h"
 #include "DataAssets/StartupData/SL_DataAsset_StartupData_Enemy.h"
 
-#include "SL_DebugHelper.h"
-
 ASL_EnemyCharacter::ASL_EnemyCharacter()
 {
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
@@ -53,8 +51,6 @@ void ASL_EnemyCharacter::InitEnemyStartupData()
 				if (USL_DataAsset_StartupData_Base* LoadedData = CharacterStartupData.Get())
 				{
 					LoadedData->GiveToAbilitySystemComponent(CharacterAbilitySystemComponent);
-					
-					Debug::Print(TEXT("Enemy Startup Data Loaded"), FColor::Green);
 				}
 			}
 		)
