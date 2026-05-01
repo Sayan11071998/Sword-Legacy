@@ -2,12 +2,12 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/Abilities/SL_GameplayAbility.h"
-#include "SL_GA_Shared_SpawnWeapon.generated.h"
+#include "SL_GA_Shared_SpawnWeapon_Base.generated.h"
 
 class ASL_WeaponBase;
 
 UCLASS()
-class SWORD_LEGACY_API USL_GA_Shared_SpawnWeapon : public USL_GameplayAbility
+class SWORD_LEGACY_API USL_GA_Shared_SpawnWeapon_Base : public USL_GameplayAbility
 {
 	GENERATED_BODY()
 	
