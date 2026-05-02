@@ -28,6 +28,10 @@ public:
 	virtual void PossessedBy(AController* NewController) override;
 	// ~ End APawn Interface
 	
+	// ~ Begin ISL_PawnCombatInterface Interface
+	virtual TObjectPtr<USL_PawnCombatComponent> GetPawnCombatComponent() const override;
+	// ~ End ISL_PawnCombatInterface Interface
+	
 private:
 #pragma region Components
 	

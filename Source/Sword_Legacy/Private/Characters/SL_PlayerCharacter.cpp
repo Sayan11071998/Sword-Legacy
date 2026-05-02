@@ -76,6 +76,11 @@ void ASL_PlayerCharacter::PossessedBy(AController* NewController)
 	}
 }
 
+TObjectPtr<USL_PawnCombatComponent> ASL_PlayerCharacter::GetPawnCombatComponent() const
+{
+	return PlayerCombatComponent;
+}
+
 void ASL_PlayerCharacter::Input_Move(const FInputActionValue& InputActionValue)
 {
 	const FVector2D MovementVector = InputActionValue.Get<FVector2D>();

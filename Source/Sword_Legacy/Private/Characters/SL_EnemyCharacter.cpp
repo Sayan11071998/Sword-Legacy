@@ -39,6 +39,11 @@ void ASL_EnemyCharacter::PossessedBy(AController* NewController)
 	InitEnemyStartupData();
 }
 
+TObjectPtr<USL_PawnCombatComponent> ASL_EnemyCharacter::GetPawnCombatComponent() const
+{
+	return EnemyCombatComponent;
+}
+
 void ASL_EnemyCharacter::InitEnemyStartupData()
 {
 	if (CharacterStartupData.IsNull()) return;
