@@ -6,6 +6,8 @@
 
 class UBoxComponent;
 
+DECLARE_DELEGATE_OneParam(FOnTargetInteractedDelegate, AActor*)
+
 UCLASS()
 class SWORD_LEGACY_API ASL_WeaponBase : public AActor
 {
@@ -13,6 +15,9 @@ class SWORD_LEGACY_API ASL_WeaponBase : public AActor
 	
 public:	
 	ASL_WeaponBase();
+	
+	FOnTargetInteractedDelegate OnWeaponHitTarget;
+	FOnTargetInteractedDelegate OnWeaponPulledFromTarget;
 	
 protected:
 	UFUNCTION()

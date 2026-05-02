@@ -15,6 +15,9 @@ class SWORD_LEGACY_API USL_PawnCombatComponent : public USL_PawnExtensionCompone
 	GENERATED_BODY()
 	
 public:
+	virtual void OnHitTargetActor(AActor* HitActor);
+	virtual void OnWeaponPulledFromTargetActor(AActor* InteractedActor);
+	
 	UFUNCTION(BlueprintCallable, Category = "Pawn|Combat")
 	void RegisterSpawnedWeapon(FGameplayTag InWeaponTagToRegister, ASL_WeaponBase* InWeaponToRegister, bool bRegisterAsEquippedWeapon = false);
 	

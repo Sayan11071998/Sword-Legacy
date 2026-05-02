@@ -10,6 +10,9 @@ void USL_PawnCombatComponent::RegisterSpawnedWeapon(FGameplayTag InWeaponTagToRe
 	
 	CharacterCarriedWeaponMap.Emplace(InWeaponTagToRegister, InWeaponToRegister);
 	
+	InWeaponToRegister->OnWeaponHitTarget.BindUObject(this, &USL_PawnCombatComponent::OnHitTargetActor);
+	InWeaponToRegister->OnWeaponPulledFromTarget.BindUObject(this, &USL_PawnCombatComponent::OnWeaponPulledFromTargetActor);
+	
 	if (bRegisterAsEquippedWeapon)
 	{
 		CurrentEquippedWeaponTag = InWeaponTagToRegister;
@@ -53,3 +56,6 @@ void USL_PawnCombatComponent::ToggleWeaponCollision(bool bShouldEnable, ESL_Togg
 		}
 	}
 }
+
+void USL_PawnCombatComponent::OnHitTargetActor(AActor* HitActor) { }
+void USL_PawnCombatComponent::OnWeaponPulledFromTargetActor(AActor* InteractedActor) { }
