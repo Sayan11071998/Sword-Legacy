@@ -16,3 +16,11 @@ enum class ESL_ValidType : uint8
 	Valid,
 	Invalid
 };
+
+UENUM(BlueprintType)
+enum class ESL_ToggleDamageType : uint8
+{
+	CurrentEquippedWeapon,
+	LeftHand,
+	RightHand
+};
