@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotifyState.h"
+#include "PawnTypes/SL_PawnEnumTypes.h"
 #include "SL_ANS_ToggleWeaponCollision.generated.h"
 
 UCLASS()
@@ -24,4 +25,8 @@ public:
 		const FAnimNotifyEventReference& EventReference	
 	) override;
 	// ~ End UAnimNotifyState Interface
+	
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Anim Notify")
+	ESL_ToggleDamageType ToggleDamageType;
 };
