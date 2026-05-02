@@ -5,7 +5,9 @@
 
 void USL_PlayerCombatComponent::OnHitTargetActor(AActor* HitActor)
 {
-	Debug::Print(GetOwningPawn()->GetActorNameOrLabel() + TEXT(" hit ") + HitActor->GetActorNameOrLabel(), FColor::Green);
+	if (OverlappedActors.Contains(HitActor)) return;
+	
+	OverlappedActors.AddUnique(HitActor);
 }
 
 void USL_PlayerCombatComponent::OnWeaponPulledFromTargetActor(AActor* InteractedActor)

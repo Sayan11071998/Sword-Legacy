@@ -33,6 +33,9 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Pawn|Combat")
 	FGameplayTag CurrentEquippedWeaponTag;
 	
+protected:
+	TArray<TObjectPtr<AActor>> OverlappedActors;
+	
 private:
 	UPROPERTY()
 	TMap<FGameplayTag, ASL_WeaponBase*> CharacterCarriedWeaponMap;

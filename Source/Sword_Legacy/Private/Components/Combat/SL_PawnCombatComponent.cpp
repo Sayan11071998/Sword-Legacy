@@ -53,6 +53,7 @@ void USL_PawnCombatComponent::ToggleWeaponCollision(bool bShouldEnable, ESL_Togg
 		else
 		{
 			WeaponToToggle->GetWeaponCollisionBox()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			OverlappedActors.Empty();
 		}
 	}
 }
