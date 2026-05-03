@@ -31,4 +31,6 @@ namespace SL_GameplayTags
 	
 	/** Shared Tags **/
 	SWORD_LEGACY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_Event_MeleeHit);
+	
+	SWORD_LEGACY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_SetByCaller_BaseDamage);
 }

@@ -1,6 +1,8 @@
 #include "AbilitySystem/Abilities/SL_PlayerGameplayAbility.h"
 #include "Characters/SL_PlayerCharacter.h"
 #include "Controllers/SL_PlayerController.h"
+#include "AbilitySystem/SL_AbilitySystemComponent.h"
+#include "Utilities/SL_GameplayTags.h"
 
 ASL_PlayerCharacter* USL_PlayerGameplayAbility::GetPlayerCharacterFromActorInfo()
 {
@@ -25,4 +27,31 @@ ASL_PlayerController* USL_PlayerGameplayAbility::GetPlayerControllerFromActorInf
 USL_PlayerCombatComponent* USL_PlayerGameplayAbility::GetPlayerCombatComponentFromActorInfo()
 {
 	return GetPlayerCharacterFromActorInfo()->GetPlayerCombatComponent();
+}
+
+FGameplayEffectSpecHandle USL_PlayerGameplayAbility::MakePlayerDamageEffectSpecHandle(
+	TSubclassOf<UGameplayEffect> EffectClass, float InWeaponBaseDamage, FGameplayTag InCurrentAttackTypeTag,
+	int32 InCurrentComboCount)
+{
+	check(EffectClass);
+	
+	FGameplayEffectContextHandle ContextHandle = GetPawnAbilitySystemComponentFromActorInfo()->MakeEffectContext();
+	ContextHandle.SetAbility(this);
+	ContextHandle.AddSourceObject(GetAvatarActorFromActorInfo());
+	ContextHandle.AddInstigator(GetAvatarActorFromActorInfo(), GetAvatarActorFromActorInfo());
+	
+	FGameplayEffectSpecHandle EffectSpecHandle = GetPawnAbilitySystemComponentFromActorInfo()->MakeOutgoingSpec(
+		EffectClass,
+		GetAbilityLevel(),
+		ContextHandle
+	);
+	
+	EffectSpecHandle.Data->SetSetByCallerMagnitude(SL_GameplayTags::Shared_SetByCaller_BaseDamage, InWeaponBaseDamage);
+	
+	if (InCurrentAttackTypeTag.IsValid())
+	{
+		EffectSpecHandle.Data->SetSetByCallerMagnitude(InCurrentAttackTypeTag, InCurrentComboCount);
+	}
+	
+	return EffectSpecHandle;
 }

@@ -23,6 +23,14 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Player|Ability")
 	USL_PlayerCombatComponent* GetPlayerCombatComponentFromActorInfo();
 	
+	UFUNCTION(BlueprintPure, Category = "Player|Ability")
+	FGameplayEffectSpecHandle MakePlayerDamageEffectSpecHandle(
+		TSubclassOf<UGameplayEffect> EffectClass,
+		float InWeaponBaseDamage,
+		FGameplayTag InCurrentAttackTypeTag,
+		int32 InCurrentComboCount	
+	);
+	
 private:
 	TWeakObjectPtr<ASL_PlayerCharacter> CachedPlayerCharacter;
 	TWeakObjectPtr<ASL_PlayerController> CachedPlayerController;
