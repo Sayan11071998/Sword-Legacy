@@ -8,7 +8,7 @@ USL_ANS_ToggleWeaponCollision::USL_ANS_ToggleWeaponCollision()
 }
 
 void USL_ANS_ToggleWeaponCollision::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
-                                                float TotalDuration, const FAnimNotifyEventReference& EventReference)
+	float TotalDuration, const FAnimNotifyEventReference& EventReference)
 {
 	Super::NotifyBegin(MeshComp, Animation, TotalDuration, EventReference);
 	
