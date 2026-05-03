@@ -24,3 +24,10 @@ enum class ESL_ToggleDamageType : uint8
 	LeftHand,
 	RightHand
 };
+
+UENUM()
+enum class ESL_SuccessType : uint8
+{
+	Successful,
+	Failed
+};
