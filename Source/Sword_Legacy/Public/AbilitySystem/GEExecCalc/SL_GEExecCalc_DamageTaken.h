@@ -11,4 +11,8 @@ class SWORD_LEGACY_API USL_GEExecCalc_DamageTaken : public UGameplayEffectExecut
 	
 public:
 	USL_GEExecCalc_DamageTaken();
+	
+	// ~ Begin UGameplayEffectExecutionCalculation Interface
+	virtual void Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const override;
+	// ~ End UGameplayEffectExecutionCalculation Interface
 };
