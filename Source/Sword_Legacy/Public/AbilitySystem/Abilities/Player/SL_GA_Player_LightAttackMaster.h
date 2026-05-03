@@ -24,14 +24,21 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	TMap<int32, TObjectPtr<UAnimMontage>> LightAttackMontagesMap;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+	TSubclassOf<UGameplayEffect> DamageEffectClass;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	float ComboResetTime;
 	
 private:
 	UFUNCTION()
+	void OnMeleeHitEventReceived(FGameplayEventData Payload);
+	
+	UFUNCTION()
 	void OnMontageCompleted();
 	
 	int32 CurrentLightAttackComboCount = 1;
+	int32 UsedComboCount = 1;
 	float LastAttackTime = 0.f;
 };
