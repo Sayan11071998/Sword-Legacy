@@ -8,4 +8,7 @@ UCLASS()
 class SWORD_LEGACY_API USL_GEExecCalc_DamageTaken : public UGameplayEffectExecutionCalculation
 {
 	GENERATED_BODY()
+	
+public:
+	USL_GEExecCalc_DamageTaken();
 };
