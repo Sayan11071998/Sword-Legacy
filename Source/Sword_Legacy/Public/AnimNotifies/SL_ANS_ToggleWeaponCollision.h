@@ -11,6 +11,8 @@ class SWORD_LEGACY_API USL_ANS_ToggleWeaponCollision : public UAnimNotifyState
 	GENERATED_BODY()
 	
 public:
+	USL_ANS_ToggleWeaponCollision();
+	
 	// ~ Begin UAnimNotifyState Interface
 	virtual void NotifyBegin(
 		USkeletalMeshComponent* MeshComp,
