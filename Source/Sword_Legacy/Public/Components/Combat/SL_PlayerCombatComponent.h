@@ -19,4 +19,10 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Pawn|Combat")
 	ASL_PlayerWeapon* GetPlayerCarriedWeaponByTag(FGameplayTag InWeaponTag) const;
+	
+	UFUNCTION(BlueprintCallable, Category = "Pawn|Combat")
+	ASL_PlayerWeapon* GetPlayerCurrentEquippedWeapon() const;
+	
+	UFUNCTION(BlueprintCallable, Category = "Pawn|Combat")
+	float GetPlayerCurrentEquppedWeaponDamageAtLevel(float InLevel) const;
 };

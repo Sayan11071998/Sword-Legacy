@@ -20,11 +20,19 @@ void USL_PlayerCombatComponent::OnHitTargetActor(AActor* HitActor)
 	);
 }
 
-void USL_PlayerCombatComponent::OnWeaponPulledFromTargetActor(AActor* InteractedActor)
-{
-}
+void USL_PlayerCombatComponent::OnWeaponPulledFromTargetActor(AActor* InteractedActor) { }
 
 ASL_PlayerWeapon* USL_PlayerCombatComponent::GetPlayerCarriedWeaponByTag(FGameplayTag InWeaponTag) const
 {
 	return Cast<ASL_PlayerWeapon>(GetCharacterCarriedWeaponByTag(InWeaponTag));
+}
+
+ASL_PlayerWeapon* USL_PlayerCombatComponent::GetPlayerCurrentEquippedWeapon() const
+{
+	return Cast<ASL_PlayerWeapon>(GetCharacterCurrentEquippedWeapon());
+}
+
+float USL_PlayerCombatComponent::GetPlayerCurrentEquppedWeaponDamageAtLevel(float InLevel) const
+{
+	return GetPlayerCurrentEquippedWeapon()->PlayerWeaponData.WeaponBaseDamage.GetValueAtLevel(InLevel);
 }

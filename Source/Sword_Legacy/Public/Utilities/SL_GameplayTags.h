@@ -26,6 +26,9 @@ namespace SL_GameplayTags
 	
 	SWORD_LEGACY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player_Status_JumpToFinisher);
 	
+	SWORD_LEGACY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player_SetByCaller_AttackType_Light);
+	SWORD_LEGACY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player_SetByCaller_AttackType_Heavy);
+	
 	/** Enemy Tags **/
 	SWORD_LEGACY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Enemy_Weapon);
 	

@@ -31,7 +31,7 @@ USL_PlayerCombatComponent* USL_PlayerGameplayAbility::GetPlayerCombatComponentFr
 
 FGameplayEffectSpecHandle USL_PlayerGameplayAbility::MakePlayerDamageEffectSpecHandle(
 	TSubclassOf<UGameplayEffect> EffectClass, float InWeaponBaseDamage, FGameplayTag InCurrentAttackTypeTag,
-	int32 InCurrentComboCount)
+	int32 InUsedComboCount)
 {
 	check(EffectClass);
 	
@@ -50,7 +50,7 @@ FGameplayEffectSpecHandle USL_PlayerGameplayAbility::MakePlayerDamageEffectSpecH
 	
 	if (InCurrentAttackTypeTag.IsValid())
 	{
-		EffectSpecHandle.Data->SetSetByCallerMagnitude(InCurrentAttackTypeTag, InCurrentComboCount);
+		EffectSpecHandle.Data->SetSetByCallerMagnitude(InCurrentAttackTypeTag, InUsedComboCount);
 	}
 	
 	return EffectSpecHandle;
