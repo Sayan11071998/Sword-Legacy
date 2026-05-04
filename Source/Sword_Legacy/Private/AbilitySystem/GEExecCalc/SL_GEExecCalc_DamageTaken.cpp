@@ -48,7 +48,7 @@ void USL_GEExecCalc_DamageTaken::Execute_Implementation(const FGameplayEffectCus
 		SourceAttackPower
 	);
 	
-	Debug::Print(TEXT("SourceAttackPower: "), SourceAttackPower);
+	// Debug::Print(TEXT("SourceAttackPower: "), SourceAttackPower);
 	
 	float BaseDamage = 0.f;
 	int32 UsedLightAttackComboCount = 0;
@@ -59,19 +59,19 @@ void USL_GEExecCalc_DamageTaken::Execute_Implementation(const FGameplayEffectCus
 		if (TagMagnitude.Key.MatchesTagExact(SL_GameplayTags::Shared_SetByCaller_BaseDamage))
 		{
 			BaseDamage = TagMagnitude.Value;
-			Debug::Print(TEXT("BaseDamage: "), BaseDamage);
+			// Debug::Print(TEXT("BaseDamage: "), BaseDamage);
 		}
 		
 		if (TagMagnitude.Key.MatchesTagExact(SL_GameplayTags::Player_SetByCaller_AttackType_Light))
 		{
 			UsedLightAttackComboCount = TagMagnitude.Value;
-			Debug::Print(TEXT("UsedLightAttackComboCount: "), UsedLightAttackComboCount);
+			// Debug::Print(TEXT("UsedLightAttackComboCount: "), UsedLightAttackComboCount);
 		}
 		
 		if (TagMagnitude.Key.MatchesTagExact(SL_GameplayTags::Player_SetByCaller_AttackType_Heavy))
 		{
 			UsedHeavyAttackComboCount = TagMagnitude.Value;
-			Debug::Print(TEXT("UsedHeavyAttackComboCount: "), UsedHeavyAttackComboCount);
+			// Debug::Print(TEXT("UsedHeavyAttackComboCount: "), UsedHeavyAttackComboCount);
 		}
 	}
 	
@@ -81,14 +81,14 @@ void USL_GEExecCalc_DamageTaken::Execute_Implementation(const FGameplayEffectCus
 		EvaluateParameters,
 		TargetDefensePower
 	);
-	Debug::Print(TEXT("TargetDefensePower: "), TargetDefensePower);
+	// Debug::Print(TEXT("TargetDefensePower: "), TargetDefensePower);
 	
 	if (UsedLightAttackComboCount != 0)
 	{
 		// Increasing Damage value 5% per combo count
 		const float DamageIncreasePercentLight = (UsedLightAttackComboCount - 1) * 0.05f + 1.f;
 		BaseDamage *= DamageIncreasePercentLight;
-		Debug::Print(TEXT("Scaled Base Damage Light: "), BaseDamage);
+		// Debug::Print(TEXT("Scaled Base Damage Light: "), BaseDamage);
 	}
 	
 	if (UsedHeavyAttackComboCount != 0)
@@ -96,7 +96,7 @@ void USL_GEExecCalc_DamageTaken::Execute_Implementation(const FGameplayEffectCus
 		// Increasing Damage value 15% per combo count
 		const float DamageIncreasePercentHeavy = UsedHeavyAttackComboCount * 0.15 + 1.f;
 		BaseDamage *= DamageIncreasePercentHeavy;
-		Debug::Print(TEXT("Scaled Base Damage Heavy: "), BaseDamage);
+		// Debug::Print(TEXT("Scaled Base Damage Heavy: "), BaseDamage);
 	}
 	
 	const float FinalDamageDone = BaseDamage * SourceAttackPower / TargetDefensePower;

@@ -19,6 +19,10 @@ class SWORD_LEGACY_API USL_AttributeSet : public UAttributeSet
 public:
 	USL_AttributeSet();
 	
+	// ~ Begin UAttributeSet Interface
+	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData &Data) override;
+	// ~ End UAttributeSet Interface
+	
 	UPROPERTY(BlueprintReadOnly, Category = "Health")
 	FGameplayAttributeData CurrentHealth;
 	ATTRIBUTE_ACCESSORS(USL_AttributeSet, CurrentHealth)

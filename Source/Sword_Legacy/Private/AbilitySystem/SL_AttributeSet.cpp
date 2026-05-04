@@ -1,4 +1,7 @@
 #include "AbilitySystem/SL_AttributeSet.h"
+#include "GameplayEffectExtension.h"
+
+#include "SL_DebugHelper.h"
 
 USL_AttributeSet::USL_AttributeSet()
 {
@@ -8,4 +11,41 @@ USL_AttributeSet::USL_AttributeSet()
 	InitMaxRage(1.f);
 	InitAttackPower(1.f);
 	InitDefensePower(1.f);
+}
+
+void USL_AttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data)
+{
+	if (Data.EvaluatedData.Attribute == GetCurrentHealthAttribute())
+	{
+		const float NewCurrentHealth = FMath::Clamp(GetCurrentHealth(), 0.f, GetMaxHealth());
+		SetCurrentHealth(NewCurrentHealth);
+	}
+	
+	if (Data.EvaluatedData.Attribute == GetCurrentRageAttribute())
+	{
+		const float NewCurrentRage = FMath::Clamp(GetCurrentRage(), 0.f, GetMaxRage());
+		SetCurrentRage(NewCurrentRage);
+	}
+	
+	if (Data.EvaluatedData.Attribute == GetDamageTakenAttribute())
+	{
+		const float OldHealth = GetCurrentHealth();
+		const float DamageDone = GetDamageTaken();
+		
+		const float NewCurrentHealth = FMath::Clamp(OldHealth - DamageDone, 0.f, GetMaxHealth());
+		SetCurrentHealth(NewCurrentHealth);
+		
+		const FString DebugString = FString::Printf(
+   TEXT("Old Health: %f, Damage Done: %f, New Current Health: %f"),
+   OldHealth,
+   DamageDone,
+   NewCurrentHealth
+);
+		Debug::Print(DebugString, FColor::Green);
+		
+		if (NewCurrentHealth == 0.f)
+		{
+			// TODO: Character Death
+		}
+	}
 }
