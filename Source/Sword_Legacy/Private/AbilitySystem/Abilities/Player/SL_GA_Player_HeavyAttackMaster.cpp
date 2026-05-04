@@ -1,5 +1,7 @@
 #include "AbilitySystem/Abilities/Player/SL_GA_Player_HeavyAttackMaster.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+#include "Components/Combat/SL_PlayerCombatComponent.h"
 #include "Utilities/SL_FunctionLibrary.h"
 #include "Utilities/SL_GameplayTags.h"
 
@@ -13,83 +15,110 @@ void USL_GA_Player_HeavyAttackMaster::ActivateAbility(const FGameplayAbilitySpec
     const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
     const FGameplayEventData* TriggerEventData)
 {
-    Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	
+	if (ComboCountResetTimerHandle.IsValid())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(ComboCountResetTimerHandle);
+	}
+	
+	AActor* AvatarActor = GetAvatarActorFromActorInfo();
+	const bool bJumpToFinisher = AvatarActor &&
+		USL_FunctionLibrary::NativeDoesActorHaveTag(AvatarActor, SL_GameplayTags::Player_Status_JumpToFinisher);
 
-    const float CurrentTime = GetWorld()->GetTimeSeconds();
-    
-    AActor* AvatarActor = GetAvatarActorFromActorInfo();
-    const bool bJumpToFinisher = AvatarActor && 
-        USL_FunctionLibrary::NativeDoesActorHaveTag(AvatarActor, SL_GameplayTags::Player_Status_JumpToFinisher);
+	if (bJumpToFinisher)
+	{
+		CurrentHeavyAttackComboCount = HeavyAttackMontagesMap.Num();
+	}
 
-    if (bJumpToFinisher)
-    {
-        USL_FunctionLibrary::RemoveGameplayTagFromActorIfFound(AvatarActor, SL_GameplayTags::Player_Status_JumpToFinisher);
-        
-        const int32 LastIndex = HeavyAttackMontagesMap.Num();
-        TObjectPtr<UAnimMontage>* FinisherMontage = HeavyAttackMontagesMap.Find(LastIndex);
+	UsedComboCount = CurrentHeavyAttackComboCount;
+	
+	TObjectPtr<UAnimMontage>* MontageToPlay = HeavyAttackMontagesMap.Find(CurrentHeavyAttackComboCount);
 
-        if (!FinisherMontage || !(*FinisherMontage))
-        {
-            EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-            return;
-        }
+	if (!MontageToPlay || !(*MontageToPlay))
+	{
+		CurrentHeavyAttackComboCount = 1;
+		MontageToPlay = HeavyAttackMontagesMap.Find(CurrentHeavyAttackComboCount);
 
-        UAbilityTask_PlayMontageAndWait* PlayMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-            this, NAME_None, *FinisherMontage, 1.0f
-        );
-        PlayMontageTask->OnCompleted.AddDynamic(this, &USL_GA_Player_HeavyAttackMaster::OnMontageCompleted);
-        PlayMontageTask->OnBlendOut.AddDynamic(this, &USL_GA_Player_HeavyAttackMaster::OnMontageCompleted);
-        PlayMontageTask->OnInterrupted.AddDynamic(this, &USL_GA_Player_HeavyAttackMaster::OnMontageCompleted);
-        PlayMontageTask->OnCancelled.AddDynamic(this, &USL_GA_Player_HeavyAttackMaster::OnMontageCompleted);
-        PlayMontageTask->ReadyForActivation();
-        
-        CurrentHeavyAttackComboCount = 1;
-        LastAttackTime = CurrentTime;
-        return;
-    }
+		if (!MontageToPlay || !(*MontageToPlay))
+		{
+			EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+			return;
+		}
+	}
 
-    if (CurrentTime - LastAttackTime > ComboResetTime)
-    {
-        CurrentHeavyAttackComboCount = 1;
-    }
+	UAbilityTask_WaitGameplayEvent* WaitMeleeHitTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+		this,
+		SL_GameplayTags::Shared_Event_MeleeHit,
+		nullptr,
+		false,
+		true
+	);
+	WaitMeleeHitTask->EventReceived.AddDynamic(this, &USL_GA_Player_HeavyAttackMaster::OnMeleeHitEventReceived);
+	WaitMeleeHitTask->ReadyForActivation();
+	
+	UAbilityTask_PlayMontageAndWait* PlayMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+		this, NAME_None, *MontageToPlay, 1.0f
+	);
+	PlayMontageTask->OnCompleted.AddDynamic(this, &USL_GA_Player_HeavyAttackMaster::OnMontageCompleted);
+	PlayMontageTask->OnBlendOut.AddDynamic(this, &USL_GA_Player_HeavyAttackMaster::OnMontageCompleted);
+	PlayMontageTask->OnInterrupted.AddDynamic(this, &USL_GA_Player_HeavyAttackMaster::OnMontageCompleted);
+	PlayMontageTask->OnCancelled.AddDynamic(this, &USL_GA_Player_HeavyAttackMaster::OnMontageCompleted);
+	PlayMontageTask->ReadyForActivation();
+	
+	const int32 TotalMontages = HeavyAttackMontagesMap.Num();
 
-    TObjectPtr<UAnimMontage>* MontageToPlay = HeavyAttackMontagesMap.Find(CurrentHeavyAttackComboCount);
+	if (CurrentHeavyAttackComboCount == TotalMontages)
+	{
+		ResetHeavyAttackComboCount();
+	}
+	else
+	{
+		CurrentHeavyAttackComboCount++;
+	}
+}
 
-    if (!MontageToPlay || !(*MontageToPlay))
-    {
-        CurrentHeavyAttackComboCount = 1;
-        MontageToPlay = HeavyAttackMontagesMap.Find(CurrentHeavyAttackComboCount);
+void USL_GA_Player_HeavyAttackMaster::OnMeleeHitEventReceived(FGameplayEventData Payload)
+{
+	USL_PlayerCombatComponent* CombatComponent = GetPlayerCombatComponentFromActorInfo();
+	if (!CombatComponent) return;
 
-        if (!MontageToPlay || !(*MontageToPlay))
-        {
-            EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-            return;
-        }
-    }
+	const float WeaponBaseDamage = CombatComponent->GetPlayerCurrentEquppedWeaponDamageAtLevel(static_cast<float>(GetAbilityLevel()));
 
-    UAbilityTask_PlayMontageAndWait* PlayMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-        this, NAME_None, *MontageToPlay, 1.0f
-    );
-    PlayMontageTask->OnCompleted.AddDynamic(this, &USL_GA_Player_HeavyAttackMaster::OnMontageCompleted);
-    PlayMontageTask->OnBlendOut.AddDynamic(this, &USL_GA_Player_HeavyAttackMaster::OnMontageCompleted);
-    PlayMontageTask->OnInterrupted.AddDynamic(this, &USL_GA_Player_HeavyAttackMaster::OnMontageCompleted);
-    PlayMontageTask->OnCancelled.AddDynamic(this, &USL_GA_Player_HeavyAttackMaster::OnMontageCompleted);
-    PlayMontageTask->ReadyForActivation();
+	const FGameplayEffectSpecHandle DamageSpecHandle = MakePlayerDamageEffectSpecHandle(
+		DamageEffectClass,
+		WeaponBaseDamage,
+		SL_GameplayTags::Player_SetByCaller_AttackType_Heavy,
+		UsedComboCount
+	);
 
-    if (CurrentHeavyAttackComboCount == HeavyAttackMontagesMap.Num())
-    {
-        CurrentHeavyAttackComboCount = 1;
-    }
-    else
-    {
-        CurrentHeavyAttackComboCount++;
-    }
+	AActor* TargetActor = const_cast<AActor*>(Payload.Target.Get());
+	if (TargetActor && DamageSpecHandle.IsValid())
+	{
+		NativeApplyEffectSpecHandleToTarget(TargetActor, DamageSpecHandle);
+	}
+}
 
-    LastAttackTime = CurrentTime;
+void USL_GA_Player_HeavyAttackMaster::ResetHeavyAttackComboCount()
+{
+	CurrentHeavyAttackComboCount = 1;
+
+	AActor* AvatarActor = GetAvatarActorFromActorInfo();
+	if (AvatarActor)
+	{
+		USL_FunctionLibrary::RemoveGameplayTagFromActorIfFound(AvatarActor, SL_GameplayTags::Player_Status_JumpToFinisher);
+	}
 }
 
 void USL_GA_Player_HeavyAttackMaster::OnMontageCompleted()
 {
-	LastAttackTime = GetWorld()->GetTimeSeconds();
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+	
+	GetWorld()->GetTimerManager().SetTimer(
+		ComboCountResetTimerHandle,
+		this,
+		&USL_GA_Player_HeavyAttackMaster::ResetHeavyAttackComboCount,
+		ComboResetTime,
+		false
+	);
 }
