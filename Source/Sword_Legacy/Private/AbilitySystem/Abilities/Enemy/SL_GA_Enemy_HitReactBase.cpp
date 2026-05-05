@@ -1,5 +1,7 @@
 #include "AbilitySystem/Abilities/Enemy/SL_GA_Enemy_HitReactBase.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Characters/SL_EnemyCharacter.h"
 
 USL_GA_Enemy_HitReactBase::USL_GA_Enemy_HitReactBase()
 {
@@ -11,6 +13,19 @@ void USL_GA_Enemy_HitReactBase::ActivateAbility(const FGameplayAbilitySpecHandle
 	const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	
+	if (bFaceAttacker && TriggerEventData && TriggerEventData->Instigator)
+	{
+		if (ASL_EnemyCharacter* EnemyCharacter = GetEnemyCharacterFromActorInfo())
+		{
+			const FRotator LookAtRot = UKismetMathLibrary::FindLookAtRotation(
+				EnemyCharacter->GetActorLocation(), 
+				TriggerEventData->Instigator->GetActorLocation()
+			);
+			const FRotator NewRot = FRotator(0.f, LookAtRot.Yaw, 0.f);
+			EnemyCharacter->SetActorRotation(NewRot);
+		}
+	}
 	
 	if (!MontagesToPlay.IsEmpty())
 	{
@@ -28,8 +43,8 @@ void USL_GA_Enemy_HitReactBase::ActivateAbility(const FGameplayAbilitySpecHandle
 			PlayMontageTask->OnBlendOut.AddDynamic(this, &USL_GA_Enemy_HitReactBase::OnHitReactFinished);
 			PlayMontageTask->OnInterrupted.AddDynamic(this, &USL_GA_Enemy_HitReactBase::OnHitReactFinished);
 			PlayMontageTask->OnCancelled.AddDynamic(this, &USL_GA_Enemy_HitReactBase::OnHitReactFinished);
-			
 			PlayMontageTask->ReadyForActivation();
+			
 			return;
 		}
 		

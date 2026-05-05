@@ -25,6 +25,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Hit React")
 	TArray<TObjectPtr<UAnimMontage>> MontagesToPlay;
 	
+	UPROPERTY(EditDefaultsOnly, Category = "Hit React")
+	bool bFaceAttacker = true;
+	
 private:
 	UFUNCTION()
 	void OnHitReactFinished();

@@ -4,6 +4,7 @@
 #include "Components/Combat/SL_PlayerCombatComponent.h"
 #include "Utilities/SL_FunctionLibrary.h"
 #include "Utilities/SL_GameplayTags.h"
+#include "AbilitySystemBlueprintLibrary.h"
 
 USL_GA_Player_LightAttackMaster::USL_GA_Player_LightAttackMaster()
 {
@@ -101,6 +102,12 @@ void USL_GA_Player_LightAttackMaster::OnMeleeHitEventReceived(FGameplayEventData
 	if (TargetActor && DamageSpecHandle.IsValid())
 	{
 		NativeApplyEffectSpecHandleToTarget(TargetActor, DamageSpecHandle);
+		
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+			TargetActor,
+			SL_GameplayTags::Shared_Event_HitReact,
+			Payload
+		);
 	}
 }
 
