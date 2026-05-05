@@ -30,7 +30,7 @@ void USL_GA_Player_LightAttackMaster::ActivateAbility(const FGameplayAbilitySpec
 	{
 		CurrentLightAttackComboCount = 1;
 		MontageToPlay = LightAttackMontagesMap.Find(CurrentLightAttackComboCount);
-
+		
 		if (!MontageToPlay || !(*MontageToPlay))
 		{
 			EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
@@ -87,7 +87,7 @@ void USL_GA_Player_LightAttackMaster::ActivateAbility(const FGameplayAbilitySpec
 void USL_GA_Player_LightAttackMaster::OnMeleeHitEventReceived(FGameplayEventData Payload)
 {
 	USL_PlayerCombatComponent* CombatComponent = GetPlayerCombatComponentFromActorInfo();
-	if (!CombatComponent) return;;
+	if (!CombatComponent) return;
 
 	const float WeaponBaseDamage = CombatComponent->GetPlayerCurrentEquppedWeaponDamageAtLevel(static_cast<float>(GetAbilityLevel()));
 	
@@ -97,18 +97,21 @@ void USL_GA_Player_LightAttackMaster::OnMeleeHitEventReceived(FGameplayEventData
 		SL_GameplayTags::Player_SetByCaller_AttackType_Light,
 		UsedComboCount
 	);
-	
+
 	AActor* TargetActor = const_cast<AActor*>(Payload.Target.Get());
-	if (TargetActor && DamageSpecHandle.IsValid())
-	{
-		NativeApplyEffectSpecHandleToTarget(TargetActor, DamageSpecHandle);
-		
-		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
-			TargetActor,
-			SL_GameplayTags::Shared_Event_HitReact,
-			Payload
-		);
-	}
+	if (!TargetActor || !DamageSpecHandle.IsValid()) return;
+
+	NativeApplyEffectSpecHandleToTarget(TargetActor, DamageSpecHandle);
+	
+	FGameplayEventData HitReactPayload;
+	HitReactPayload.Instigator = GetAvatarActorFromActorInfo();
+	HitReactPayload.Target = TargetActor;
+
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+		TargetActor,
+		SL_GameplayTags::Shared_Event_HitReact,
+		HitReactPayload
+	);
 }
 
 void USL_GA_Player_LightAttackMaster::OnMontageCompleted()

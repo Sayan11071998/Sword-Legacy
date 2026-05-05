@@ -2,10 +2,16 @@
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Characters/SL_EnemyCharacter.h"
+#include "Utilities/SL_GameplayTags.h"
 
 USL_GA_Enemy_HitReactBase::USL_GA_Enemy_HitReactBase()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+
+	FAbilityTriggerData TriggerData;
+	TriggerData.TriggerTag = SL_GameplayTags::Shared_Event_HitReact;
+	TriggerData.TriggerSource = EGameplayAbilityTriggerSource::GameplayEvent;
+	AbilityTriggers.Add(TriggerData);
 }
 
 void USL_GA_Enemy_HitReactBase::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -47,13 +53,13 @@ void USL_GA_Enemy_HitReactBase::ActivateAbility(const FGameplayAbilitySpecHandle
 			
 			return;
 		}
-		
-		FTimerHandle DummyTimerHandle;
-		GetWorld()->GetTimerManager().SetTimer(DummyTimerHandle, [this]()
-		{
-			EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
-		}, 0.2f, false);
 	}
+	
+	FTimerHandle DummyTimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(DummyTimerHandle, [this]()
+	{
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+	}, 0.2f, false);
 }
 
 void USL_GA_Enemy_HitReactBase::OnHitReactFinished()
