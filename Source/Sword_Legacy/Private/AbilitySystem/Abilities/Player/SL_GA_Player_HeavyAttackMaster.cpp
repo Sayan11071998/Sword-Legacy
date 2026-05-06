@@ -4,6 +4,7 @@
 #include "Components/Combat/SL_PlayerCombatComponent.h"
 #include "Utilities/SL_FunctionLibrary.h"
 #include "Utilities/SL_GameplayTags.h"
+#include "AbilitySystemBlueprintLibrary.h"
 
 USL_GA_Player_HeavyAttackMaster::USL_GA_Player_HeavyAttackMaster()
 {
@@ -96,6 +97,16 @@ void USL_GA_Player_HeavyAttackMaster::OnMeleeHitEventReceived(FGameplayEventData
 	if (TargetActor && DamageSpecHandle.IsValid())
 	{
 		NativeApplyEffectSpecHandleToTarget(TargetActor, DamageSpecHandle);
+
+		FGameplayEventData HitReactPayload;
+		HitReactPayload.Instigator = GetAvatarActorFromActorInfo();
+		HitReactPayload.Target = TargetActor;
+
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+			TargetActor,
+			SL_GameplayTags::Shared_Event_HitReact,
+			HitReactPayload
+		);
 	}
 }
 
