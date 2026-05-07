@@ -18,9 +18,22 @@ void USL_PlayerCombatComponent::OnHitTargetActor(AActor* HitActor)
 		SL_GameplayTags::Shared_Event_MeleeHit,
 		Data
 	);
+	
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+		GetOwningPawn(),
+		SL_GameplayTags::Player_Event_HitPause,
+		FGameplayEventData()
+	);
 }
 
-void USL_PlayerCombatComponent::OnWeaponPulledFromTargetActor(AActor* InteractedActor) { }
+void USL_PlayerCombatComponent::OnWeaponPulledFromTargetActor(AActor* InteractedActor)
+{
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+		GetOwningPawn(),
+		SL_GameplayTags::Player_Event_HitPause,
+		FGameplayEventData()
+	);
+}
 
 ASL_PlayerWeapon* USL_PlayerCombatComponent::GetPlayerCarriedWeaponByTag(FGameplayTag InWeaponTag) const
 {
