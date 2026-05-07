@@ -33,12 +33,16 @@ void USL_GA_Enemy_HitReactBase::ActivateAbility(const FGameplayAbilitySpecHandle
 		}
 	}
 	
+	if (USkeletalMeshComponent* SkeletalMeshComponent = GetCurrentActorInfo()->SkeletalMeshComponent.Get())
+	{
+		SkeletalMeshComponent->SetScalarParameterValueOnMaterials(HitParameterName, 1.f);
+	}
+	
 	if (!MontagesToPlay.IsEmpty())
 	{
 		const int32 RandomIndex = FMath::RandRange(0, MontagesToPlay.Num() - 1);
-		UAnimMontage* SelectedMontage = MontagesToPlay[RandomIndex];
 		
-		if (SelectedMontage)
+		if (UAnimMontage* SelectedMontage = MontagesToPlay[RandomIndex])
 		{
 			UAbilityTask_PlayMontageAndWait* PlayMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 				this,
@@ -60,6 +64,20 @@ void USL_GA_Enemy_HitReactBase::ActivateAbility(const FGameplayAbilitySpecHandle
 	{
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 	}, 0.2f, false);
+	
+	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+}
+
+void USL_GA_Enemy_HitReactBase::EndAbility(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+	bool bReplicateEndAbility, bool bWasCancelled)
+{
+	if (USkeletalMeshComponent* SkeletalMeshComponent = GetCurrentActorInfo()->SkeletalMeshComponent.Get())
+	{
+		SkeletalMeshComponent->SetScalarParameterValueOnMaterials(HitParameterName, 0.f);
+	}
+	
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
 void USL_GA_Enemy_HitReactBase::OnHitReactFinished()
