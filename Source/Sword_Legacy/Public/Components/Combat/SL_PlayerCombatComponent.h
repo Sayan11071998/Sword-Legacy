@@ -24,5 +24,5 @@ public:
 	ASL_PlayerWeapon* GetPlayerCurrentEquippedWeapon() const;
 	
 	UFUNCTION(BlueprintCallable, Category = "Pawn|Combat")
-	float GetPlayerCurrentEquppedWeaponDamageAtLevel(float InLevel) const;
+	float GetPlayerCurrentEquippedWeaponDamageAtLevel(float InLevel) const;
 };

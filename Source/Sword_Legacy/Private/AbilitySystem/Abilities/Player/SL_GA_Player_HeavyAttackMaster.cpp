@@ -84,7 +84,7 @@ void USL_GA_Player_HeavyAttackMaster::OnMeleeHitEventReceived(FGameplayEventData
 	USL_PlayerCombatComponent* CombatComponent = GetPlayerCombatComponentFromActorInfo();
 	if (!CombatComponent) return;
 
-	const float WeaponBaseDamage = CombatComponent->GetPlayerCurrentEquppedWeaponDamageAtLevel(static_cast<float>(GetAbilityLevel()));
+	const float WeaponBaseDamage = CombatComponent->GetPlayerCurrentEquippedWeaponDamageAtLevel(static_cast<float>(GetAbilityLevel()));
 
 	const FGameplayEffectSpecHandle DamageSpecHandle = MakePlayerDamageEffectSpecHandle(
 		DamageEffectClass,

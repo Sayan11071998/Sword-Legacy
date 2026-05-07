@@ -45,7 +45,7 @@ ASL_PlayerWeapon* USL_PlayerCombatComponent::GetPlayerCurrentEquippedWeapon() co
 	return Cast<ASL_PlayerWeapon>(GetCharacterCurrentEquippedWeapon());
 }
 
-float USL_PlayerCombatComponent::GetPlayerCurrentEquppedWeaponDamageAtLevel(float InLevel) const
+float USL_PlayerCombatComponent::GetPlayerCurrentEquippedWeaponDamageAtLevel(float InLevel) const
 {
 	return GetPlayerCurrentEquippedWeapon()->PlayerWeaponData.WeaponBaseDamage.GetValueAtLevel(InLevel);
 }
