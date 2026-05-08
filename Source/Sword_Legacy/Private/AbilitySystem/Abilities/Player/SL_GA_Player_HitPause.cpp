@@ -1,4 +1,6 @@
 #include "AbilitySystem/Abilities/Player/SL_GA_Player_HitPause.h"
+
+#include "Controllers/SL_PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Utilities/SL_GameplayTags.h"
 
@@ -24,6 +26,15 @@ void USL_GA_Player_HitPause::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 	GetWorld()->GetTimerManager().SetTimer(HitPauseTimerHandle, [this]()
 	{
 		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.f);
+		
+		if (HitPauseCameraShakeClass)
+		{
+			if (ASL_PlayerController* PlayerController = Cast<ASL_PlayerController>(GetCurrentActorInfo()->PlayerController.Get()))
+			{
+				PlayerController->ClientStartCameraShake(HitPauseCameraShakeClass);
+			}
+		}
+		
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 	}, HitPauseTimeDuration, false);
 }

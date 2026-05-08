@@ -27,4 +27,7 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Hit Pause")
 	float HitPauseTimeDuration = 0.02f;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Hit Pause")
+	TSubclassOf<UCameraShakeBase> HitPauseCameraShakeClass;
 };
