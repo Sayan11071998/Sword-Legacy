@@ -47,7 +47,7 @@ void USL_AttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectMod
 		
 		if (NewCurrentHealth == 0.f)
 		{
-			USL_FunctionLibrary::AddGameplayToActorIfNone(Data.Target.GetAvatarActor(), SL_GameplayTags::Shared_Status_Death);
+			USL_FunctionLibrary::AddGameplayTagToActorIfNone(Data.Target.GetAvatarActor(), SL_GameplayTags::Shared_Status_Death);
 		}
 	}
 }

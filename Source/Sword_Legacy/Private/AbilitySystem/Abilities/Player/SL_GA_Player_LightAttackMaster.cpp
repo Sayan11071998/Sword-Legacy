@@ -75,7 +75,7 @@ void USL_GA_Player_LightAttackMaster::ActivateAbility(const FGameplayAbilitySpec
 			AActor* AvatarActor = GetAvatarActorFromActorInfo();
 			if (AvatarActor)
 			{
-				USL_FunctionLibrary::AddGameplayToActorIfNone(AvatarActor, SL_GameplayTags::Player_Status_JumpToFinisher);
+				USL_FunctionLibrary::AddGameplayTagToActorIfNone(AvatarActor, SL_GameplayTags::Player_Status_JumpToFinisher);
 			}
 		}
 		CurrentLightAttackComboCount++;

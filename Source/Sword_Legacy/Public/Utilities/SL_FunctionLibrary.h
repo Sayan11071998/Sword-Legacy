@@ -20,7 +20,7 @@ public:
 	static TObjectPtr<USL_PawnCombatComponent> NativeGetPawnCombatComponentFromActor(TObjectPtr<AActor> InActor);
 	
 	UFUNCTION(BlueprintCallable, Category = "Pawn|Function Library")
-	static void AddGameplayToActorIfNone(AActor* InActor, FGameplayTag TagToAdd);
+	static void AddGameplayTagToActorIfNone(AActor* InActor, FGameplayTag TagToAdd);
 	
 	UFUNCTION(BlueprintCallable, Category = "Pawn|Function Library")
 	static void RemoveGameplayTagFromActorIfFound(AActor* InActor, FGameplayTag TagToRemove);

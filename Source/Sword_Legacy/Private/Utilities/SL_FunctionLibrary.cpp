@@ -28,7 +28,7 @@ TObjectPtr<USL_PawnCombatComponent> USL_FunctionLibrary::NativeGetPawnCombatComp
 	return nullptr;
 }
 
-void USL_FunctionLibrary::AddGameplayToActorIfNone(AActor* InActor, FGameplayTag TagToAdd)
+void USL_FunctionLibrary::AddGameplayTagToActorIfNone(AActor* InActor, FGameplayTag TagToAdd)
 {
 	USL_AbilitySystemComponent* ASC = NativeGetASCFromActor(InActor);
 	
