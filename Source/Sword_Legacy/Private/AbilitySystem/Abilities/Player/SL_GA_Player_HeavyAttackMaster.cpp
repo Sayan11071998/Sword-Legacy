@@ -96,6 +96,12 @@ void USL_GA_Player_HeavyAttackMaster::OnMeleeHitEventReceived(FGameplayEventData
 	AActor* TargetActor = const_cast<AActor*>(Payload.Target.Get());
 	if (TargetActor && DamageSpecHandle.IsValid())
 	{
+		if (WeaponHitSoundGameplayCueTag.IsValid())
+		{
+			FGameplayEffectContextHandle ContextHandle = DamageSpecHandle.Data->GetContext();
+			K2_ExecuteGameplayCue(WeaponHitSoundGameplayCueTag, ContextHandle);
+		}
+		
 		NativeApplyEffectSpecHandleToTarget(TargetActor, DamageSpecHandle);
 
 		FGameplayEventData HitReactPayload;

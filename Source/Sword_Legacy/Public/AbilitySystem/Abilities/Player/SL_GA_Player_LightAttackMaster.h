@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/Abilities/SL_PlayerGameplayAbility.h"
+#include "Utilities/SL_GameplayTags.h"
 #include "SL_GA_Player_LightAttackMaster.generated.h"
 
 UCLASS()
@@ -27,6 +28,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+	FGameplayTag WeaponHitSoundGameplayCueTag;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	float ComboResetTime;

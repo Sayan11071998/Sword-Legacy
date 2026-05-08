@@ -29,6 +29,9 @@ protected:
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+	FGameplayTag WeaponHitSoundGameplayCueTag;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	float ComboResetTime;
 	
 private:
