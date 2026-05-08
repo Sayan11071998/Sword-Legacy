@@ -1,5 +1,7 @@
 #include "AbilitySystem/SL_AttributeSet.h"
 #include "GameplayEffectExtension.h"
+#include "Utilities/SL_FunctionLibrary.h"
+#include "Utilities/SL_GameplayTags.h"
 
 #include "SL_DebugHelper.h"
 
@@ -45,7 +47,7 @@ void USL_AttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectMod
 		
 		if (NewCurrentHealth == 0.f)
 		{
-			// TODO: Character Death
+			USL_FunctionLibrary::AddGameplayToActorIfNone(Data.Target.GetAvatarActor(), SL_GameplayTags::Shared_Status_Death);
 		}
 	}
 }

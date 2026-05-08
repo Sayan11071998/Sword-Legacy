@@ -100,7 +100,7 @@ void USL_GEExecCalc_DamageTaken::Execute_Implementation(const FGameplayEffectCus
 	}
 	
 	const float FinalDamageDone = BaseDamage * SourceAttackPower / TargetDefensePower;
-	Debug::Print(TEXT("Final Damage Done: "), FinalDamageDone);
+	// Debug::Print(TEXT("Final Damage Done: "), FinalDamageDone);
 	
 	if (FinalDamageDone > 0.f)
 	{
