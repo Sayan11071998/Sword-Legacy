@@ -42,4 +42,7 @@ namespace SL_GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Shared_Event_HitReact, "Shared.Event.HitReact");
 	
 	UE_DEFINE_GAMEPLAY_TAG(Shared_SetByCaller_BaseDamage, "Shared.SetByCaller.BaseDamage");
+	
+	/** Gameplay Cues **/
+	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Sounds_MeleeHit_Katana, "GameplayCue.Sounds.MeleeHit.Katana");
 }

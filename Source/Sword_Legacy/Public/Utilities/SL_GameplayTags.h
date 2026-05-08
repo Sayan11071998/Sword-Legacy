@@ -44,4 +44,7 @@ namespace SL_GameplayTags
 	SWORD_LEGACY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_Event_HitReact);
 	
 	SWORD_LEGACY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_SetByCaller_BaseDamage);
+	
+	/** Gameplay Cues **/
+	SWORD_LEGACY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Sounds_MeleeHit_Katana);
 }
