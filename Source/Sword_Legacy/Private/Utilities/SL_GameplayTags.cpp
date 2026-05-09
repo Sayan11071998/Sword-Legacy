@@ -48,4 +48,5 @@ namespace SL_GameplayTags
 	
 	/** Gameplay Cues **/
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Sounds_MeleeHit_Katana, "GameplayCue.Sounds.MeleeHit.Katana");
+	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Sounds_Death_Enemy_Serath, "GameplayCue.Sounds.Death.Enemy.Serath");
 }
