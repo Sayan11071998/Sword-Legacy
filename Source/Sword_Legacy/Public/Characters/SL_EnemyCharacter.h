@@ -2,12 +2,13 @@
 
 #include "CoreMinimal.h"
 #include "Characters/SL_BaseCharacter.h"
+#include "Interfaces/SL_EnemyDeathInterface.h"
 #include "SL_EnemyCharacter.generated.h"
 
 class USL_EnemyCombatComponent;
 
 UCLASS()
-class SWORD_LEGACY_API ASL_EnemyCharacter : public ASL_BaseCharacter
+class SWORD_LEGACY_API ASL_EnemyCharacter : public ASL_BaseCharacter, public ISL_EnemyDeathInterface
 {
 	GENERATED_BODY()
 	
@@ -25,6 +26,10 @@ public:
 	// ~ Begin ISL_PawnCombatInterface Interface
 	virtual TObjectPtr<USL_PawnCombatComponent> GetPawnCombatComponent() const override;
 	// ~ End ISL_PawnCombatInterface Interface
+	
+	// ~ Begin ISL_EnemyDeathInterface Interface
+	virtual void OnEnemyDied_Implementation() override;
+	// ~ End ISL_EnemyDeathInterface Interface
 	
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")

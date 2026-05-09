@@ -1,6 +1,7 @@
 #include "AbilitySystem/Abilities/Enemy/SL_GA_Enemy_DeathBase.h"
 #include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "Interfaces/SL_EnemyDeathInterface.h"
 #include "Utilities/SL_GameplayTags.h"
 
 USL_GA_Enemy_DeathBase::USL_GA_Enemy_DeathBase()
@@ -47,6 +48,21 @@ void USL_GA_Enemy_DeathBase::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 		FGameplayEffectContextHandle ContextHandle = GetAbilitySystemComponentFromActorInfo()->MakeEffectContext();
 		K2_ExecuteGameplayCue(DeathSoundGameplayCueTag, ContextHandle);
 	}
+}
+
+void USL_GA_Enemy_DeathBase::EndAbility(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+	bool bReplicateEndAbility, bool bWasCancelled)
+{
+	if (AActor* AvatarActor = ActorInfo->AvatarActor.Get())
+	{
+		if (AvatarActor->Implements<USL_EnemyDeathInterface>())
+		{
+			ISL_EnemyDeathInterface::Execute_OnEnemyDied(AvatarActor);
+		}
+	}
+	
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
 void USL_GA_Enemy_DeathBase::OnDeathFinished()

@@ -44,6 +44,11 @@ TObjectPtr<USL_PawnCombatComponent> ASL_EnemyCharacter::GetPawnCombatComponent()
 	return EnemyCombatComponent;
 }
 
+void ASL_EnemyCharacter::OnEnemyDied_Implementation()
+{
+	ISL_EnemyDeathInterface::OnEnemyDied_Implementation();
+}
+
 void ASL_EnemyCharacter::InitEnemyStartupData()
 {
 	if (CharacterStartupData.IsNull()) return;
