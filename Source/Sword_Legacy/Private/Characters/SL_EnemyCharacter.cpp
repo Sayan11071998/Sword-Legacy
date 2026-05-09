@@ -32,7 +32,7 @@ void ASL_EnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	GetMesh()->HideBoneByName(FName(TEXT("weapon_l")), PBO_Term);
+	GetMesh()->HideBoneByName(LeftWeaponBoneName, PBO_Term);
 	
 	if (DissolveCurve)
 	{
@@ -112,7 +112,7 @@ void ASL_EnemyCharacter::HandleDissolveUpdate(float Value)
 {
 	if (GetMesh())
 	{
-		GetMesh()->SetScalarParameterValueOnMaterials(FName("DissolveAmount"), Value);
+		GetMesh()->SetScalarParameterValueOnMaterials(DissolveParameterName, Value);
 	}
 }
 

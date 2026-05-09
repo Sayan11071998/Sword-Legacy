@@ -42,6 +42,12 @@ protected:
     
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CharacterData")
 	float TotalDissolveTime = 6.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CharacterData")
+	FName LeftWeaponBoneName = FName(TEXT("weapon_l"));
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CharacterData")
+	FName DissolveParameterName = FName(TEXT("DissolveAmount"));
 	
 private:
 	void InitEnemyStartupData();
