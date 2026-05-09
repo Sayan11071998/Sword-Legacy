@@ -39,6 +39,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Hit React")
 	FName HitParameterName;
 	
+	UPROPERTY(EditDefaultsOnly, Category = "Hit React")
+	float HitFlashIntensity = 0.5;
+	
 private:
 	UFUNCTION()
 	void OnHitReactFinished();

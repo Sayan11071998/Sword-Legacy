@@ -35,7 +35,7 @@ void USL_GA_Enemy_HitReactBase::ActivateAbility(const FGameplayAbilitySpecHandle
 	
 	if (USkeletalMeshComponent* SkeletalMeshComponent = GetCurrentActorInfo()->SkeletalMeshComponent.Get())
 	{
-		SkeletalMeshComponent->SetScalarParameterValueOnMaterials(HitParameterName, 1.f);
+		SkeletalMeshComponent->SetScalarParameterValueOnMaterials(HitParameterName, HitFlashIntensity);
 	}
 	
 	if (!MontagesToPlay.IsEmpty())
