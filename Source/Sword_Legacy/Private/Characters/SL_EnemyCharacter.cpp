@@ -46,7 +46,15 @@ TObjectPtr<USL_PawnCombatComponent> ASL_EnemyCharacter::GetPawnCombatComponent()
 
 void ASL_EnemyCharacter::OnEnemyDied_Implementation()
 {
-	ISL_EnemyDeathInterface::OnEnemyDied_Implementation();
+	if (GetMesh())
+	{
+		GetMesh()->bPauseAnims = true;
+	}
+
+	if (GetCapsuleComponent())
+	{
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
 }
 
 void ASL_EnemyCharacter::InitEnemyStartupData()
