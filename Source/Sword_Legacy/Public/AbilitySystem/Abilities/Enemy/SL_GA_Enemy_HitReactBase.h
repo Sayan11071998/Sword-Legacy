@@ -40,7 +40,7 @@ protected:
 	FName HitParameterName;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Hit React")
-	float HitFlashIntensity = 0.5;
+	float HitFlashIntensity = 1.f;
 	
 private:
 	UFUNCTION()

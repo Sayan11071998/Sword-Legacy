@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Characters/SL_BaseCharacter.h"
+#include "Components/TimelineComponent.h"
 #include "Interfaces/SL_EnemyDeathInterface.h"
 #include "SL_EnemyCharacter.generated.h"
 
@@ -17,6 +18,7 @@ public:
 	
 	// ~ Begin ACharacter Interface
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
 	// ~ End ACharacter Interface
 	
 	// ~ Begin APawn Interface
@@ -35,8 +37,22 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 	TObjectPtr<USL_EnemyCombatComponent> EnemyCombatComponent;
 	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CharacterData")
+	TObjectPtr<UCurveFloat> DissolveCurve;
+    
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CharacterData")
+	float TotalDissolveTime = 6.0f;
+	
 private:
 	void InitEnemyStartupData();
+	
+	FTimeline DissolveTimeline;
+    
+	UFUNCTION()
+	void HandleDissolveUpdate(float Value);
+    
+	UFUNCTION()
+	void HandleDissolveFinished();
 	
 public:
 	FORCEINLINE TObjectPtr<USL_EnemyCombatComponent> GetEnemyCombatComponent() const { return EnemyCombatComponent; }

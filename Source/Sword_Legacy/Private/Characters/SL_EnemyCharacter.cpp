@@ -7,6 +7,9 @@
 
 ASL_EnemyCharacter::ASL_EnemyCharacter()
 {
+	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bStartWithTickEnabled = false;
+	
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	
 	bUseControllerRotationPitch = false;
@@ -30,6 +33,27 @@ void ASL_EnemyCharacter::BeginPlay()
 	Super::BeginPlay();
 	
 	GetMesh()->HideBoneByName(FName(TEXT("weapon_l")), PBO_Term);
+	
+	if (DissolveCurve)
+	{
+		FOnTimelineFloat UpdateDelegate;
+		UpdateDelegate.BindUFunction(this, FName("HandleDissolveUpdate"));
+		DissolveTimeline.AddInterpFloat(DissolveCurve, UpdateDelegate);
+		
+		FOnTimelineEvent FinishedDelegate;
+		FinishedDelegate.BindUFunction(this, FName("HandleDissolveFinished"));
+		DissolveTimeline.SetTimelineFinishedFunc(FinishedDelegate);
+	}
+}
+
+void ASL_EnemyCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	
+	if (DissolveTimeline.IsPlaying())
+	{
+		DissolveTimeline.TickTimeline(DeltaTime);
+	}
 }
 
 void ASL_EnemyCharacter::PossessedBy(AController* NewController)
@@ -55,6 +79,15 @@ void ASL_EnemyCharacter::OnEnemyDied_Implementation()
 	{
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
+	
+	if (DissolveCurve)
+	{
+		const float PlayRate = 1.0f / FMath::Max(TotalDissolveTime, 0.1f);
+		DissolveTimeline.SetPlayRate(PlayRate);
+		DissolveTimeline.PlayFromStart();
+        
+		SetActorTickEnabled(true);
+	}
 }
 
 void ASL_EnemyCharacter::InitEnemyStartupData()
@@ -73,4 +106,17 @@ void ASL_EnemyCharacter::InitEnemyStartupData()
 			}
 		)
 	);
+}
+
+void ASL_EnemyCharacter::HandleDissolveUpdate(float Value)
+{
+	if (GetMesh())
+	{
+		GetMesh()->SetScalarParameterValueOnMaterials(FName("DissolveAmount"), Value);
+	}
+}
+
+void ASL_EnemyCharacter::HandleDissolveFinished()
+{
+	Destroy();
 }
