@@ -35,6 +35,7 @@ public:
 	
 	// ~ Begin ISL_PawnUIInterface Interface
 	virtual TObjectPtr<USL_PawnUIComponent> GetPawnUIComponent() const override;
+	virtual TObjectPtr<USL_PlayerUIComponent> GetPlayerUIComponent() const override;
 	// ~ End ISL_PawnUIInterface Interface
 	
 private:

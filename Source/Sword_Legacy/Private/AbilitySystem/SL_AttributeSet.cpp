@@ -2,6 +2,9 @@
 #include "GameplayEffectExtension.h"
 #include "Utilities/SL_FunctionLibrary.h"
 #include "Utilities/SL_GameplayTags.h"
+#include "Interfaces/SL_PawnUIInterface.h"
+#include "Components/UI/SL_PawnUIComponent.h"
+#include "Components/UI/SL_PlayerUIComponent.h"
 
 #include "SL_DebugHelper.h"
 
@@ -17,16 +20,33 @@ USL_AttributeSet::USL_AttributeSet()
 
 void USL_AttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data)
 {
+	if (!CachedPawnUIInterface.IsValid())
+	{
+		CachedPawnUIInterface = TWeakInterfacePtr<ISL_PawnUIInterface>(Data.Target.GetAvatarActor());
+	}
+	
+	checkf(CachedPawnUIInterface.IsValid(), TEXT("%s didn't implement ISL_PawnUIInterface"), *Data.Target.GetAvatarActor()->GetActorNameOrLabel());
+	
+	USL_PawnUIComponent* PawnUIComponent = CachedPawnUIInterface->GetPawnUIComponent();
+	
+	checkf(PawnUIComponent, TEXT("Couldn't extract a pawn UI component from %s"), *Data.Target.GetAvatarActor()->GetActorNameOrLabel());
+	
 	if (Data.EvaluatedData.Attribute == GetCurrentHealthAttribute())
 	{
 		const float NewCurrentHealth = FMath::Clamp(GetCurrentHealth(), 0.f, GetMaxHealth());
 		SetCurrentHealth(NewCurrentHealth);
+		PawnUIComponent->OnCurrentHealthChanged.Broadcast(GetCurrentHealth() / GetMaxHealth());
 	}
 	
 	if (Data.EvaluatedData.Attribute == GetCurrentRageAttribute())
 	{
 		const float NewCurrentRage = FMath::Clamp(GetCurrentRage(), 0.f, GetMaxRage());
 		SetCurrentRage(NewCurrentRage);
+		
+		if (USL_PlayerUIComponent* PlayerUIComponent = CachedPawnUIInterface->GetPlayerUIComponent())
+		{
+			PlayerUIComponent->OnCurrentRageChanged.Broadcast(GetCurrentRage() / GetMaxRage());
+		}
 	}
 	
 	if (Data.EvaluatedData.Attribute == GetDamageTakenAttribute())
@@ -38,12 +58,14 @@ void USL_AttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectMod
 		SetCurrentHealth(NewCurrentHealth);
 		
 		const FString DebugString = FString::Printf(
-   TEXT("Old Health: %f, Damage Done: %f, New Current Health: %f"),
-   OldHealth,
-   DamageDone,
-   NewCurrentHealth
-);
+			TEXT("Old Health: %f, Damage Done: %f, New Current Health: %f"),
+			OldHealth,
+			DamageDone,
+			NewCurrentHealth	
+		);
 		Debug::Print(DebugString, FColor::Green);
+		
+		PawnUIComponent->OnCurrentHealthChanged.Broadcast(GetCurrentHealth() / GetMaxHealth());
 		
 		if (NewCurrentHealth == 0.f)
 		{

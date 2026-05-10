@@ -8,4 +8,8 @@ UCLASS()
 class SWORD_LEGACY_API USL_PlayerUIComponent : public USL_PawnUIComponent
 {
 	GENERATED_BODY()
+	
+public:
+	UPROPERTY(BlueprintAssignable)
+	FOnPercentChangedDelegate OnCurrentRageChanged;
 };

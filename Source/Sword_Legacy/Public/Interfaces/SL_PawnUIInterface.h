@@ -4,6 +4,7 @@
 #include "UObject/Interface.h"
 #include "SL_PawnUIInterface.generated.h"
 
+class USL_PlayerUIComponent;
 class USL_PawnUIComponent;
 
 UINTERFACE(MinimalAPI)
@@ -18,4 +19,6 @@ class SWORD_LEGACY_API ISL_PawnUIInterface
 	
 public:
 	virtual TObjectPtr<USL_PawnUIComponent> GetPawnUIComponent() const = 0;
+	
+	virtual TObjectPtr<USL_PlayerUIComponent> GetPlayerUIComponent() const;
 };
