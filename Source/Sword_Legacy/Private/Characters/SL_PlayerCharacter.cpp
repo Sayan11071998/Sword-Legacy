@@ -10,6 +10,7 @@
 #include "DataAssets/Input/SL_DataAsset_InputConfig.h"
 #include "Utilities/SL_GameplayTags.h"
 #include "DataAssets/StartupData/SL_DataAsset_StartupData_Player.h"
+#include "Components/UI/SL_PlayerUIComponent.h"
 
 ASL_PlayerCharacter::ASL_PlayerCharacter()
 {
@@ -35,6 +36,7 @@ ASL_PlayerCharacter::ASL_PlayerCharacter()
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	
 	PlayerCombatComponent = CreateDefaultSubobject<USL_PlayerCombatComponent>(TEXT("PlayerCombatComponent"));
+	PlayerUIComponent = CreateDefaultSubobject<USL_PlayerUIComponent>(TEXT("PlayerUIComponent"));
 }
 
 void ASL_PlayerCharacter::BeginPlay()

@@ -9,6 +9,7 @@
 #include "NiagaraSystem.h"
 #include "NiagaraComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include "Components/UI/SL_EnemyUIComponent.h"
 
 ASL_EnemyCharacter::ASL_EnemyCharacter()
 {
@@ -31,6 +32,7 @@ ASL_EnemyCharacter::ASL_EnemyCharacter()
 	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	
 	EnemyCombatComponent = CreateDefaultSubobject<USL_EnemyCombatComponent>(TEXT("EnemyCombatComponent"));
+	EnemyUIComponent = CreateDefaultSubobject<USL_EnemyUIComponent>(TEXT("EnemyUIComponent"));
 }
 
 void ASL_EnemyCharacter::BeginPlay()

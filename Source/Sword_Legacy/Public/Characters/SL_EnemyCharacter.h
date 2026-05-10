@@ -6,6 +6,7 @@
 #include "Interfaces/SL_EnemyDeathInterface.h"
 #include "SL_EnemyCharacter.generated.h"
 
+class USL_EnemyUIComponent;
 class USL_EnemyCombatComponent;
 
 UCLASS()
@@ -21,10 +22,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	// ~ End ACharacter Interface
 	
-	// ~ Begin APawn Interface
-	virtual void PossessedBy(AController* NewController) override;
-	// ~ End APawn Interface
-	
 	// ~ Begin ISL_PawnCombatInterface Interface
 	virtual TObjectPtr<USL_PawnCombatComponent> GetPawnCombatComponent() const override;
 	// ~ End ISL_PawnCombatInterface Interface
@@ -34,8 +31,15 @@ public:
 	// ~ End ISL_EnemyDeathInterface Interface
 	
 protected:
+	// ~ Begin APawn Interface
+	virtual void PossessedBy(AController* NewController) override;
+	// ~ End APawn Interface
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 	TObjectPtr<USL_EnemyCombatComponent> EnemyCombatComponent;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
+	TObjectPtr<USL_EnemyUIComponent> EnemyUIComponent;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CharacterData")
 	TObjectPtr<UCurveFloat> DissolveCurve;
