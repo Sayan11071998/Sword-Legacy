@@ -12,6 +12,17 @@ class SWORD_LEGACY_API USL_PlayerCombatComponent : public USL_PawnCombatComponen
 	GENERATED_BODY()
 	
 public:
+	// ~ Begin USL_PawnCombatComponent Interface
+	virtual void OnHitTargetActor(AActor* HitActor) override;
+	virtual void OnWeaponPulledFromTargetActor(AActor* InteractedActor) override;
+	// ~ End USL_PawnCombatComponent Interface
+	
 	UFUNCTION(BlueprintCallable, Category = "Pawn|Combat")
 	ASL_PlayerWeapon* GetPlayerCarriedWeaponByTag(FGameplayTag InWeaponTag) const;
+	
+	UFUNCTION(BlueprintCallable, Category = "Pawn|Combat")
+	ASL_PlayerWeapon* GetPlayerCurrentEquippedWeapon() const;
+	
+	UFUNCTION(BlueprintCallable, Category = "Pawn|Combat")
+	float GetPlayerCurrentEquippedWeaponDamageAtLevel(float InLevel) const;
 };

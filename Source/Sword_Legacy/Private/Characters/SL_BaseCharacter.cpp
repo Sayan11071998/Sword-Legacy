@@ -18,6 +18,11 @@ UAbilitySystemComponent* ASL_BaseCharacter::GetAbilitySystemComponent() const
 	return GetCharacterAbilitySystemComponent();
 }
 
+TObjectPtr<USL_PawnCombatComponent> ASL_BaseCharacter::GetPawnCombatComponent() const
+{
+	return nullptr;
+}
+
 void ASL_BaseCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);

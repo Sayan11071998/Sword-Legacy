@@ -1,8 +1,8 @@
-#include "AbilitySystem/Abilities/Shared/SL_GA_Shared_SpawnWeapon.h"
+#include "AbilitySystem/Abilities/Shared/SL_GA_Shared_SpawnWeapon_Base.h"
 #include "Items/Weapons/SL_WeaponBase.h"
 #include "Components/Combat/SL_PawnCombatComponent.h"
 
-void USL_GA_Shared_SpawnWeapon::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
+void USL_GA_Shared_SpawnWeapon_Base::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
