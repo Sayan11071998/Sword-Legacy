@@ -48,6 +48,12 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CharacterData")
 	FName DissolveParameterName = FName(TEXT("DissolveAmount"));
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CharacterData")
+	FName DissolveEdgeColorName = FName(TEXT("DissolveEdgeColor"));
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CharacterData")
+	FName DissolveNiagaraParticleColorName = FName(TEXT("DissolveParticleColor"));
 	
 private:
 	void InitEnemyStartupData();

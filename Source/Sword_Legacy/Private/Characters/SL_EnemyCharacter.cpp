@@ -7,6 +7,8 @@
 #include "Items/Weapons/SL_WeaponBase.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraSystem.h"
+#include "NiagaraComponent.h"
+#include "Materials/MaterialInstanceDynamic.h"
 
 ASL_EnemyCharacter::ASL_EnemyCharacter()
 {
@@ -94,7 +96,7 @@ void ASL_EnemyCharacter::OnEnemyDied_Implementation(const TSoftObjectPtr<UNiagar
 					{
 						if (UNiagaraSystem* LoadedSystem = InSoftNiagaraSystem.Get())
 						{
-							UNiagaraFunctionLibrary::SpawnSystemAttached(
+						UNiagaraComponent* NiagaraComp = UNiagaraFunctionLibrary::SpawnSystemAttached(
 								LoadedSystem,
 								StrongThis->GetMesh(),
 								NAME_None,
@@ -103,6 +105,19 @@ void ASL_EnemyCharacter::OnEnemyDied_Implementation(const TSoftObjectPtr<UNiagar
 								EAttachLocation::KeepRelativeOffset,
 								true
 							);
+
+						if (StrongThis->GetMesh())
+						{
+							UMaterialInstanceDynamic* DynamicMaterial = StrongThis->GetMesh()->CreateDynamicMaterialInstance(0);
+							if (DynamicMaterial && NiagaraComp)
+							{
+								FLinearColor EdgeColor;
+								if (DynamicMaterial->GetVectorParameterValue(StrongThis->DissolveEdgeColorName, EdgeColor))
+								{
+									NiagaraComp->SetVariableLinearColor(StrongThis->DissolveNiagaraParticleColorName, EdgeColor);
+								}
+							}
+						}
 						}
 					}
 				}
