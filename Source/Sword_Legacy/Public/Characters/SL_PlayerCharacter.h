@@ -33,6 +33,10 @@ public:
 	virtual TObjectPtr<USL_PawnCombatComponent> GetPawnCombatComponent() const override;
 	// ~ End ISL_PawnCombatInterface Interface
 	
+	// ~ Begin ISL_PawnUIInterface Interface
+	virtual TObjectPtr<USL_PawnUIComponent> GetPawnUIComponent() const override;
+	// ~ End ISL_PawnUIInterface Interface
+	
 private:
 #pragma region Components
 	

@@ -30,6 +30,10 @@ public:
 	virtual void OnEnemyDied_Implementation(const TSoftObjectPtr<UNiagaraSystem>& InSoftNiagaraSystem) override;
 	// ~ End ISL_EnemyDeathInterface Interface
 	
+	// ~ Begin ISL_PawnUIInterface Interface
+	virtual TObjectPtr<USL_PawnUIComponent> GetPawnUIComponent() const override;
+	// ~ End ISL_PawnUIInterface Interface
+	
 protected:
 	// ~ Begin APawn Interface
 	virtual void PossessedBy(AController* NewController) override;

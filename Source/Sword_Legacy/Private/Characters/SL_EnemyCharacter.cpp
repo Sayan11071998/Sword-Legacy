@@ -137,6 +137,11 @@ void ASL_EnemyCharacter::OnEnemyDied_Implementation(const TSoftObjectPtr<UNiagar
 	}
 }
 
+TObjectPtr<USL_PawnUIComponent> ASL_EnemyCharacter::GetPawnUIComponent() const
+{
+	return EnemyUIComponent;
+}
+
 void ASL_EnemyCharacter::InitEnemyStartupData()
 {
 	if (CharacterStartupData.IsNull()) return;

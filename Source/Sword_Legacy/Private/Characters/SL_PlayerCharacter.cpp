@@ -83,6 +83,11 @@ TObjectPtr<USL_PawnCombatComponent> ASL_PlayerCharacter::GetPawnCombatComponent(
 	return PlayerCombatComponent;
 }
 
+TObjectPtr<USL_PawnUIComponent> ASL_PlayerCharacter::GetPawnUIComponent() const
+{
+	return PlayerUIComponent;
+}
+
 void ASL_PlayerCharacter::Input_Move(const FInputActionValue& InputActionValue)
 {
 	const FVector2D MovementVector = InputActionValue.Get<FVector2D>();

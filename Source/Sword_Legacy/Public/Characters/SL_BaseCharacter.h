@@ -4,6 +4,7 @@
 #include "AbilitySystemInterface.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/SL_PawnCombatInterface.h"
+#include "Interfaces/SL_PawnUIInterface.h"
 #include "SL_BaseCharacter.generated.h"
 
 class USL_DataAsset_StartupData_Base;
@@ -11,7 +12,7 @@ class USL_AttributeSet;
 class USL_AbilitySystemComponent;
 
 UCLASS()
-class SWORD_LEGACY_API ASL_BaseCharacter : public ACharacter, public IAbilitySystemInterface, public ISL_PawnCombatInterface
+class SWORD_LEGACY_API ASL_BaseCharacter : public ACharacter, public IAbilitySystemInterface, public ISL_PawnCombatInterface, public ISL_PawnUIInterface
 {
 	GENERATED_BODY()
 
@@ -25,6 +26,10 @@ public:
 	// ~ Begin ISL_PawnCombatInterface Interface
 	virtual TObjectPtr<USL_PawnCombatComponent> GetPawnCombatComponent() const override;
 	// ~ End ISL_PawnCombatInterface Interface
+	
+	// ~ Begin ISL_PawnUIInterface Interface
+	virtual TObjectPtr<USL_PawnUIComponent> GetPawnUIComponent() const override;
+	// ~ End ISL_PawnUIInterface Interface
 	
 protected:
 	// ~ Begin APawn Interface
