@@ -5,6 +5,8 @@
 #include "Engine/AssetManager.h"
 #include "DataAssets/StartupData/SL_DataAsset_StartupData_Enemy.h"
 #include "Items/Weapons/SL_WeaponBase.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraSystem.h"
 
 ASL_EnemyCharacter::ASL_EnemyCharacter()
 {
@@ -69,7 +71,7 @@ TObjectPtr<USL_PawnCombatComponent> ASL_EnemyCharacter::GetPawnCombatComponent()
 	return EnemyCombatComponent;
 }
 
-void ASL_EnemyCharacter::OnEnemyDied_Implementation()
+void ASL_EnemyCharacter::OnEnemyDied_Implementation(const TSoftObjectPtr<UNiagaraSystem>& InSoftNiagaraSystem)
 {
 	if (GetMesh())
 	{
@@ -79,6 +81,33 @@ void ASL_EnemyCharacter::OnEnemyDied_Implementation()
 	if (GetCapsuleComponent())
 	{
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+	
+	if (!InSoftNiagaraSystem.IsNull())
+	{
+		UAssetManager::GetStreamableManager().RequestAsyncLoad(
+			InSoftNiagaraSystem.ToSoftObjectPath(),
+			FStreamableDelegate::CreateLambda(
+				[WeakThis = TWeakObjectPtr<ASL_EnemyCharacter>(this), InSoftNiagaraSystem]()
+				{
+					if (ASL_EnemyCharacter* StrongThis = WeakThis.Get())
+					{
+						if (UNiagaraSystem* LoadedSystem = InSoftNiagaraSystem.Get())
+						{
+							UNiagaraFunctionLibrary::SpawnSystemAttached(
+								LoadedSystem,
+								StrongThis->GetMesh(),
+								NAME_None,
+								FVector::ZeroVector,
+								FRotator::ZeroRotator,
+								EAttachLocation::KeepRelativeOffset,
+								true
+							);
+						}
+					}
+				}
+			)
+		);
 	}
 	
 	if (DissolveCurve)

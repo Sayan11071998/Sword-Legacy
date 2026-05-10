@@ -30,7 +30,7 @@ public:
 	// ~ End ISL_PawnCombatInterface Interface
 	
 	// ~ Begin ISL_EnemyDeathInterface Interface
-	virtual void OnEnemyDied_Implementation() override;
+	virtual void OnEnemyDied_Implementation(const TSoftObjectPtr<UNiagaraSystem>& InSoftNiagaraSystem) override;
 	// ~ End ISL_EnemyDeathInterface Interface
 	
 protected:

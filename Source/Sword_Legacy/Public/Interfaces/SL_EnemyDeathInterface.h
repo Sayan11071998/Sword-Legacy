@@ -4,6 +4,8 @@
 #include "UObject/Interface.h"
 #include "SL_EnemyDeathInterface.generated.h"
 
+class UNiagaraSystem;
+
 UINTERFACE(MinimalAPI)
 class USL_EnemyDeathInterface : public UInterface
 {
@@ -16,5 +18,5 @@ class SWORD_LEGACY_API ISL_EnemyDeathInterface
 
 public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Enemy")
-	void OnEnemyDied();
+	void OnEnemyDied(const TSoftObjectPtr<UNiagaraSystem>& InSoftNiagaraSystem);
 };

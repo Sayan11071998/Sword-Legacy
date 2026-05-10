@@ -4,6 +4,8 @@
 #include "AbilitySystem/Abilities/SL_EnemyGameplayAbility.h"
 #include "SL_GA_Enemy_DeathBase.generated.h"
 
+class UNiagaraSystem;
+
 UCLASS()
 class SWORD_LEGACY_API USL_GA_Enemy_DeathBase : public USL_EnemyGameplayAbility
 {
@@ -35,6 +37,9 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Death")
 	FGameplayTag DeathSoundGameplayCueTag;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Death")
+	TSoftObjectPtr<UNiagaraSystem> DeathNiagaraSystem;
 	
 private:
 	UFUNCTION()

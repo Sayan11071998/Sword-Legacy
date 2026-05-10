@@ -58,7 +58,7 @@ void USL_GA_Enemy_DeathBase::EndAbility(const FGameplayAbilitySpecHandle Handle,
 	{
 		if (AvatarActor->Implements<USL_EnemyDeathInterface>())
 		{
-			ISL_EnemyDeathInterface::Execute_OnEnemyDied(AvatarActor);
+			ISL_EnemyDeathInterface::Execute_OnEnemyDied(AvatarActor, DeathNiagaraSystem);
 		}
 	}
 	

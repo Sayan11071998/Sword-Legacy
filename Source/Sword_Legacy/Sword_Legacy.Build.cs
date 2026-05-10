@@ -19,6 +19,7 @@ public class Sword_Legacy : ModuleRules
 			"AnimGraphRuntime",
 			"GameplayAbilities",
 			"GameplayTasks",
+			"Niagara"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });
