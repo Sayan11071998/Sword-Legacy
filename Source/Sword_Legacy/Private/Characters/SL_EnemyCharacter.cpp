@@ -4,6 +4,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Engine/AssetManager.h"
 #include "DataAssets/StartupData/SL_DataAsset_StartupData_Enemy.h"
+#include "Items/Weapons/SL_WeaponBase.h"
 
 ASL_EnemyCharacter::ASL_EnemyCharacter()
 {
@@ -114,9 +115,28 @@ void ASL_EnemyCharacter::HandleDissolveUpdate(float Value)
 	{
 		GetMesh()->SetScalarParameterValueOnMaterials(DissolveParameterName, Value);
 	}
+	
+	if (EnemyCombatComponent)
+	{
+		if (ASL_WeaponBase* EquippedWeapon = EnemyCombatComponent->GetCharacterCurrentEquippedWeapon())
+		{
+			if (EquippedWeapon->GetWeaponMesh())
+			{
+				EquippedWeapon->GetWeaponMesh()->SetScalarParameterValueOnMaterials(DissolveParameterName, Value);
+			}
+		}
+	}
 }
 
 void ASL_EnemyCharacter::HandleDissolveFinished()
 {
+	if (EnemyCombatComponent)
+	{
+		if (ASL_WeaponBase* EquippedWeapon = EnemyCombatComponent->GetCharacterCurrentEquippedWeapon())
+		{
+			EquippedWeapon->Destroy();
+		}
+	}
+	
 	Destroy();
 }

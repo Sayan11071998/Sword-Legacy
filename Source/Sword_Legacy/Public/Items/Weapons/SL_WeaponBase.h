@@ -45,5 +45,6 @@ protected:
 	TObjectPtr<UBoxComponent> WeaponCollisionBox;
 	
 public:
-	FORCEINLINE TObjectPtr<UBoxComponent> GetWeaponCollisionBox() { return WeaponCollisionBox; }
+	FORCEINLINE TObjectPtr<UBoxComponent> GetWeaponCollisionBox() const { return WeaponCollisionBox; }
+	FORCEINLINE TObjectPtr<UStaticMeshComponent> GetWeaponMesh() const { return WeaponMesh; }
 };
