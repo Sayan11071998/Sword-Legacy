@@ -7,7 +7,7 @@ void USL_WidgetBase::InitEnemyCreatedWidget(AActor* OwningEnemyActor)
 	if (ISL_PawnUIInterface* PawnUIInterface = Cast<ISL_PawnUIInterface>(OwningEnemyActor))
 	{
 		USL_EnemyUIComponent* EnemyUIComponent = PawnUIInterface->GetEnemyUIComponent();
-		checkf(EnemyUIComponent, TEXT("Failed to extract an Enemy UI Component from %s"), OwningEnemyActor->GetActorNameOrLabel());
+		checkf(EnemyUIComponent, TEXT("Failed to extract an Enemy UI Component from %s"), *OwningEnemyActor->GetActorNameOrLabel());
 		
 		BP_OnOwningEnemyUIComponentInitialized(EnemyUIComponent);
 	}
