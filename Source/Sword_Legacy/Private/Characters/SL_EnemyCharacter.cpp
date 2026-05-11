@@ -142,6 +142,11 @@ TObjectPtr<USL_PawnUIComponent> ASL_EnemyCharacter::GetPawnUIComponent() const
 	return EnemyUIComponent;
 }
 
+TObjectPtr<USL_EnemyUIComponent> ASL_EnemyCharacter::GetEnemyUIComponent() const
+{
+	return EnemyUIComponent;
+}
+
 void ASL_EnemyCharacter::InitEnemyStartupData()
 {
 	if (CharacterStartupData.IsNull()) return;

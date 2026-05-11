@@ -11,6 +11,10 @@ class SWORD_LEGACY_API USL_WidgetBase : public UUserWidget
 {
 	GENERATED_BODY()
 	
+public:
+	UFUNCTION(BlueprintCallable)
+	void InitEnemyCreatedWidget(AActor* OwningEnemyActor);
+	
 protected:
 	// ~ Begin UUserWidget Interface
 	virtual void NativeOnInitialized() override;

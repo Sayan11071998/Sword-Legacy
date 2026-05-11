@@ -4,3 +4,8 @@ TObjectPtr<USL_PlayerUIComponent> ISL_PawnUIInterface::GetPlayerUIComponent() co
 {
 	return nullptr;
 }
+
+TObjectPtr<USL_EnemyUIComponent> ISL_PawnUIInterface::GetEnemyUIComponent() const
+{
+	return nullptr;
+}
