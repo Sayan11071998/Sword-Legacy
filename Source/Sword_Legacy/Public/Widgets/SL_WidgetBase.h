@@ -4,6 +4,7 @@
 #include "Blueprint/UserWidget.h"
 #include "SL_WidgetBase.generated.h"
 
+class USL_EnemyUIComponent;
 class USL_PlayerUIComponent;
 
 UCLASS()
@@ -22,4 +23,7 @@ protected:
 	
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "On Owning Player UI Component Initialized"))
 	void BP_OnOwningPlayerUIComponentInitialized(USL_PlayerUIComponent* OwningPlayerUIComponent);
+	
+	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "On Owning Enemy UI Component Initialized"))
+	void BP_OnOwningEnemyUIComponentInitialized(USL_EnemyUIComponent* OwningEnemyUIComponent);
 };
