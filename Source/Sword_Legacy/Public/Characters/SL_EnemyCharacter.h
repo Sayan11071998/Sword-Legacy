@@ -41,6 +41,8 @@ protected:
 	virtual void PossessedBy(AController* NewController) override;
 	// ~ End APawn Interface
 	
+#pragma region Components
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 	TObjectPtr<USL_EnemyCombatComponent> EnemyCombatComponent;
 	
@@ -49,6 +51,10 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
 	TObjectPtr<UWidgetComponent> EnemyHealthWidgetComponent;
+	
+#pragma endregion
+	
+#pragma region DissolveEffect
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CharacterData")
 	TObjectPtr<UCurveFloat> DissolveCurve;
@@ -67,6 +73,8 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CharacterData")
 	FName DissolveNiagaraParticleColorName = FName(TEXT("DissolveParticleColor"));
+	
+#pragma endregion
 	
 private:
 	void InitEnemyStartupData();
