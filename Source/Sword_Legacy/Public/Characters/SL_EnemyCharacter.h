@@ -6,6 +6,7 @@
 #include "Interfaces/SL_EnemyDeathInterface.h"
 #include "SL_EnemyCharacter.generated.h"
 
+class UWidgetComponent;
 class USL_EnemyUIComponent;
 class USL_EnemyCombatComponent;
 
@@ -45,6 +46,9 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
 	TObjectPtr<USL_EnemyUIComponent> EnemyUIComponent;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
+	TObjectPtr<UWidgetComponent> EnemyHealthWidgetComponent;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CharacterData")
 	TObjectPtr<UCurveFloat> DissolveCurve;

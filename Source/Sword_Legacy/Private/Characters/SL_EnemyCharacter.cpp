@@ -8,6 +8,7 @@
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraSystem.h"
 #include "NiagaraComponent.h"
+#include "Components/WidgetComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Components/UI/SL_EnemyUIComponent.h"
 
@@ -33,6 +34,7 @@ ASL_EnemyCharacter::ASL_EnemyCharacter()
 	
 	EnemyCombatComponent = CreateDefaultSubobject<USL_EnemyCombatComponent>(TEXT("EnemyCombatComponent"));
 	EnemyUIComponent = CreateDefaultSubobject<USL_EnemyUIComponent>(TEXT("EnemyUIComponent"));
+	EnemyHealthWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("EnemyHealthWidgetComponent"));
 }
 
 void ASL_EnemyCharacter::BeginPlay()
