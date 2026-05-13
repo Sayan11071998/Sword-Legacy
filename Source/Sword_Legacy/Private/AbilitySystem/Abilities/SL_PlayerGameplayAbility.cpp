@@ -3,6 +3,7 @@
 #include "Controllers/SL_PlayerController.h"
 #include "AbilitySystem/SL_AbilitySystemComponent.h"
 #include "Utilities/SL_GameplayTags.h"
+#include "Components/UI/SL_PlayerUIComponent.h"
 
 ASL_PlayerCharacter* USL_PlayerGameplayAbility::GetPlayerCharacterFromActorInfo()
 {
@@ -27,6 +28,11 @@ ASL_PlayerController* USL_PlayerGameplayAbility::GetPlayerControllerFromActorInf
 USL_PlayerCombatComponent* USL_PlayerGameplayAbility::GetPlayerCombatComponentFromActorInfo()
 {
 	return GetPlayerCharacterFromActorInfo()->GetPlayerCombatComponent();
+}
+
+USL_PlayerUIComponent* USL_PlayerGameplayAbility::GetPlayerUIComponentFromActorInfo()
+{
+	return GetPlayerCharacterFromActorInfo()->GetPlayerUIComponent();
 }
 
 FGameplayEffectSpecHandle USL_PlayerGameplayAbility::MakePlayerDamageEffectSpecHandle(

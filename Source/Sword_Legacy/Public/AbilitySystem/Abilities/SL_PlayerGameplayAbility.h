@@ -4,6 +4,7 @@
 #include "AbilitySystem/Abilities/SL_GameplayAbility.h"
 #include "SL_PlayerGameplayAbility.generated.h"
 
+class USL_PlayerUIComponent;
 class USL_PlayerCombatComponent;
 class ASL_PlayerController;
 class ASL_PlayerCharacter;
@@ -22,6 +23,9 @@ public:
 	
 	UFUNCTION(BlueprintPure, Category = "Player|Ability")
 	USL_PlayerCombatComponent* GetPlayerCombatComponentFromActorInfo();
+	
+	UFUNCTION(BlueprintPure, Category = "Player|Ability")
+	USL_PlayerUIComponent* GetPlayerUIComponentFromActorInfo();
 	
 	UFUNCTION(BlueprintPure, Category = "Player|Ability")
 	FGameplayEffectSpecHandle MakePlayerDamageEffectSpecHandle(
