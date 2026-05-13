@@ -6,6 +6,8 @@
 #include "Interfaces/SL_EnemyDeathInterface.h"
 #include "SL_EnemyCharacter.generated.h"
 
+class UWidgetComponent;
+class USL_EnemyUIComponent;
 class USL_EnemyCombatComponent;
 
 UCLASS()
@@ -21,10 +23,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	// ~ End ACharacter Interface
 	
-	// ~ Begin APawn Interface
-	virtual void PossessedBy(AController* NewController) override;
-	// ~ End APawn Interface
-	
 	// ~ Begin ISL_PawnCombatInterface Interface
 	virtual TObjectPtr<USL_PawnCombatComponent> GetPawnCombatComponent() const override;
 	// ~ End ISL_PawnCombatInterface Interface
@@ -33,9 +31,30 @@ public:
 	virtual void OnEnemyDied_Implementation(const TSoftObjectPtr<UNiagaraSystem>& InSoftNiagaraSystem) override;
 	// ~ End ISL_EnemyDeathInterface Interface
 	
+	// ~ Begin ISL_PawnUIInterface Interface
+	virtual TObjectPtr<USL_PawnUIComponent> GetPawnUIComponent() const override;
+	virtual TObjectPtr<USL_EnemyUIComponent> GetEnemyUIComponent() const override;
+	// ~ End ISL_PawnUIInterface Interface
+	
 protected:
+	// ~ Begin APawn Interface
+	virtual void PossessedBy(AController* NewController) override;
+	// ~ End APawn Interface
+	
+#pragma region Components
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 	TObjectPtr<USL_EnemyCombatComponent> EnemyCombatComponent;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
+	TObjectPtr<USL_EnemyUIComponent> EnemyUIComponent;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
+	TObjectPtr<UWidgetComponent> EnemyHealthWidgetComponent;
+	
+#pragma endregion
+	
+#pragma region DissolveEffect
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CharacterData")
 	TObjectPtr<UCurveFloat> DissolveCurve;
@@ -54,6 +73,8 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CharacterData")
 	FName DissolveNiagaraParticleColorName = FName(TEXT("DissolveParticleColor"));
+	
+#pragma endregion
 	
 private:
 	void InitEnemyStartupData();

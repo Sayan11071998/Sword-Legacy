@@ -11,6 +11,8 @@
 	GAMEPLAYATTRIBUTE_VALUE_SETTER(PropertyName) \
 	GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName)
 
+class ISL_PawnUIInterface;
+
 UCLASS()
 class SWORD_LEGACY_API USL_AttributeSet : public UAttributeSet
 {
@@ -50,4 +52,7 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Damage")
 	FGameplayAttributeData DamageTaken;
 	ATTRIBUTE_ACCESSORS(USL_AttributeSet, DamageTaken)
+	
+private:
+	TWeakInterfacePtr<ISL_PawnUIInterface> CachedPawnUIInterface;
 };

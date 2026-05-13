@@ -5,6 +5,7 @@
 #include "Characters/SL_BaseCharacter.h"
 #include "SL_PlayerCharacter.generated.h"
 
+class USL_PlayerUIComponent;
 struct FInputActionValue;
 class USL_DataAsset_InputConfig;
 class UCameraComponent;
@@ -32,6 +33,11 @@ public:
 	virtual TObjectPtr<USL_PawnCombatComponent> GetPawnCombatComponent() const override;
 	// ~ End ISL_PawnCombatInterface Interface
 	
+	// ~ Begin ISL_PawnUIInterface Interface
+	virtual TObjectPtr<USL_PawnUIComponent> GetPawnUIComponent() const override;
+	virtual TObjectPtr<USL_PlayerUIComponent> GetPlayerUIComponent() const override;
+	// ~ End ISL_PawnUIInterface Interface
+	
 private:
 #pragma region Components
 	
@@ -43,6 +49,9 @@ private:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USL_PlayerCombatComponent> PlayerCombatComponent;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USL_PlayerUIComponent> PlayerUIComponent;
 	
 #pragma endregion
 	

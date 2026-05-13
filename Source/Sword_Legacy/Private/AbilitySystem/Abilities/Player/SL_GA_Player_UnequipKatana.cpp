@@ -7,10 +7,11 @@
 #include "Controllers/SL_PlayerController.h"
 #include "AbilitySystem/SL_AbilitySystemComponent.h"
 #include "AnimInstances/Player/SL_PlayerLinkedAnimLayer.h"
+#include "Components/UI/SL_PlayerUIComponent.h"
 
 void USL_GA_Player_UnequipKatana::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
-                                                  const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
-                                                  const FGameplayEventData* TriggerEventData)
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+	const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
@@ -103,5 +104,10 @@ void USL_GA_Player_UnequipKatana::HandleUnequipWeapon(ASL_PlayerWeapon* InWeapon
 	{
 		TArray<FGameplayAbilitySpecHandle> HandlesToRemove = InWeapon->GetGrantedAbilitySpecHandles();
 		ASCToRemove->RemoveGrantedPlayerWeaponAbilities(HandlesToRemove);
+	}
+	
+	if (USL_PlayerUIComponent* UIComponent = GetPlayerUIComponentFromActorInfo())
+	{
+		UIComponent->OnEquippedWeaponChanged.Broadcast(nullptr);
 	}
 }

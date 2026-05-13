@@ -8,7 +8,10 @@
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraSystem.h"
 #include "NiagaraComponent.h"
+#include "Components/WidgetComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include "Components/UI/SL_EnemyUIComponent.h"
+#include "Widgets/SL_WidgetBase.h"
 
 ASL_EnemyCharacter::ASL_EnemyCharacter()
 {
@@ -31,6 +34,10 @@ ASL_EnemyCharacter::ASL_EnemyCharacter()
 	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	
 	EnemyCombatComponent = CreateDefaultSubobject<USL_EnemyCombatComponent>(TEXT("EnemyCombatComponent"));
+	EnemyUIComponent = CreateDefaultSubobject<USL_EnemyUIComponent>(TEXT("EnemyUIComponent"));
+	
+	EnemyHealthWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("EnemyHealthWidgetComponent"));
+	EnemyHealthWidgetComponent->SetupAttachment(GetMesh());
 }
 
 void ASL_EnemyCharacter::BeginPlay()
@@ -38,6 +45,11 @@ void ASL_EnemyCharacter::BeginPlay()
 	Super::BeginPlay();
 	
 	GetMesh()->HideBoneByName(LeftWeaponBoneName, PBO_Term);
+	
+	if (USL_WidgetBase* HealthWidget = Cast<USL_WidgetBase>(EnemyHealthWidgetComponent->GetUserWidgetObject()))
+	{
+		HealthWidget->InitEnemyCreatedWidget(this);
+	}
 	
 	if (DissolveCurve)
 	{
@@ -133,6 +145,16 @@ void ASL_EnemyCharacter::OnEnemyDied_Implementation(const TSoftObjectPtr<UNiagar
         
 		SetActorTickEnabled(true);
 	}
+}
+
+TObjectPtr<USL_PawnUIComponent> ASL_EnemyCharacter::GetPawnUIComponent() const
+{
+	return EnemyUIComponent;
+}
+
+TObjectPtr<USL_EnemyUIComponent> ASL_EnemyCharacter::GetEnemyUIComponent() const
+{
+	return EnemyUIComponent;
 }
 
 void ASL_EnemyCharacter::InitEnemyStartupData()

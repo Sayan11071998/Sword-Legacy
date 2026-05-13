@@ -7,6 +7,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "AbilitySystem/SL_AbilitySystemComponent.h"
 #include "Controllers/SL_PlayerController.h"
+#include "Components/UI/SL_PlayerUIComponent.h"
 
 void USL_GA_Player_EquipKatana::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
@@ -106,5 +107,10 @@ void USL_GA_Player_EquipKatana::HandleEquipWeapon(ASL_PlayerWeapon* InWeapon)
 				}
 			}
 		}
+	}
+	
+	if (USL_PlayerUIComponent* UIComponent = GetPlayerUIComponentFromActorInfo())
+	{
+		UIComponent->OnEquippedWeaponChanged.Broadcast(WeaponData.SoftWeaponIconTexture);
 	}
 }

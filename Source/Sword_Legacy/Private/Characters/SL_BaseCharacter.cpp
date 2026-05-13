@@ -23,6 +23,11 @@ TObjectPtr<USL_PawnCombatComponent> ASL_BaseCharacter::GetPawnCombatComponent() 
 	return nullptr;
 }
 
+TObjectPtr<USL_PawnUIComponent> ASL_BaseCharacter::GetPawnUIComponent() const
+{
+	return nullptr;
+}
+
 void ASL_BaseCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
