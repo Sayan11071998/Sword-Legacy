@@ -15,6 +15,10 @@ class SWORD_LEGACY_API ASL_AIController : public AAIController
 public:
 	ASL_AIController(const FObjectInitializer& ObjectInitializer);
 	
+	// ~ Begin IGenericTeamAgentInterface Interface
+	virtual ETeamAttitude::Type GetTeamAttitudeTowards(const AActor& Other) const override;
+	// ~ End IGenericTeamAgentInterface Interface
+	
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UAIPerceptionComponent> EnemyPerceptionComponent;
