@@ -44,6 +44,16 @@ ETeamAttitude::Type ASL_AIController::GetTeamAttitudeTowards(const AActor& Other
 	return ETeamAttitude::Friendly;
 }
 
+void ASL_AIController::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
+	
+	if (BehaviorTreeToRun)
+	{
+		RunBehaviorTree(BehaviorTreeToRun);
+	}
+}
+
 void ASL_AIController::OnEnemyPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
 	if (Stimulus.WasSuccessfullySensed() && Actor)
