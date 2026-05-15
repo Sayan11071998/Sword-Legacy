@@ -88,12 +88,9 @@ void ASL_AIController::OnEnemyPerceptionUpdated(AActor* Actor, FAIStimulus Stimu
 {
 	if (UBlackboardComponent* BlackboardComponent = GetBlackboardComponent())
 	{
-		if (BlackboardComponent->GetValueAsObject(FName("TargetActor")))
+		if (Stimulus.WasSuccessfullySensed() && Actor)
 		{
-			if (Stimulus.WasSuccessfullySensed() && Actor)
-			{
-				BlackboardComponent->SetValueAsObject(FName("TargetActor"), Actor);
-			}
+			BlackboardComponent->SetValueAsObject(FName("TargetActor"), Actor);
 		}
 	}
 }
