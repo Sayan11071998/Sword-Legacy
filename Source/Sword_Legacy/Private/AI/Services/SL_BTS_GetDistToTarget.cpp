@@ -4,7 +4,7 @@
 
 USL_BTS_GetDistToTarget::USL_BTS_GetDistToTarget()
 {
-	NodeName = TEXT("Get Distance To Target");
+	NodeName = TEXT("Native Get Distance To Target");
 	
 	INIT_SERVICE_NODE_NOTIFY_FLAGS();
 	
