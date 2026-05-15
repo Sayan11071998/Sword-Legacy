@@ -1,5 +1,8 @@
 #include "AI/Services/SL_BTS_OrientToTargetActor.h"
 #include "BehaviorTree/BlackboardData.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "AIController.h"
+#include "Kismet/KismetMathLibrary.h"
 
 USL_BTS_OrientToTargetActor::USL_BTS_OrientToTargetActor()
 {
@@ -29,4 +32,31 @@ FString USL_BTS_OrientToTargetActor::GetStaticDescription() const
 	const FString KeyDescription = InTargetActorKey.SelectedKeyName.ToString();
 	
 	return FString::Printf(TEXT("Orient Rotation To %s Key %s"), *KeyDescription, *GetStaticServiceDescription());
+}
+
+void USL_BTS_OrientToTargetActor::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
+{
+	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
+	
+	UObject* ActorObject = OwnerComp.GetBlackboardComponent()->GetValueAsObject(InTargetActorKey.SelectedKeyName);
+	AActor* TargetActor = Cast<AActor>(ActorObject);
+	
+	APawn* OwningPawn = OwnerComp.GetAIOwner()->GetPawn();
+	
+	if (OwningPawn && TargetActor)
+	{
+		const FRotator LookAtRot = UKismetMathLibrary::FindLookAtRotation(
+			OwningPawn->GetActorLocation(),
+			TargetActor->GetActorLocation()
+		);
+		
+		const FRotator TargetRot = FMath::RInterpTo(
+			OwningPawn->GetActorRotation(),
+			LookAtRot,
+			DeltaSeconds,
+			RotationInterpSpeed
+		);
+		
+		OwningPawn->SetActorRotation(TargetRot);
+	}
 }

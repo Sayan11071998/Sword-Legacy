@@ -17,6 +17,11 @@ public:
 	virtual FString GetStaticDescription() const override;
 	// ~ End UBTNode Interface
 	
+protected:
+	// ~ Begin UBTService Interface
+	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
+	// ~ End UBTService Interface
+	
 private:
 	UPROPERTY(EditAnywhere, Category = "Target")
 	FBlackboardKeySelector InTargetActorKey;
