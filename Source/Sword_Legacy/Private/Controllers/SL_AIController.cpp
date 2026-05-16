@@ -3,6 +3,8 @@
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 ASL_AIController::ASL_AIController(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UCrowdFollowingComponent>("PathFollowingComponent"))
@@ -81,6 +83,15 @@ void ASL_AIController::OnPossess(APawn* InPawn)
 	if (BehaviorTreeToRun)
 	{
 		RunBehaviorTree(BehaviorTreeToRun);
+	}
+	
+	if (ACharacter* PossessedCharacter = Cast<ACharacter>(InPawn))
+	{
+		if (UBlackboardComponent* BlackboardComp = GetBlackboardComponent())
+		{
+			const float DefaultMaxWalkSpeed = PossessedCharacter->GetCharacterMovement()->MaxWalkSpeed;
+			BlackboardComp->SetValueAsFloat(FName("DefaultMaxWalkSpeed"), DefaultMaxWalkSpeed);
+		}
 	}
 }
 
