@@ -1,5 +1,6 @@
 #include "Items/Weapons/SL_WeaponBase.h"
 #include "Components/BoxComponent.h"
+#include "Utilities/SL_FunctionLibrary.h"
 
 ASL_WeaponBase::ASL_WeaponBase()
 {
@@ -27,7 +28,7 @@ void ASL_WeaponBase::OnCollisionBoxBeginOverlap(UPrimitiveComponent* OverlappedC
 	
 	if (APawn* HitPawn = Cast<APawn>(OtherActor))
 	{
-		if (WeaponOwningPawn != HitPawn)
+		if (USL_FunctionLibrary::IsTargetPawnHostile(WeaponOwningPawn, HitPawn))
 		{
 			OnWeaponHitTarget.ExecuteIfBound(OtherActor);
 		}
@@ -42,7 +43,7 @@ void ASL_WeaponBase::OnCollisionBoxEndOverlap(UPrimitiveComponent* OverlappedCom
 	
 	if (APawn* HitPawn = Cast<APawn>(OtherActor))
 	{
-		if (WeaponOwningPawn != HitPawn)
+		if (USL_FunctionLibrary::IsTargetPawnHostile(WeaponOwningPawn, HitPawn))
 		{
 			OnWeaponPulledFromTarget.ExecuteIfBound(OtherActor);
 		}
