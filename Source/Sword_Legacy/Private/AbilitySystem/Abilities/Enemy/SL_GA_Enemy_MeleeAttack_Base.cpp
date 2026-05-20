@@ -1,5 +1,7 @@
 #include "AbilitySystem/Abilities/Enemy/SL_GA_Enemy_MeleeAttack_Base.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+#include "Utilities/SL_GameplayTags.h"
 
 USL_GA_Enemy_MeleeAttack_Base::USL_GA_Enemy_MeleeAttack_Base()
 {
@@ -11,6 +13,16 @@ void USL_GA_Enemy_MeleeAttack_Base::ActivateAbility(const FGameplayAbilitySpecHa
 	const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	
+	UAbilityTask_WaitGameplayEvent* WaitGameplayEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+		this,
+		SL_GameplayTags::Shared_Event_MeleeHit,
+		nullptr,
+		false,
+		true
+	);
+	WaitGameplayEventTask->EventReceived.AddDynamic(this, &USL_GA_Enemy_MeleeAttack_Base::HandleApplyDamage);
+	WaitGameplayEventTask->ReadyForActivation();
 	
 	if (MontageToPlay)
 	{
@@ -29,6 +41,21 @@ void USL_GA_Enemy_MeleeAttack_Base::ActivateAbility(const FGameplayAbilitySpecHa
 	else
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+	}
+}
+
+void USL_GA_Enemy_MeleeAttack_Base::HandleApplyDamage(FGameplayEventData Payload)
+{
+	AActor* TargetActor = const_cast<AActor*>(Payload.Target.Get());
+	if (!TargetActor) return;
+	
+	if (DamageEffectClass)
+	{
+		const FGameplayEffectSpecHandle DamageSpecHandle = MakeEnemyDamageEffectSpecHandle(DamageEffectClass, InDamageScalableFloat);
+		if (DamageSpecHandle.IsValid())
+		{
+			NativeApplyEffectSpecHandleToTarget(TargetActor, DamageSpecHandle);
+		}
 	}
 }
 

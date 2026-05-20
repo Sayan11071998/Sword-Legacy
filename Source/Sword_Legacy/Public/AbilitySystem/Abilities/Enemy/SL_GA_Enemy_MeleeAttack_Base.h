@@ -25,6 +25,15 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Melee Attack")
 	TObjectPtr<UAnimMontage> MontageToPlay;
 	
+	UPROPERTY(EditDefaultsOnly, Category = "Melee Attack")
+	TSubclassOf<UGameplayEffect> DamageEffectClass;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Melee Attack")
+	FScalableFloat InDamageScalableFloat;
+	
+	UFUNCTION(BlueprintCallable, Category = "Melee Attack")
+	void HandleApplyDamage(FGameplayEventData Payload);
+	
 private:
 	UFUNCTION()
 	void OnMeleeAttackFinished();
