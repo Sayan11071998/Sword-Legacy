@@ -10,6 +10,7 @@
 class USL_DataAsset_StartupData_Base;
 class USL_AttributeSet;
 class USL_AbilitySystemComponent;
+class UMotionWarpingComponent;
 
 UCLASS()
 class SWORD_LEGACY_API ASL_BaseCharacter : public ACharacter, public IAbilitySystemInterface, public ISL_PawnCombatInterface, public ISL_PawnUIInterface
@@ -41,6 +42,9 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AbilitySystem")
 	TObjectPtr<USL_AttributeSet> CharacterAttributeSet;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "MotionWarping")
+	TObjectPtr<UMotionWarpingComponent> MotionWarpingComponent;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CharacterData")
 	TSoftObjectPtr<USL_DataAsset_StartupData_Base> CharacterStartupData;

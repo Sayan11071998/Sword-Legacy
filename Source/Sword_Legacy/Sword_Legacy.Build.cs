@@ -21,7 +21,8 @@ public class Sword_Legacy : ModuleRules
 			"GameplayTasks",
 			"Niagara",
 			"UMG",
-			"AIModule"
+			"AIModule",
+			"MotionWarping"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });
