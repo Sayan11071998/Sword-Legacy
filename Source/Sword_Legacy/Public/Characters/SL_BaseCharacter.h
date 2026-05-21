@@ -52,4 +52,5 @@ protected:
 public:
 	FORCEINLINE TObjectPtr<USL_AbilitySystemComponent> GetCharacterAbilitySystemComponent() const { return CharacterAbilitySystemComponent; }
 	FORCEINLINE TObjectPtr<USL_AttributeSet> GetCharacterAttributeSet() const { return CharacterAttributeSet; }
+	FORCEINLINE UMotionWarpingComponent* GetMotionWarpingComponent() const { return MotionWarpingComponent; }
 };
