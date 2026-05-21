@@ -35,7 +35,18 @@ public:
 	virtual FString GetStaticDescription() const override;
 	// ~ End UBTNode Interface
 	
+	// ~ Begin UBTTaskNode Interface
+	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+	// ~ End UBTTaskNode Interface
+	
+protected:
+	// ~ Begin UBTTaskNode Interface
+	virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
+	// ~ End UBTTaskNode Interface
+	
 private:
+	bool HasReachedAnglePrecision(TObjectPtr<APawn> QueryPawn, TObjectPtr<AActor> TargetActor) const;
+	
 	UPROPERTY(EditAnywhere, Category = "FaceTarget")
 	float AnglePrecision;
 	
