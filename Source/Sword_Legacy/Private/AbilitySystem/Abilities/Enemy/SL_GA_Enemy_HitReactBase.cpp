@@ -1,5 +1,6 @@
 #include "AbilitySystem/Abilities/Enemy/SL_GA_Enemy_HitReactBase.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "AbilitySystem/SL_AbilitySystemComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Characters/SL_EnemyCharacter.h"
 #include "Utilities/SL_GameplayTags.h"
@@ -36,6 +37,23 @@ void USL_GA_Enemy_HitReactBase::ActivateAbility(const FGameplayAbilitySpecHandle
 	if (USkeletalMeshComponent* SkeletalMeshComponent = GetCurrentActorInfo()->SkeletalMeshComponent.Get())
 	{
 		SkeletalMeshComponent->SetScalarParameterValueOnMaterials(HitParameterName, HitFlashIntensity);
+	}
+	
+	if (HitReactEffectClass)
+	{
+		FGameplayEffectContextHandle EffectContext = GetPawnAbilitySystemComponentFromActorInfo()->MakeEffectContext();
+		EffectContext.AddSourceObject(GetAvatarActorFromActorInfo());
+		
+		FGameplayEffectSpecHandle SpecHandle = GetPawnAbilitySystemComponentFromActorInfo()->MakeOutgoingSpec(
+			HitReactEffectClass,
+			GetAbilityLevel(),
+			EffectContext
+		);
+		
+		if (SpecHandle.IsValid())
+		{
+			AppliedHitReactEffectHandle = GetPawnAbilitySystemComponentFromActorInfo()->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+		}
 	}
 	
 	if (!MontagesToPlay.IsEmpty())
@@ -75,6 +93,12 @@ void USL_GA_Enemy_HitReactBase::EndAbility(const FGameplayAbilitySpecHandle Hand
 	if (USkeletalMeshComponent* SkeletalMeshComponent = GetCurrentActorInfo()->SkeletalMeshComponent.Get())
 	{
 		SkeletalMeshComponent->SetScalarParameterValueOnMaterials(HitParameterName, 0.f);
+	}
+	
+	if (AppliedHitReactEffectHandle.IsValid())
+	{
+		GetPawnAbilitySystemComponentFromActorInfo()->RemoveActiveGameplayEffect(AppliedHitReactEffectHandle);
+		AppliedHitReactEffectHandle.Invalidate();
 	}
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
