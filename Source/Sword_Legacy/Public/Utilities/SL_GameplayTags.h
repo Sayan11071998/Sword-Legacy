@@ -37,6 +37,9 @@ namespace SL_GameplayTags
 	
 	SWORD_LEGACY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Enemy_Weapon);
 	
+	SWORD_LEGACY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Enemy_Status_Strafing);
+	SWORD_LEGACY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Enemy_Status_UnderAttack);
+	
 	/** Shared Tags **/
 	SWORD_LEGACY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_Ability_HitReact);
 	SWORD_LEGACY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_Ability_Death);
@@ -50,5 +53,6 @@ namespace SL_GameplayTags
 	
 	/** Gameplay Cues **/
 	SWORD_LEGACY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Sounds_MeleeHit_Katana);
+	SWORD_LEGACY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Sounds_MeleeHit_EnemyMeleeWeapon);
 	SWORD_LEGACY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Sounds_Death_Enemy_Serath);
 }

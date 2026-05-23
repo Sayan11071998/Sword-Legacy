@@ -19,4 +19,7 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Pawn|Ability")
 	void RemoveGrantedPlayerWeaponAbilities(UPARAM(ref) TArray<FGameplayAbilitySpecHandle>& InSpecHandlesToRemove);
+	
+	UFUNCTION(BlueprintCallable, Category = "Pawn|Ability")
+	bool TryActivateAbilityByTag(FGameplayTag AbilityTagToActivate);
 };

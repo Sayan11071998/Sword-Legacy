@@ -34,6 +34,9 @@ protected:
 	TArray<TObjectPtr<UAnimMontage>> MontagesToPlay;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Hit React")
+	TSubclassOf<UGameplayEffect> HitReactEffectClass;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Hit React")
 	bool bFaceAttacker = true;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Hit React")
@@ -45,4 +48,6 @@ protected:
 private:
 	UFUNCTION()
 	void OnHitReactFinished();
+	
+	FActiveGameplayEffectHandle AppliedHitReactEffectHandle;
 };

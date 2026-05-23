@@ -1,6 +1,7 @@
 #include "DataAssets/StartupData/SL_DataAsset_StartupData_Player.h"
 #include "AbilitySystem/SL_AbilitySystemComponent.h"
 #include "AbilitySystem/Abilities/SL_GameplayAbility.h"
+#include "AbilitySystem/Abilities/SL_PlayerGameplayAbility.h"
 #include "PawnTypes/SL_PawnStructTypes.h"
 
 void USL_DataAsset_StartupData_Player::GiveToAbilitySystemComponent(TObjectPtr<USL_AbilitySystemComponent> InASCToGive,

@@ -1,5 +1,5 @@
 #include "AbilitySystem/SL_AbilitySystemComponent.h"
-#include "AbilitySystem/Abilities/SL_GameplayAbility.h"
+#include "AbilitySystem/Abilities/SL_PlayerGameplayAbility.h"
 
 void USL_AbilitySystemComponent::OnAbilityInputPressed(const FGameplayTag& InInputTag)
 {
@@ -49,4 +49,27 @@ void USL_AbilitySystemComponent::RemoveGrantedPlayerWeaponAbilities(
 	}
 	
 	InSpecHandlesToRemove.Empty();
+}
+
+bool USL_AbilitySystemComponent::TryActivateAbilityByTag(FGameplayTag AbilityTagToActivate)
+{
+	check(AbilityTagToActivate.IsValid());
+	
+	TArray<FGameplayAbilitySpec*> FoundAbilitiesSpecs;
+	GetActivatableGameplayAbilitySpecsByAllMatchingTags(AbilityTagToActivate.GetSingleTagContainer(), FoundAbilitiesSpecs);
+	
+	if (!FoundAbilitiesSpecs.IsEmpty())
+	{
+		const int32 RandomAbilityIndex = FMath::RandRange(0, FoundAbilitiesSpecs.Num() - 1);
+		FGameplayAbilitySpec* SpecToActivate = FoundAbilitiesSpecs[RandomAbilityIndex];
+		
+		check(SpecToActivate);
+		
+		if (!SpecToActivate->IsActive())
+		{
+			return TryActivateAbility(SpecToActivate->Handle);
+		}
+	}
+	
+	return false;
 }

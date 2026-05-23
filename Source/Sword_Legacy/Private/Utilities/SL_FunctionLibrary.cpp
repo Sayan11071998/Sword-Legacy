@@ -2,6 +2,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystem/SL_AbilitySystemComponent.h"
 #include "Interfaces/SL_PawnCombatInterface.h"
+#include "GenericTeamAgentInterface.h"
 
 TObjectPtr<USL_AbilitySystemComponent> USL_FunctionLibrary::NativeGetASCFromActor(TObjectPtr<AActor> InActor)
 {
@@ -61,4 +62,19 @@ USL_PawnCombatComponent* USL_FunctionLibrary::BP_GetPawnCombatComponentFromActor
 	OutValidType = CombatComponent ? ESL_ValidType::Valid : ESL_ValidType::Invalid;
 	
 	return CombatComponent;
+}
+
+bool USL_FunctionLibrary::IsTargetPawnHostile(APawn* QueryPawn, APawn* TargetPawn)
+{
+	check(QueryPawn && TargetPawn);
+	
+	IGenericTeamAgentInterface* QueryTeamAgent = Cast<IGenericTeamAgentInterface>(QueryPawn->GetController());
+	IGenericTeamAgentInterface* TargetTeamAgent = Cast<IGenericTeamAgentInterface>(TargetPawn->GetController());
+	
+	if (QueryTeamAgent && TargetTeamAgent)
+	{
+		return QueryTeamAgent->GetGenericTeamId() != TargetTeamAgent->GetGenericTeamId();
+	}
+	
+	return false;
 }

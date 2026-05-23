@@ -19,6 +19,12 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Pawn|Ability")
 	USL_EnemyCombatComponent* GetEnemyCombatComponentFromActorInfo();
 	
+	UFUNCTION(BlueprintPure, Category = "Pawn|Ability")
+	FGameplayEffectSpecHandle MakeEnemyDamageEffectSpecHandle(
+		TSubclassOf<UGameplayEffect> EffectClass,
+		const FScalableFloat& InDamageScalableFloat
+	);
+	
 private:
 	TWeakObjectPtr<ASL_EnemyCharacter> CachedEnemyCharacter;
 };
