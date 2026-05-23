@@ -31,6 +31,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Melee Attack")
 	FScalableFloat InDamageScalableFloat;
 	
+	UPROPERTY(EditDefaultsOnly, Category = "Melee Attack")
+	FGameplayTag WeaponHitSoundGameplayCueTag;
+	
 	UFUNCTION(BlueprintCallable, Category = "Melee Attack")
 	void HandleApplyDamage(FGameplayEventData Payload);
 	

@@ -55,6 +55,12 @@ void USL_GA_Enemy_MeleeAttack_Base::HandleApplyDamage(FGameplayEventData Payload
 		if (DamageSpecHandle.IsValid())
 		{
 			NativeApplyEffectSpecHandleToTarget(TargetActor, DamageSpecHandle);
+
+			if (WeaponHitSoundGameplayCueTag.IsValid())
+			{
+				FGameplayEffectContextHandle ContextHandle = DamageSpecHandle.Data->GetContext();
+				K2_ExecuteGameplayCue(WeaponHitSoundGameplayCueTag, ContextHandle);
+			}
 		}
 	}
 }
