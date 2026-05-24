@@ -8,8 +8,13 @@
 USL_GA_Player_Roll::USL_GA_Player_Roll()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-	
+
 	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_WorldStatic));
+
+	DelayDuration = 0.05f;
+	TraceHeight = 500.f;
+	RotationWarpTargetName = FName("RollingDirection");
+	LocationWarpTargetName = FName("RollTargetLocation");
 }
 
 void USL_GA_Player_Roll::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -18,7 +23,7 @@ void USL_GA_Player_Roll::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	UAbilityTask_WaitDelay* DelayTask = UAbilityTask_WaitDelay::WaitDelay(this, 0.01f);
+	UAbilityTask_WaitDelay* DelayTask = UAbilityTask_WaitDelay::WaitDelay(this, DelayDuration);
 	if (DelayTask)
 	{
 		DelayTask->OnFinish.AddDynamic(this, &USL_GA_Player_Roll::OnDelayFinished);
@@ -43,14 +48,16 @@ void USL_GA_Player_Roll::ComputeRollDirectionAndDistance()
 	FRotator RollRotation = RollDirection.Rotation();
 	
 	MotionWarpComp->AddOrUpdateWarpTargetFromLocationAndRotation(
-		FName("RollingDirection"),
+		RotationWarpTargetName,
 		FVector::ZeroVector,
 		RollRotation
 	);
 
+	float RollDistance = RollingDistanceScalableFloat.GetValueAtLevel(GetAbilityLevel());
+
 	FVector ActorLocation = PlayerChar->GetActorLocation();
-	FVector Start = ActorLocation + (RollDirection * 500.f);
-	FVector End = Start + (PlayerChar->GetActorUpVector() * -100.f);
+	FVector Start = ActorLocation + (RollDirection * RollDistance);
+	FVector End = Start + (PlayerChar->GetActorUpVector() * -TraceHeight);
 	
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(PlayerChar);
@@ -70,14 +77,13 @@ void USL_GA_Player_Roll::ComputeRollDirectionAndDistance()
 	);
 
 	FVector TargetLocation = Start;
-	
 	if (bHit)
 	{
 		TargetLocation = HitResult.ImpactPoint;
 	}
 
 	MotionWarpComp->AddOrUpdateWarpTargetFromLocation(
-		FName("RollTargetLocation"),
+		LocationWarpTargetName,
 		TargetLocation
 	);
 }

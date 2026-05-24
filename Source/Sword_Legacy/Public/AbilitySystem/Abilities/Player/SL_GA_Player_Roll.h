@@ -28,6 +28,21 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Roll")
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
 	
+	UPROPERTY(EditDefaultsOnly, Category = "Roll")
+	FScalableFloat RollingDistanceScalableFloat;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Roll")
+	float DelayDuration;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Roll")
+	float TraceHeight;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Roll")
+	FName RotationWarpTargetName;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Roll")
+	FName LocationWarpTargetName;
+	
 private:
 	void ComputeRollDirectionAndDistance();
 	
