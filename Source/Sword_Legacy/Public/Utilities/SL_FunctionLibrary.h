@@ -6,6 +6,7 @@
 #include "PawnTypes/SL_PawnEnumTypes.h"
 #include "SL_FunctionLibrary.generated.h"
 
+struct FScalableFloat;
 class USL_PawnCombatComponent;
 class USL_AbilitySystemComponent;
 
@@ -33,4 +34,7 @@ public:
 	
 	UFUNCTION(BlueprintPure, Category = "Pawn|Function Library")
 	static bool IsTargetPawnHostile(APawn* QueryPawn, APawn* TargetPawn);
+	
+	UFUNCTION(BlueprintPure, Category = "Pawn|Function Library", meta = (CompactNodeTitle = "Get Value At Level"))
+	static float GetScalableFloatValueAtLevel(const FScalableFloat& InScalableFloat, float InLevel = 1.f);
 };
