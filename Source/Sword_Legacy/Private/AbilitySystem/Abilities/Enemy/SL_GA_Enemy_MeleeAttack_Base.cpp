@@ -2,6 +2,7 @@
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Utilities/SL_GameplayTags.h"
+#include "AbilitySystemBlueprintLibrary.h"
 
 USL_GA_Enemy_MeleeAttack_Base::USL_GA_Enemy_MeleeAttack_Base()
 {
@@ -61,6 +62,12 @@ void USL_GA_Enemy_MeleeAttack_Base::HandleApplyDamage(FGameplayEventData Payload
 				FGameplayEffectContextHandle ContextHandle = DamageSpecHandle.Data->GetContext();
 				K2_ExecuteGameplayCue(WeaponHitSoundGameplayCueTag, ContextHandle);
 			}
+			
+			UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+				TargetActor,
+				SL_GameplayTags::Shared_Event_HitReact,
+				Payload
+			);
 		}
 	}
 }
