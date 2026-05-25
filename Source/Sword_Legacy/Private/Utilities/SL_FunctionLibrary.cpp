@@ -3,6 +3,7 @@
 #include "AbilitySystem/SL_AbilitySystemComponent.h"
 #include "Interfaces/SL_PawnCombatInterface.h"
 #include "GenericTeamAgentInterface.h"
+#include "Kismet/KismetMathLibrary.h"
 
 TObjectPtr<USL_AbilitySystemComponent> USL_FunctionLibrary::NativeGetASCFromActor(TObjectPtr<AActor> InActor)
 {
@@ -82,4 +83,18 @@ bool USL_FunctionLibrary::IsTargetPawnHostile(APawn* QueryPawn, APawn* TargetPaw
 float USL_FunctionLibrary::GetScalableFloatValueAtLevel(const FScalableFloat& InScalableFloat, float InLevel)
 {
 	return InScalableFloat.GetValueAtLevel(InLevel);
+}
+
+FGameplayTag USL_FunctionLibrary::ComputeHitReactDirectionTag(AActor* InAttacker, AActor* InVictim,
+	float& OutAngleDifference)
+{
+	check(InAttacker && InVictim);
+	
+	const FVector VictimForward = InVictim->GetActorForwardVector();
+	const FVector VictimToAttackerNormalized = (InAttacker->GetActorLocation() - InVictim->GetActorLocation()).GetSafeNormal();
+	
+	const float DotResult = FVector::DotProduct(VictimForward, VictimToAttackerNormalized);
+	OutAngleDifference = UKismetMathLibrary::DegAcos(DotResult);
+	
+	return FGameplayTag();
 }

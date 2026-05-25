@@ -37,4 +37,7 @@ public:
 	
 	UFUNCTION(BlueprintPure, Category = "Pawn|Function Library", meta = (CompactNodeTitle = "Get Value At Level"))
 	static float GetScalableFloatValueAtLevel(const FScalableFloat& InScalableFloat, float InLevel = 1.f);
+	
+	UFUNCTION(BlueprintPure, Category = "Pawn|Function Library")
+	static FGameplayTag ComputeHitReactDirectionTag(AActor* InAttacker, AActor* InVictim, float& OutAngleDifference);
 };
