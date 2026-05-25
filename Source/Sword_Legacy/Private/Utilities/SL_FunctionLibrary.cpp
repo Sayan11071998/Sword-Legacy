@@ -4,6 +4,7 @@
 #include "Interfaces/SL_PawnCombatInterface.h"
 #include "GenericTeamAgentInterface.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Utilities/SL_GameplayTags.h"
 
 TObjectPtr<USL_AbilitySystemComponent> USL_FunctionLibrary::NativeGetASCFromActor(TObjectPtr<AActor> InActor)
 {
@@ -103,5 +104,22 @@ FGameplayTag USL_FunctionLibrary::ComputeHitReactDirectionTag(AActor* InAttacker
 		OutAngleDifference *= -1.f;
 	}
 	
-	return FGameplayTag();
+	if (OutAngleDifference >= -45.f && OutAngleDifference <= 45.f)
+	{
+		return SL_GameplayTags::Shared_Status_HitReact_Front;
+	}
+	else if (OutAngleDifference < -45.f && OutAngleDifference >= -135.f)
+	{
+		return SL_GameplayTags::Shared_Status_HitReact_Left;
+	}
+	else if (OutAngleDifference < -135.f || OutAngleDifference > 135.f)
+	{
+		return SL_GameplayTags::Shared_Status_HitReact_Back;
+	}
+	else if (OutAngleDifference > 45.f && OutAngleDifference <= 135.f)
+	{
+		return SL_GameplayTags::Shared_Status_HitReact_Right;
+	}
+	
+	return SL_GameplayTags::Shared_Status_HitReact_Front;
 }
