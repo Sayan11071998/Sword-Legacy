@@ -1,5 +1,6 @@
 #include "AbilitySystem/SL_AbilitySystemComponent.h"
 #include "AbilitySystem/Abilities/SL_PlayerGameplayAbility.h"
+#include "Utilities/SL_GameplayTags.h"
 
 void USL_AbilitySystemComponent::OnAbilityInputPressed(const FGameplayTag& InInputTag)
 {
@@ -15,6 +16,15 @@ void USL_AbilitySystemComponent::OnAbilityInputPressed(const FGameplayTag& InInp
 
 void USL_AbilitySystemComponent::OnAbilityInputReleased(const FGameplayTag& InInputTag)
 {
+	if (!InInputTag.IsValid() || !InInputTag.MatchesTag(SL_GameplayTags::InputTag_MustBeHeld)) return;
+	
+	for (const FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+	{
+		if (AbilitySpec.DynamicAbilityTags.HasTagExact(InInputTag) && AbilitySpec.IsActive())
+		{
+			CancelAbilityHandle(AbilitySpec.Handle);
+		}
+	}
 }
 
 void USL_AbilitySystemComponent::GrantPlayerWeaponAbilities(
