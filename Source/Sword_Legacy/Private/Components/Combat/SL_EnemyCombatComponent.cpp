@@ -25,7 +25,11 @@ void USL_EnemyCombatComponent::OnHitTargetActor(AActor* HitActor)
 	
 	if (bIsValidBlock)
 	{
-		
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+			HitActor,
+			SL_GameplayTags::Player_Event_SuccessfulBlock,
+			EventData
+		);
 	}
 	else
 	{

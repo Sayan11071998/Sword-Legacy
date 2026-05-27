@@ -135,8 +135,8 @@ bool USL_FunctionLibrary::IsValidBlock(AActor* InAttacker, AActor* InDefender)
 		InDefender->GetActorForwardVector()
 	);
 	
-	const FString DebugString = FString::Printf(TEXT("Dot Result: %f %s"), DotResult, DotResult < 0.f ? TEXT("Valid Block") : TEXT("Invalid Block"));
-	Debug::Print(DebugString, DotResult < -0.1f ? FColor::Green : FColor::Red);
+	// const FString DebugString = FString::Printf(TEXT("Dot Result: %f %s"), DotResult, DotResult < 0.f ? TEXT("Valid Block") : TEXT("Invalid Block"));
+	// Debug::Print(DebugString, DotResult < -0.1f ? FColor::Green : FColor::Red);
 	
 	return DotResult < -0.1f;
 }
