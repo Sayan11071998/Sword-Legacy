@@ -40,4 +40,7 @@ public:
 	
 	UFUNCTION(BlueprintPure, Category = "Pawn|Function Library")
 	static FGameplayTag ComputeHitReactDirectionTag(AActor* InAttacker, AActor* InVictim, float& OutAngleDifference);
+	
+	UFUNCTION(BlueprintPure, Category = "Pawn|Function Library")
+	static bool IsValidBlock(AActor* InAttacker, AActor* InDefender);
 };

@@ -6,6 +6,8 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Utilities/SL_GameplayTags.h"
 
+#include "SL_DebugHelper.h"
+
 TObjectPtr<USL_AbilitySystemComponent> USL_FunctionLibrary::NativeGetASCFromActor(TObjectPtr<AActor> InActor)
 {
 	check(InActor);
@@ -122,4 +124,19 @@ FGameplayTag USL_FunctionLibrary::ComputeHitReactDirectionTag(AActor* InAttacker
 	}
 	
 	return SL_GameplayTags::Shared_Status_HitReact_Front;
+}
+
+bool USL_FunctionLibrary::IsValidBlock(AActor* InAttacker, AActor* InDefender)
+{
+	check(InAttacker && InDefender);
+	
+	const float DotResult = FVector::DotProduct(
+		InAttacker->GetActorForwardVector(), 
+		InDefender->GetActorForwardVector()
+	);
+	
+	const FString DebugString = FString::Printf(TEXT("Dot Result: %f %s"), DotResult, DotResult < 0.f ? TEXT("Valid Block") : TEXT("Invalid Block"));
+	Debug::Print(DebugString, DotResult < 0.f ? FColor::Green : FColor::Red);
+	
+	return DotResult < 0.f;
 }
