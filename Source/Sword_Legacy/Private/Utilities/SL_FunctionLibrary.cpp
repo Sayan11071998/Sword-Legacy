@@ -136,7 +136,7 @@ bool USL_FunctionLibrary::IsValidBlock(AActor* InAttacker, AActor* InDefender)
 	);
 	
 	const FString DebugString = FString::Printf(TEXT("Dot Result: %f %s"), DotResult, DotResult < 0.f ? TEXT("Valid Block") : TEXT("Invalid Block"));
-	Debug::Print(DebugString, DotResult < 0.f ? FColor::Green : FColor::Red);
+	Debug::Print(DebugString, DotResult < -0.1f ? FColor::Green : FColor::Red);
 	
-	return DotResult < 0.f;
+	return DotResult < -0.1f;
 }
