@@ -66,4 +66,5 @@ namespace SL_GameplayTags
 	SWORD_LEGACY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Sounds_MeleeHit_Katana);
 	SWORD_LEGACY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Sounds_MeleeHit_EnemyMeleeWeapon);
 	SWORD_LEGACY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Sounds_Death_Enemy_Serath);
+	SWORD_LEGACY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Effects);
 }
