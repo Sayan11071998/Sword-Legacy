@@ -31,6 +31,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Block|Successful Block")
 	float KnockbackDuration = 0.2f;
 	
+	UPROPERTY(EditDefaultsOnly, Category = "Block|Perfect Block")
+	float PerfectBlockTimeWindow = 0.25f;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Block|Successful Block")
 	FGameplayTag SuccessfulBlockEventTag;
 	
@@ -43,4 +46,7 @@ private:
 	
 	UFUNCTION()
 	void OnBlockFinished();
+	
+	float PlayerBlockActivatedTime = 0.f;
+	bool bIsPerfectBlock = false;
 };

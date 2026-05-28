@@ -11,6 +11,7 @@
 USL_GA_Player_Block::USL_GA_Player_Block()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+	
 	SuccessfulBlockEventTag = SL_GameplayTags::Player_Event_SuccessfulBlock;
 	SuccessfulBlockGameplayCueTag = SL_GameplayTags::GameplayCue_Effects_Katana_SuccessfulBlock;
 }
@@ -20,6 +21,9 @@ void USL_GA_Player_Block::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 	const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	
+	PlayerBlockActivatedTime = GetWorld()->GetTimeSeconds();
+	bIsPerfectBlock = false;
 	
 	UAbilityTask_WaitGameplayEvent* WaitGameplayEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 		this,
@@ -59,6 +63,9 @@ void USL_GA_Player_Block::OnSuccessfulBlockEventReceived(FGameplayEventData Payl
 	ASL_PlayerCharacter* PlayerCharacter = GetPlayerCharacterFromActorInfo();
 	
 	if (!PlayerCharacter || !Attacker) return;
+	
+	const float CurrentTime = GetWorld()->GetTimeSeconds();
+	bIsPerfectBlock = (CurrentTime - PlayerBlockActivatedTime) <= PerfectBlockTimeWindow;
 
 	const FRotator LookAtRot = UKismetMathLibrary::FindLookAtRotation(
 		PlayerCharacter->GetActorLocation(), 
