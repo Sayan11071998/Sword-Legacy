@@ -24,8 +24,23 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Block")
 	TObjectPtr<UAnimMontage> BlockMontage;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Block|Successful Block")
+	float KnockbackStrength = 80.f;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Block|Successful Block")
+	float KnockbackDuration = 0.2f;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Block|Successful Block")
+	FGameplayTag SuccessfulBlockEventTag;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Block|Successful Block")
+	FGameplayTag SuccessfulBlockGameplayCueTag;
 
 private:
+	UFUNCTION()
+	void OnSuccessfulBlockEventReceived(FGameplayEventData Payload);
+	
 	UFUNCTION()
 	void OnBlockFinished();
 };
