@@ -25,7 +25,7 @@ void USL_GA_Player_Block::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 		this,
 		SuccessfulBlockEventTag,
 		nullptr,
-		true,
+		false,
 		true
 	);
 	
