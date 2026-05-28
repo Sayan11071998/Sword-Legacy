@@ -70,4 +70,5 @@ namespace SL_GameplayTags
 	SWORD_LEGACY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Effects);
 	SWORD_LEGACY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Effects_Katana);
 	SWORD_LEGACY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Effects_Katana_SuccessfulBlock);
+	SWORD_LEGACY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Effects_Katana_PerfectBlock);
 }

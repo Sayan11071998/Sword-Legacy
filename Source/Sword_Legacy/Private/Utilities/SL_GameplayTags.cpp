@@ -68,4 +68,5 @@ namespace SL_GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Effects, "GameplayCue.Effects");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Effects_Katana, "GameplayCue.Effects.Katana");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Effects_Katana_SuccessfulBlock, "GameplayCue.Effects.Katana.SuccessfulBlock");
+	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Effects_Katana_PerfectBlock, "GameplayCue.Effects.Katana.PerfectBlock");
 }
