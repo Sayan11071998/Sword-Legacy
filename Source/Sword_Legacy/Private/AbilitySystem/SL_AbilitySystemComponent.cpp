@@ -10,7 +10,21 @@ void USL_AbilitySystemComponent::OnAbilityInputPressed(const FGameplayTag& InInp
 	{
 		if (!AbilitySpec.DynamicAbilityTags.HasTagExact(InInputTag)) continue;
 		
-		TryActivateAbility(AbilitySpec.Handle);
+		if (InInputTag.MatchesTag(SL_GameplayTags::InputTag_Toggleable))
+		{
+			if (AbilitySpec.IsActive())
+			{
+				CancelAbilityHandle(AbilitySpec.Handle);
+			}
+			else
+			{
+				TryActivateAbility(AbilitySpec.Handle);
+			}
+		}
+		else
+		{
+			TryActivateAbility(AbilitySpec.Handle);
+		}
 	}
 }
 
