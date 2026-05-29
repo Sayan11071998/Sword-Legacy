@@ -41,8 +41,10 @@ private:
 	
 	UFUNCTION()
 	void OnMontageCompleted();
+
+	void ResetLightAttackComboCount();
 	
 	int32 CurrentLightAttackComboCount = 1;
 	int32 UsedComboCount = 1;
-	float LastAttackTime = 0.f;
+	FTimerHandle ComboCountResetTimerHandle;
 };

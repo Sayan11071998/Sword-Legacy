@@ -20,6 +20,14 @@ protected:
 		const FGameplayAbilityActivationInfo ActivationInfo,
 		const FGameplayEventData* TriggerEventData	
 	) override;
+	
+	virtual void EndAbility(
+		const FGameplayAbilitySpecHandle Handle,
+		const FGameplayAbilityActorInfo* ActorInfo,
+		const FGameplayAbilityActivationInfo ActivationInfo,
+		bool bReplicateEndAbility,
+		bool bWasCancelled
+	) override;
 	// ~ End UGameplayAbility Interface
 
 	UPROPERTY(EditDefaultsOnly, Category = "Block")
@@ -40,13 +48,23 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Block|Successful Block")
 	FGameplayTag SuccessfulBlockGameplayCueTag;
 
+	UFUNCTION(BlueprintPure, Category = "Block")
+	FGameplayCueParameters MakeBlockGameplayCueParams() const;
+
 private:
 	UFUNCTION()
 	void OnSuccessfulBlockEventReceived(FGameplayEventData Payload);
 	
 	UFUNCTION()
 	void OnBlockFinished();
+
+	void RestoreTimeDilation();
+	void StartResetJumpToFinisherTimer();
+	void ResetJumpToFinisherState();
 	
 	float PlayerBlockActivatedTime = 0.f;
 	bool bIsPerfectBlock = false;
+
+	FTimerHandle TimeDilationTimerHandle;
+	FTimerHandle ResetJumpToFinisherTimerHandle;
 };

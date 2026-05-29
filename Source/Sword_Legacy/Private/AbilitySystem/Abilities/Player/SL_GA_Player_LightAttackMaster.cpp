@@ -18,11 +18,21 @@ void USL_GA_Player_LightAttackMaster::ActivateAbility(const FGameplayAbilitySpec
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	const float CurrentTime = GetWorld()->GetTimeSeconds();
-	if (CurrentTime - LastAttackTime > ComboResetTime)
+	if (ComboCountResetTimerHandle.IsValid())
 	{
-		CurrentLightAttackComboCount = 1;
+		GetWorld()->GetTimerManager().ClearTimer(ComboCountResetTimerHandle);
 	}
+
+	AActor* AvatarActor = GetAvatarActorFromActorInfo();
+	const bool bJumpToFinisher = AvatarActor &&
+		USL_FunctionLibrary::NativeDoesActorHaveTag(AvatarActor, SL_GameplayTags::Player_Status_JumpToFinisher);
+
+	if (bJumpToFinisher)
+	{
+		CurrentLightAttackComboCount = LightAttackMontagesMap.Num();
+	}
+
+	UsedComboCount = CurrentLightAttackComboCount;
 
 	TObjectPtr<UAnimMontage>* MontageToPlay = LightAttackMontagesMap.Find(CurrentLightAttackComboCount);
 
@@ -37,8 +47,6 @@ void USL_GA_Player_LightAttackMaster::ActivateAbility(const FGameplayAbilitySpec
 			return;
 		}
 	}
-	
-	UsedComboCount = CurrentLightAttackComboCount;
 	
 	UAbilityTask_WaitGameplayEvent* WaitMeleeHitTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 		this,
@@ -66,22 +74,12 @@ void USL_GA_Player_LightAttackMaster::ActivateAbility(const FGameplayAbilitySpec
 
 	if (CurrentLightAttackComboCount == TotalMontages)
 	{
-		CurrentLightAttackComboCount = 1;
+		ResetLightAttackComboCount();
 	}
 	else
 	{
-		if (CurrentLightAttackComboCount == TotalMontages - 1)
-		{
-			AActor* AvatarActor = GetAvatarActorFromActorInfo();
-			if (AvatarActor)
-			{
-				USL_FunctionLibrary::AddGameplayTagToActorIfNone(AvatarActor, SL_GameplayTags::Player_Status_JumpToFinisher);
-			}
-		}
 		CurrentLightAttackComboCount++;
 	}
-
-	LastAttackTime = CurrentTime;
 }
 
 void USL_GA_Player_LightAttackMaster::OnMeleeHitEventReceived(FGameplayEventData Payload)
@@ -120,18 +118,26 @@ void USL_GA_Player_LightAttackMaster::OnMeleeHitEventReceived(FGameplayEventData
 	);
 }
 
+void USL_GA_Player_LightAttackMaster::ResetLightAttackComboCount()
+{
+	CurrentLightAttackComboCount = 1;
+
+	AActor* AvatarActor = GetAvatarActorFromActorInfo();
+	if (AvatarActor)
+	{
+		USL_FunctionLibrary::RemoveGameplayTagFromActorIfFound(AvatarActor, SL_GameplayTags::Player_Status_JumpToFinisher);
+	}
+}
+
 void USL_GA_Player_LightAttackMaster::OnMontageCompleted()
 {
-	LastAttackTime = GetWorld()->GetTimeSeconds();
-
-	if (CurrentLightAttackComboCount == 1)
-	{
-		AActor* AvatarActor = GetAvatarActorFromActorInfo();
-		if (AvatarActor)
-		{
-			USL_FunctionLibrary::RemoveGameplayTagFromActorIfFound(AvatarActor, SL_GameplayTags::Player_Status_JumpToFinisher);
-		}
-	}
-
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+
+	GetWorld()->GetTimerManager().SetTimer(
+		ComboCountResetTimerHandle,
+		this,
+		&USL_GA_Player_LightAttackMaster::ResetLightAttackComboCount,
+		ComboResetTime,
+		false
+	);
 }

@@ -3,10 +3,11 @@
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Abilities/Tasks/AbilityTask_ApplyRootMotionConstantForce.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
 #include "Characters/SL_PlayerCharacter.h"
-#include "Components/Combat/SL_PlayerCombatComponent.h"
 #include "Items/Weapons/SL_PlayerWeapon.h"
 #include "Utilities/SL_GameplayTags.h"
+#include "Utilities/SL_FunctionLibrary.h"
 
 USL_GA_Player_Block::USL_GA_Player_Block()
 {
@@ -57,6 +58,34 @@ void USL_GA_Player_Block::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 	}
 }
 
+void USL_GA_Player_Block::EndAbility(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+	bool bReplicateEndAbility, bool bWasCancelled)
+{
+	if (UGameplayStatics::GetGlobalTimeDilation(GetWorld()) != 1.0f)
+	{
+		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.0f);
+	}
+
+	if (GetWorld())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(TimeDilationTimerHandle);
+		GetWorld()->GetTimerManager().ClearTimer(ResetJumpToFinisherTimerHandle);
+	}
+
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+
+FGameplayCueParameters USL_GA_Player_Block::MakeBlockGameplayCueParams() const
+{
+	FGameplayCueParameters Params;
+	if (const FGameplayAbilityActorInfo* ActorInfo = GetCurrentActorInfo())
+	{
+		Params.TargetAttachComponent = ActorInfo->SkeletalMeshComponent.Get();
+	}
+	return Params;
+}
+
 void USL_GA_Player_Block::OnSuccessfulBlockEventReceived(FGameplayEventData Payload)
 {
 	AActor* Attacker = const_cast<AActor*>(Payload.Instigator.Get());
@@ -96,16 +125,52 @@ void USL_GA_Player_Block::OnSuccessfulBlockEventReceived(FGameplayEventData Payl
 
 	if (SuccessfulBlockGameplayCueTag.IsValid())
 	{
-		FGameplayCueParameters CueParams;
-		if (USL_PlayerCombatComponent* CombatComponent = GetPlayerCombatComponentFromActorInfo())
-		{
-			if (ASL_PlayerWeapon* CurrentWeapon = CombatComponent->GetPlayerCurrentEquippedWeapon())
-			{
-				CueParams.TargetAttachComponent = CurrentWeapon->GetWeaponMesh();
-			}
-		}
-		
+		FGameplayCueParameters CueParams = MakeBlockGameplayCueParams();
 		K2_ExecuteGameplayCueWithParams(SuccessfulBlockGameplayCueTag, CueParams);
+	}
+
+	if (bIsPerfectBlock)
+	{
+		USL_FunctionLibrary::AddGameplayTagToActorIfNone(PlayerCharacter, SL_GameplayTags::Player_Status_JumpToFinisher);
+
+		FGameplayCueParameters PerfectCueParams = MakeBlockGameplayCueParams();
+		K2_ExecuteGameplayCueWithParams(SL_GameplayTags::GameplayCue_Effects_Katana_PerfectBlock, PerfectCueParams);
+
+		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 0.2f);
+
+		GetWorld()->GetTimerManager().SetTimer(
+			TimeDilationTimerHandle,
+			this,
+			&USL_GA_Player_Block::RestoreTimeDilation,
+			0.08f,
+			false
+		);
+	}
+}
+
+void USL_GA_Player_Block::RestoreTimeDilation()
+{
+	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.0f);
+	StartResetJumpToFinisherTimer();
+}
+
+void USL_GA_Player_Block::StartResetJumpToFinisherTimer()
+{
+	GetWorld()->GetTimerManager().SetTimer(
+		ResetJumpToFinisherTimerHandle,
+		this,
+		&USL_GA_Player_Block::ResetJumpToFinisherState,
+		0.3f,
+		false
+	);
+}
+
+void USL_GA_Player_Block::ResetJumpToFinisherState()
+{
+	ASL_PlayerCharacter* PlayerCharacter = GetPlayerCharacterFromActorInfo();
+	if (PlayerCharacter)
+	{
+		USL_FunctionLibrary::RemoveGameplayTagFromActorIfFound(PlayerCharacter, SL_GameplayTags::Player_Status_JumpToFinisher);
 	}
 }
 
