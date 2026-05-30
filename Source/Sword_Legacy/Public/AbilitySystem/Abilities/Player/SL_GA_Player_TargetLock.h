@@ -4,6 +4,8 @@
 #include "AbilitySystem/Abilities/SL_PlayerGameplayAbility.h"
 #include "SL_GA_Player_TargetLock.generated.h"
 
+class USL_WidgetBase;
+
 UCLASS()
 class SWORD_LEGACY_API USL_GA_Player_TargetLock : public USL_PlayerGameplayAbility
 {
@@ -39,10 +41,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Target Lock")
 	bool bShowPersistentDebugShape = false;
 	
+	UPROPERTY(EditDefaultsOnly, Category = "Target Lock")
+	TSubclassOf<USL_WidgetBase> TargetLockWidgetClass;
+	
 private:
 	void TryLockOnTarget();
 	void GetAvailableActorsToLock();
 	TObjectPtr<AActor> GetNearestTargetFromAvailableActors(const TArray<TObjectPtr<AActor>>& InAvailableActors);
+	void DrawTargetLockWidget();
 	void CancelTargetLockAbility();
 	void Cleanup();
 	
@@ -51,4 +57,7 @@ private:
 	
 	UPROPERTY()
 	TObjectPtr<AActor> CurrentLockedActor;
+	
+	UPROPERTY()
+	TObjectPtr<USL_WidgetBase> DrawnTargetLockWidget;
 };

@@ -2,8 +2,8 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Characters/SL_PlayerCharacter.h"
 #include "Kismet/GameplayStatics.h"
-
-#include "SL_DebugHelper.h"
+#include "Widgets/SL_WidgetBase.h"
+#include "Controllers/SL_PlayerController.h"
 
 void USL_GA_Player_TargetLock::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
@@ -37,7 +37,7 @@ void USL_GA_Player_TargetLock::TryLockOnTarget()
 	
 	if (CurrentLockedActor)
 	{
-		Debug::Print(CurrentLockedActor->GetActorNameOrLabel());
+		DrawTargetLockWidget();
 	}
 	else
 	{
@@ -87,6 +87,20 @@ TObjectPtr<AActor> USL_GA_Player_TargetLock::GetNearestTargetFromAvailableActors
 	);
 }
 
+void USL_GA_Player_TargetLock::DrawTargetLockWidget()
+{
+	if (!DrawnTargetLockWidget)
+	{
+		checkf(TargetLockWidgetClass, TEXT("Forgot to assign a valid widget class in blueprint"));
+	
+		DrawnTargetLockWidget = CreateWidget<USL_WidgetBase>(GetPlayerControllerFromActorInfo(), TargetLockWidgetClass);
+	
+		check(DrawnTargetLockWidget);
+	
+		DrawnTargetLockWidget->AddToViewport();
+	}
+}
+
 void USL_GA_Player_TargetLock::CancelTargetLockAbility()
 {
 	CancelAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true);
@@ -96,4 +110,9 @@ void USL_GA_Player_TargetLock::Cleanup()
 {
 	AvailableActorsToLock.Empty();
 	CurrentLockedActor = nullptr;
+	
+	if (DrawnTargetLockWidget)
+	{
+		DrawnTargetLockWidget->RemoveFromParent();
+	}
 }
