@@ -42,7 +42,13 @@ protected:
 private:
 	void TryLockOnTarget();
 	void GetAvailableActorsToLock();
+	TObjectPtr<AActor> GetNearestTargetFromAvailableActors(const TArray<TObjectPtr<AActor>>& InAvailableActors);
+	void CancelTargetLockAbility();
+	void Cleanup();
 	
 	UPROPERTY()
-	TArray<AActor*> AvailableActorsToLock;
+	TArray<TObjectPtr<AActor>> AvailableActorsToLock;
+	
+	UPROPERTY()
+	TObjectPtr<AActor> CurrentLockedActor;
 };

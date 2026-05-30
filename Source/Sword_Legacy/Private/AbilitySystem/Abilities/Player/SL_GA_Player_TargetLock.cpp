@@ -1,6 +1,7 @@
 #include "AbilitySystem/Abilities/Player/SL_GA_Player_TargetLock.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Characters/SL_PlayerCharacter.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "SL_DebugHelper.h"
 
@@ -17,12 +18,31 @@ void USL_GA_Player_TargetLock::EndAbility(const FGameplayAbilitySpecHandle Handl
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	bool bReplicateEndAbility, bool bWasCancelled)
 {
+	Cleanup();
+	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
 void USL_GA_Player_TargetLock::TryLockOnTarget()
 {
 	GetAvailableActorsToLock();
+	
+	if (AvailableActorsToLock.IsEmpty())
+	{
+		CancelTargetLockAbility();
+		return;
+	}
+	
+	CurrentLockedActor = GetNearestTargetFromAvailableActors(AvailableActorsToLock);
+	
+	if (CurrentLockedActor)
+	{
+		Debug::Print(CurrentLockedActor->GetActorNameOrLabel());
+	}
+	else
+	{
+		CancelTargetLockAbility();
+	}
 }
 
 void USL_GA_Player_TargetLock::GetAvailableActorsToLock()
@@ -50,9 +70,30 @@ void USL_GA_Player_TargetLock::GetAvailableActorsToLock()
 			if (HitActor != GetPlayerCharacterFromActorInfo())
 			{
 				AvailableActorsToLock.AddUnique(HitActor);
-				
-				Debug::Print(HitActor->GetActorNameOrLabel());
 			}
 		}
 	}
+}
+
+TObjectPtr<AActor> USL_GA_Player_TargetLock::GetNearestTargetFromAvailableActors(
+	const TArray<TObjectPtr<AActor>>& InAvailableActors)
+{
+	float ClosestDistance = 0.f;
+	
+	return UGameplayStatics::FindNearestActor(
+		GetPlayerCharacterFromActorInfo()->GetActorLocation(),
+		InAvailableActors,
+		ClosestDistance
+	);
+}
+
+void USL_GA_Player_TargetLock::CancelTargetLockAbility()
+{
+	CancelAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true);
+}
+
+void USL_GA_Player_TargetLock::Cleanup()
+{
+	AvailableActorsToLock.Empty();
+	CurrentLockedActor = nullptr;
 }
