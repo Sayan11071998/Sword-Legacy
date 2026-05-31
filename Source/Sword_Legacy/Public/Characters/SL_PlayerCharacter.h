@@ -68,8 +68,12 @@ private:
 	
 	void Input_Move(const FInputActionValue& InputActionValue);
 	void Input_Look(const FInputActionValue& InputActionValue);
+	
 	void Input_SprintStarted(const FInputActionValue& InputActionValue);
 	void Input_SprintCompleted(const FInputActionValue& InputActionValue);
+	
+	void Input_SwitchTargetTriggered(const FInputActionValue& InputActionValue);
+	void Input_SwitchTargetCompleted(const FInputActionValue& InputActionValue);
 	
 	void Input_AbilityInputPressed(FGameplayTag InInputTag);
 	void Input_AbilityInputRelease(FGameplayTag InInputTag);

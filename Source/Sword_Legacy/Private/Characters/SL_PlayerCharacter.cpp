@@ -61,6 +61,9 @@ void ASL_PlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 
 	EnhancedInputComponent->BindNativeInputAction(InputConfigDataAsset, SL_GameplayTags::InputTag_Sprint, ETriggerEvent::Triggered, this, &ASL_PlayerCharacter::Input_SprintStarted);
 	EnhancedInputComponent->BindNativeInputAction(InputConfigDataAsset, SL_GameplayTags::InputTag_Sprint, ETriggerEvent::Completed, this, &ASL_PlayerCharacter::Input_SprintCompleted);
+	
+	EnhancedInputComponent->BindNativeInputAction(InputConfigDataAsset, SL_GameplayTags::InputTag_SwitchTarget, ETriggerEvent::Triggered, this, &ASL_PlayerCharacter::Input_SwitchTargetTriggered);
+	EnhancedInputComponent->BindNativeInputAction(InputConfigDataAsset, SL_GameplayTags::InputTag_SwitchTarget, ETriggerEvent::Completed, this, &ASL_PlayerCharacter::Input_SwitchTargetCompleted);
 
 	EnhancedInputComponent->BindAbilityInputAction(InputConfigDataAsset, this, &ASL_PlayerCharacter::Input_AbilityInputPressed, &ASL_PlayerCharacter::Input_AbilityInputRelease);
 }
@@ -137,6 +140,14 @@ void ASL_PlayerCharacter::Input_SprintStarted(const FInputActionValue& InputActi
 void ASL_PlayerCharacter::Input_SprintCompleted(const FInputActionValue& InputActionValue)
 {
 	GetCharacterMovement()->MaxWalkSpeed = MaxWalkSpeed;
+}
+
+void ASL_PlayerCharacter::Input_SwitchTargetTriggered(const FInputActionValue& InputActionValue)
+{
+}
+
+void ASL_PlayerCharacter::Input_SwitchTargetCompleted(const FInputActionValue& InputActionValue)
+{
 }
 
 void ASL_PlayerCharacter::Input_AbilityInputPressed(FGameplayTag InInputTag)
