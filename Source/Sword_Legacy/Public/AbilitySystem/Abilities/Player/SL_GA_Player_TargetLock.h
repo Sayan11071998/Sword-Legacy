@@ -36,6 +36,9 @@ protected:
 	float TargetLockRotationInterpSpeed = 5.f;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Target Lock")
+	float TargetLockMaxWalkSpeed = 150.f;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Target Lock")
 	FVector TraceBoxSize = FVector(5000.f, 5000.f, 300.f);
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Target Lock")
@@ -53,8 +56,10 @@ private:
 	TObjectPtr<AActor> GetNearestTargetFromAvailableActors(const TArray<TObjectPtr<AActor>>& InAvailableActors);
 	void DrawTargetLockWidget();
 	void SetTargetLockWidgetPosition();
+	void InitTargetLockMovement();
 	void CancelTargetLockAbility();
 	void Cleanup();
+	void ResetTargetLockMovement();
 	
 	UFUNCTION(BlueprintCallable)
 	void OnTargetLockTick(float DeltaTime);
@@ -70,4 +75,7 @@ private:
 	
 	UPROPERTY()
 	FVector2D TargetLockWidgetSize = FVector2D::ZeroVector;
+	
+	UPROPERTY()
+	float CachedDefaultMaxWalkSpeed = 0.f;
 };
