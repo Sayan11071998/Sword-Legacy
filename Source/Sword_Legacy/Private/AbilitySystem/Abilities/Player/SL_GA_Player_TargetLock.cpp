@@ -7,10 +7,12 @@
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/SizeBox.h"
+#include "Utilities/SL_FunctionLibrary.h"
+#include "Utilities/SL_GameplayTags.h"
 
 void USL_GA_Player_TargetLock::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
-	const FGameplayEventData* TriggerEventData)
+                                               const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+                                               const FGameplayEventData* TriggerEventData)
 {
 	TryLockOnTarget();
 	
@@ -146,6 +148,19 @@ void USL_GA_Player_TargetLock::CancelTargetLockAbility()
 	CancelAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true);
 }
 
+void USL_GA_Player_TargetLock::OnTargetLockTick(float DeltaTime)
+{
+	if (!CurrentLockedActor ||
+		USL_FunctionLibrary::NativeDoesActorHaveTag(CurrentLockedActor, SL_GameplayTags::Shared_Status_Death) || 
+		USL_FunctionLibrary::NativeDoesActorHaveTag(GetPlayerCharacterFromActorInfo(), SL_GameplayTags::Shared_Status_Death))
+	{
+		CancelTargetLockAbility();
+		return;
+	}
+	
+	SetTargetLockWidgetPosition();
+}
+
 void USL_GA_Player_TargetLock::Cleanup()
 {
 	AvailableActorsToLock.Empty();
@@ -155,4 +170,7 @@ void USL_GA_Player_TargetLock::Cleanup()
 	{
 		DrawnTargetLockWidget->RemoveFromParent();
 	}
+	
+	DrawnTargetLockWidget = nullptr;
+	TargetLockWidgetSize = FVector2D::ZeroVector;
 }

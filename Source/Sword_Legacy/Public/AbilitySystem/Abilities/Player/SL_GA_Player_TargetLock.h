@@ -53,6 +53,9 @@ private:
 	void CancelTargetLockAbility();
 	void Cleanup();
 	
+	UFUNCTION(BlueprintCallable)
+	void OnTargetLockTick(float DeltaTime);
+	
 	UPROPERTY()
 	TArray<TObjectPtr<AActor>> AvailableActorsToLock;
 	
