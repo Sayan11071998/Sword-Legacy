@@ -9,10 +9,11 @@
 #include "Components/SizeBox.h"
 #include "Utilities/SL_FunctionLibrary.h"
 #include "Utilities/SL_GameplayTags.h"
+#include "Kismet/KismetMathLibrary.h"
 
 void USL_GA_Player_TargetLock::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
-                                               const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
-                                               const FGameplayEventData* TriggerEventData)
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+	const FGameplayEventData* TriggerEventData)
 {
 	TryLockOnTarget();
 	
@@ -159,6 +160,24 @@ void USL_GA_Player_TargetLock::OnTargetLockTick(float DeltaTime)
 	}
 	
 	SetTargetLockWidgetPosition();
+	
+	const bool bShouldOverrideRotation =
+		!USL_FunctionLibrary::NativeDoesActorHaveTag(GetPlayerCharacterFromActorInfo(), SL_GameplayTags::Player_Status_Rolling) &&
+			!USL_FunctionLibrary::NativeDoesActorHaveTag(GetPlayerCharacterFromActorInfo(), SL_GameplayTags::Player_Status_Blocking);
+	
+	if (bShouldOverrideRotation)
+	{
+		const FRotator LookAtRot = UKismetMathLibrary::FindLookAtRotation(
+			GetPlayerCharacterFromActorInfo()->GetActorLocation(),
+			CurrentLockedActor->GetActorLocation()
+		);
+		
+		const FRotator CurrentControlRot = GetPlayerControllerFromActorInfo()->GetControlRotation();
+		const FRotator TargetRot = FMath::RInterpTo(CurrentControlRot, LookAtRot, DeltaTime, TargetLockRotationInterpSpeed);
+		
+		GetPlayerControllerFromActorInfo()->SetControlRotation(FRotator(TargetRot.Pitch, TargetRot.Yaw, 0.f));
+		GetPlayerCharacterFromActorInfo()->SetActorRotation(FRotator(0.f, TargetRot.Yaw, 0.f));
+	}
 }
 
 void USL_GA_Player_TargetLock::Cleanup()

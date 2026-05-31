@@ -33,6 +33,9 @@ protected:
 	float BoxTraceDistance = 5000.f;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Target Lock")
+	float TargetLockRotationInterpSpeed = 5.f;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Target Lock")
 	FVector TraceBoxSize = FVector(5000.f, 5000.f, 300.f);
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Target Lock")
