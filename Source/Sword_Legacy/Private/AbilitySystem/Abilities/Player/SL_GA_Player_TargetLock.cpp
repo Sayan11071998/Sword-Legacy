@@ -229,6 +229,8 @@ void USL_GA_Player_TargetLock::ResetTargetLockMovement()
 
 void USL_GA_Player_TargetLock::ResetTargetLockMappingContext()
 {
+	if (!GetPlayerControllerFromActorInfo()) return;
+	
 	const ULocalPlayer* LocalPlayer = GetPlayerControllerFromActorInfo()->GetLocalPlayer();
 	
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer);
