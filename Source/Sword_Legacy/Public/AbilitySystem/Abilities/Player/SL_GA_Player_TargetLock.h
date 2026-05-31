@@ -4,6 +4,7 @@
 #include "AbilitySystem/Abilities/SL_PlayerGameplayAbility.h"
 #include "SL_GA_Player_TargetLock.generated.h"
 
+class UInputMappingContext;
 class USL_WidgetBase;
 
 UCLASS()
@@ -50,6 +51,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Target Lock")
 	TSubclassOf<USL_WidgetBase> TargetLockWidgetClass;
 	
+	UPROPERTY(EditDefaultsOnly, Category = "Target Lock")
+	TObjectPtr<UInputMappingContext> TargetLockMappingContext;
+	
 private:
 	void TryLockOnTarget();
 	void GetAvailableActorsToLock();
@@ -57,9 +61,11 @@ private:
 	void DrawTargetLockWidget();
 	void SetTargetLockWidgetPosition();
 	void InitTargetLockMovement();
+	void InitTargetLockMappingContext();
 	void CancelTargetLockAbility();
 	void Cleanup();
 	void ResetTargetLockMovement();
+	void ResetTargetLockMappingContext();
 	
 	UFUNCTION(BlueprintCallable)
 	void OnTargetLockTick(float DeltaTime);

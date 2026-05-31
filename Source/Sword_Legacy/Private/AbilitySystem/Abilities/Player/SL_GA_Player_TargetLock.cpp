@@ -1,4 +1,5 @@
 #include "AbilitySystem/Abilities/Player/SL_GA_Player_TargetLock.h"
+#include "EnhancedInputSubsystems.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Characters/SL_PlayerCharacter.h"
 #include "Kismet/GameplayStatics.h"
@@ -18,6 +19,7 @@ void USL_GA_Player_TargetLock::ActivateAbility(const FGameplayAbilitySpecHandle 
 {
 	TryLockOnTarget();
 	InitTargetLockMovement();
+	InitTargetLockMappingContext();
 	
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 }
@@ -27,6 +29,7 @@ void USL_GA_Player_TargetLock::EndAbility(const FGameplayAbilitySpecHandle Handl
 	bool bReplicateEndAbility, bool bWasCancelled)
 {
 	ResetTargetLockMovement();
+	ResetTargetLockMappingContext();
 	Cleanup();
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
@@ -154,6 +157,17 @@ void USL_GA_Player_TargetLock::InitTargetLockMovement()
 	GetPlayerCharacterFromActorInfo()->GetCharacterMovement()->MaxWalkSpeed = TargetLockMaxWalkSpeed;
 }
 
+void USL_GA_Player_TargetLock::InitTargetLockMappingContext()
+{
+	const ULocalPlayer* LocalPlayer = GetPlayerControllerFromActorInfo()->GetLocalPlayer();
+	
+	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer);
+
+	check(Subsystem);
+	
+	Subsystem->AddMappingContext(TargetLockMappingContext, 3);
+}
+
 void USL_GA_Player_TargetLock::CancelTargetLockAbility()
 {
 	CancelAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true);
@@ -211,4 +225,15 @@ void USL_GA_Player_TargetLock::ResetTargetLockMovement()
 	{
 		GetPlayerCharacterFromActorInfo()->GetCharacterMovement()->MaxWalkSpeed = CachedDefaultMaxWalkSpeed;
 	}
+}
+
+void USL_GA_Player_TargetLock::ResetTargetLockMappingContext()
+{
+	const ULocalPlayer* LocalPlayer = GetPlayerControllerFromActorInfo()->GetLocalPlayer();
+	
+	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer);
+
+	check(Subsystem);
+	
+	Subsystem->RemoveMappingContext(TargetLockMappingContext);
 }
