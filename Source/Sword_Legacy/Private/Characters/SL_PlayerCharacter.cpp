@@ -159,8 +159,6 @@ void ASL_PlayerCharacter::Input_SwitchTargetCompleted(const FInputActionValue& I
 		SwitchDirection.X > 0.f ? SL_GameplayTags::Player_Event_SwitchTarget_Right : SL_GameplayTags::Player_Event_SwitchTarget_Left,
 		Data
 	);
-	
-	Debug::Print(TEXT("Switch Direction ") + SwitchDirection.ToString());
 }
 
 void ASL_PlayerCharacter::Input_AbilityInputPressed(FGameplayTag InInputTag)
