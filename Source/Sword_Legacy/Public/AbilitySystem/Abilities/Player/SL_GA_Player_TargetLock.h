@@ -12,6 +12,9 @@ class SWORD_LEGACY_API USL_GA_Player_TargetLock : public USL_PlayerGameplayAbili
 {
 	GENERATED_BODY()
 	
+public:
+	USL_GA_Player_TargetLock();
+	
 protected:
 	// ~ Begin UGameplayAbility Interface
 	virtual void ActivateAbility(
@@ -73,6 +76,12 @@ private:
 	
 	UFUNCTION(BlueprintCallable)
 	void OnTargetLockTick(float DeltaTime);
+	
+	UFUNCTION()
+	void OnSwitchTargetLeftEventReceived(FGameplayEventData Payload);
+	
+	UFUNCTION()
+	void OnSwitchTargetRightEventReceived(FGameplayEventData Payload);
 	
 	UPROPERTY()
 	TArray<TObjectPtr<AActor>> AvailableActorsToLock;

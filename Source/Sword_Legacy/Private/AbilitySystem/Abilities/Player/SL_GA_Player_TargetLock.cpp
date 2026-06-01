@@ -12,6 +12,13 @@
 #include "Utilities/SL_GameplayTags.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "AbilitySystem/AbilityTasks/SL_AbilityTask_ExecuteTaskOnTick.h"
+#include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+
+USL_GA_Player_TargetLock::USL_GA_Player_TargetLock()
+{
+	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerExecution;
+}
 
 void USL_GA_Player_TargetLock::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
@@ -20,6 +27,39 @@ void USL_GA_Player_TargetLock::ActivateAbility(const FGameplayAbilitySpecHandle 
 	TryLockOnTarget();
 	InitTargetLockMovement();
 	InitTargetLockMappingContext();
+	
+	USL_AbilityTask_ExecuteTaskOnTick* TickTask = USL_AbilityTask_ExecuteTaskOnTick::ExecuteTaskOnTick(this);
+	if (TickTask)
+	{
+		TickTask->OnAbilityTaskTick.AddDynamic(this, &USL_GA_Player_TargetLock::OnTargetLockTick);
+		TickTask->ReadyForActivation();
+	}
+	
+	UAbilityTask_WaitGameplayEvent* WaitLeftEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+		this,
+		SL_GameplayTags::Player_Event_SwitchTarget_Left,
+		nullptr,
+		false,
+		true
+	);
+	if (WaitLeftEventTask)
+	{
+		WaitLeftEventTask->EventReceived.AddDynamic(this, &USL_GA_Player_TargetLock::OnSwitchTargetLeftEventReceived);
+		WaitLeftEventTask->ReadyForActivation();
+	}
+	
+	UAbilityTask_WaitGameplayEvent* WaitRightEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+		this,
+		SL_GameplayTags::Player_Event_SwitchTarget_Right,
+		nullptr,
+		false,
+		true
+	);
+	if (WaitRightEventTask)
+	{
+		WaitRightEventTask->EventReceived.AddDynamic(this, &USL_GA_Player_TargetLock::OnSwitchTargetRightEventReceived);
+		WaitRightEventTask->ReadyForActivation();
+	}
 	
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 }
@@ -296,4 +336,14 @@ void USL_GA_Player_TargetLock::ResetTargetLockMappingContext()
 	check(Subsystem);
 	
 	Subsystem->RemoveMappingContext(TargetLockMappingContext);
+}
+
+void USL_GA_Player_TargetLock::OnSwitchTargetLeftEventReceived(FGameplayEventData Payload)
+{
+	SwitchTarget(SL_GameplayTags::Player_Event_SwitchTarget_Left);
+}
+
+void USL_GA_Player_TargetLock::OnSwitchTargetRightEventReceived(FGameplayEventData Payload)
+{
+	SwitchTarget(SL_GameplayTags::Player_Event_SwitchTarget_Right);
 }
