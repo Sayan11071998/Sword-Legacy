@@ -13,6 +13,8 @@
 #include "Components/UI/SL_PlayerUIComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
 
+#include "SL_DebugHelper.h"
+
 ASL_PlayerCharacter::ASL_PlayerCharacter()
 {
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.f);
@@ -150,7 +152,15 @@ void ASL_PlayerCharacter::Input_SwitchTargetTriggered(const FInputActionValue& I
 
 void ASL_PlayerCharacter::Input_SwitchTargetCompleted(const FInputActionValue& InputActionValue)
 {
-	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, );
+	FGameplayEventData Data;
+	
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+		this,
+		SwitchDirection.X > 0.f ? SL_GameplayTags::Player_Event_SwitchTarget_Right : SL_GameplayTags::Player_Event_SwitchTarget_Left,
+		Data
+	);
+	
+	Debug::Print(TEXT("Switch Direction ") + SwitchDirection.ToString());
 }
 
 void ASL_PlayerCharacter::Input_AbilityInputPressed(FGameplayTag InInputTag)
