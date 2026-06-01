@@ -30,6 +30,9 @@ protected:
 	) override;
 	// ~ End UGameplayAbility Interface
 	
+	UFUNCTION(BlueprintCallable)
+	void SwitchTarget(const FGameplayTag& InSwitchDirectionTag);
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Target Lock")
 	float BoxTraceDistance = 5000.f;
 	
@@ -58,6 +61,7 @@ private:
 	void TryLockOnTarget();
 	void GetAvailableActorsToLock();
 	TObjectPtr<AActor> GetNearestTargetFromAvailableActors(const TArray<TObjectPtr<AActor>>& InAvailableActors);
+	void GetAvailableActorsAroundTarget(TArray<TObjectPtr<AActor>>& OutActorsOnLeft, TArray<TObjectPtr<AActor>>& OutActorsOnRight);
 	void DrawTargetLockWidget();
 	void SetTargetLockWidgetPosition();
 	void InitTargetLockMovement();

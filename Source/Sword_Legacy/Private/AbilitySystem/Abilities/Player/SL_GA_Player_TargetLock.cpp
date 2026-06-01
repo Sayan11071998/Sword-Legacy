@@ -35,6 +35,31 @@ void USL_GA_Player_TargetLock::EndAbility(const FGameplayAbilitySpecHandle Handl
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
+void USL_GA_Player_TargetLock::SwitchTarget(const FGameplayTag& InSwitchDirectionTag)
+{
+	GetAvailableActorsToLock();
+	
+	TArray<TObjectPtr<AActor>> ActorsOnLeft;
+	TArray<TObjectPtr<AActor>> ActorsOnRight;
+	AActor* NewTargetToLock = nullptr;
+	
+	GetAvailableActorsAroundTarget(ActorsOnLeft, ActorsOnRight);
+	
+	if (InSwitchDirectionTag == SL_GameplayTags::Player_Event_SwitchTarget_Left)
+	{
+		NewTargetToLock = GetNearestTargetFromAvailableActors(ActorsOnLeft);
+	}
+	else
+	{
+		NewTargetToLock = GetNearestTargetFromAvailableActors(ActorsOnRight);
+	}
+	
+	if (NewTargetToLock)
+	{
+		CurrentLockedActor = NewTargetToLock;
+	}
+}
+
 void USL_GA_Player_TargetLock::TryLockOnTarget()
 {
 	GetAvailableActorsToLock();
@@ -60,6 +85,8 @@ void USL_GA_Player_TargetLock::TryLockOnTarget()
 
 void USL_GA_Player_TargetLock::GetAvailableActorsToLock()
 {
+	AvailableActorsToLock.Empty();
+	
 	TArray<FHitResult> BoxTraceHits;
 	
 	UKismetSystemLibrary::BoxTraceMultiForObjects(
@@ -98,6 +125,37 @@ TObjectPtr<AActor> USL_GA_Player_TargetLock::GetNearestTargetFromAvailableActors
 		InAvailableActors,
 		ClosestDistance
 	);
+}
+
+void USL_GA_Player_TargetLock::GetAvailableActorsAroundTarget(TArray<TObjectPtr<AActor>>& OutActorsOnLeft,
+	TArray<TObjectPtr<AActor>>& OutActorsOnRight)
+{
+	if (!CurrentLockedActor || AvailableActorsToLock.Empty())
+	{
+		CancelTargetLockAbility();
+		return;
+	}
+	
+	const FVector PlayerLocation = GetPlayerCharacterFromActorInfo()->GetActorLocation();
+	const FVector PlayerToCurrentNormalized = (CurrentLockedActor->GetActorLocation() - PlayerLocation).GetSafeNormal();
+	
+	for (AActor* AvailableActor : AvailableActorsToLock)
+	{
+		if (!AvailableActor || AvailableActor == CurrentLockedActor) continue;
+		
+		const FVector PlayerToAvailableNormalized = (AvailableActor->GetActorLocation() - PlayerLocation).GetSafeNormal();
+		
+		const FVector CrossResult = FVector::CrossProduct(PlayerToCurrentNormalized, PlayerToAvailableNormalized);
+		
+		if (CrossResult.Z > 0.f)
+		{
+			OutActorsOnRight.AddUnique(AvailableActor);
+		}
+		else
+		{
+			OutActorsOnLeft.AddUnique(AvailableActor);
+		}
+	}
 }
 
 void USL_GA_Player_TargetLock::DrawTargetLockWidget()
