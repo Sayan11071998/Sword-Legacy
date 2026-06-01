@@ -11,6 +11,7 @@
 #include "Utilities/SL_GameplayTags.h"
 #include "DataAssets/StartupData/SL_DataAsset_StartupData_Player.h"
 #include "Components/UI/SL_PlayerUIComponent.h"
+#include "AbilitySystemBlueprintLibrary.h"
 
 ASL_PlayerCharacter::ASL_PlayerCharacter()
 {
@@ -144,10 +145,12 @@ void ASL_PlayerCharacter::Input_SprintCompleted(const FInputActionValue& InputAc
 
 void ASL_PlayerCharacter::Input_SwitchTargetTriggered(const FInputActionValue& InputActionValue)
 {
+	SwitchDirection = InputActionValue.Get<FVector2D>();
 }
 
 void ASL_PlayerCharacter::Input_SwitchTargetCompleted(const FInputActionValue& InputActionValue)
 {
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, );
 }
 
 void ASL_PlayerCharacter::Input_AbilityInputPressed(FGameplayTag InInputTag)

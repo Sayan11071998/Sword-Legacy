@@ -80,6 +80,8 @@ private:
 	
 #pragma endregion
 	
+	FVector2D SwitchDirection = FVector2D::ZeroVector;
+	
 public:
 	FORCEINLINE TObjectPtr<USL_PlayerCombatComponent> GetPlayerCombatComponent() const { return PlayerCombatComponent; }
 };
