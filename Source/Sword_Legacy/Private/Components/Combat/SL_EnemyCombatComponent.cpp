@@ -1,6 +1,7 @@
 #include "Components/Combat/SL_EnemyCombatComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Utilities/SL_GameplayTags.h"
+#include "Utilities/SL_FunctionLibrary.h"
 
 void USL_EnemyCombatComponent::OnHitTargetActor(AActor* HitActor)
 {
@@ -10,12 +11,12 @@ void USL_EnemyCombatComponent::OnHitTargetActor(AActor* HitActor)
 	
 	bool bIsValidBlock = false;
 	
-	const bool bIsPlayerBlocking = false;
+	const bool bIsPlayerBlocking = USL_FunctionLibrary::NativeDoesActorHaveTag(HitActor, SL_GameplayTags::Player_Status_Blocking);
 	const bool bIsMyAttackUnblockable = false;
 	
 	if (bIsPlayerBlocking && !bIsMyAttackUnblockable)
 	{
-		
+		bIsValidBlock = USL_FunctionLibrary::IsValidBlock(GetOwningPawn(), HitActor);
 	}
 	
 	FGameplayEventData EventData;
@@ -24,7 +25,11 @@ void USL_EnemyCombatComponent::OnHitTargetActor(AActor* HitActor)
 	
 	if (bIsValidBlock)
 	{
-		
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+			HitActor,
+			SL_GameplayTags::Player_Event_SuccessfulBlock,
+			EventData
+		);
 	}
 	else
 	{
