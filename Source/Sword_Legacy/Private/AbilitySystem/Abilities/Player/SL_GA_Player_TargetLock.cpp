@@ -130,7 +130,7 @@ TObjectPtr<AActor> USL_GA_Player_TargetLock::GetNearestTargetFromAvailableActors
 void USL_GA_Player_TargetLock::GetAvailableActorsAroundTarget(TArray<TObjectPtr<AActor>>& OutActorsOnLeft,
 	TArray<TObjectPtr<AActor>>& OutActorsOnRight)
 {
-	if (!CurrentLockedActor || AvailableActorsToLock.Empty())
+	if (!CurrentLockedActor || AvailableActorsToLock.IsEmpty())
 	{
 		CancelTargetLockAbility();
 		return;
