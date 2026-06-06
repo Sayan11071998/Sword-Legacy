@@ -44,6 +44,8 @@ void ASL_ProjectileBase::BeginPlay()
 void ASL_ProjectileBase::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	BP_OnSpawnProjectileHitVFX(Hit.ImpactPoint);
+	
 	APawn* HitPawn = Cast<APawn>(OtherActor);
 	
 	if (!HitPawn || !USL_FunctionLibrary::IsTargetPawnHostile(GetInstigator(), HitPawn))

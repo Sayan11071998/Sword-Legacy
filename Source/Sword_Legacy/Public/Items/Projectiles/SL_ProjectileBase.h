@@ -45,6 +45,9 @@ protected:
 		const FHitResult& SweepResult	
 	);
 	
+	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "On Spawn Projectile Hit VFX"))
+	void BP_OnSpawnProjectileHitVFX(const FVector& HitLocation);
+	
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Projectile")
 	TObjectPtr<UBoxComponent> ProjectileCollisionBox;
 	
