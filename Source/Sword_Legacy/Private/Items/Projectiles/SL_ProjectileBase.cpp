@@ -2,8 +2,9 @@
 #include "Components/BoxComponent.h"
 #include "NiagaraComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
-
-#include "SL_DebugHelper.h"
+#include "Utilities/SL_FunctionLibrary.h"
+#include "Utilities/SL_GameplayTags.h"
+#include "AbilitySystemBlueprintLibrary.h"
 
 ASL_ProjectileBase::ASL_ProjectileBase()
 {
@@ -43,11 +44,40 @@ void ASL_ProjectileBase::BeginPlay()
 void ASL_ProjectileBase::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	if (OtherActor)
+	APawn* HitPawn = Cast<APawn>(OtherActor);
+	
+	if (!HitPawn || !USL_FunctionLibrary::IsTargetPawnHostile(GetInstigator(), HitPawn))
 	{
-		Debug::Print(OtherActor->GetActorNameOrLabel());
 		Destroy();
+		return;
 	}
+	
+	bool bIsValidBlock = false;
+	const bool bIsPlayerBlocking = USL_FunctionLibrary::NativeDoesActorHaveTag(HitPawn, SL_GameplayTags::Player_Status_Blocking);
+	
+	if (bIsPlayerBlocking)
+	{
+		bIsValidBlock = USL_FunctionLibrary::IsValidBlock(this, HitPawn);
+	}
+	
+	FGameplayEventData Data;
+	Data.Instigator = this;
+	Data.Target = HitPawn;
+	
+	if (bIsValidBlock)
+	{
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+			HitPawn,
+			SL_GameplayTags::Player_Event_SuccessfulBlock,
+			Data
+		);
+	}
+	else
+	{
+		// Apply Damage
+	}
+	
+	Destroy();
 }
 
 void ASL_ProjectileBase::OnProjectileBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
