@@ -13,6 +13,8 @@ ASL_ProjectileBase::ASL_ProjectileBase()
 	ProjectileCollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Block);
 	ProjectileCollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Block);
 	ProjectileCollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
+	ProjectileCollisionBox->OnComponentHit.AddUniqueDynamic(this, &ASL_ProjectileBase::OnProjectileHit);
+	ProjectileCollisionBox->OnComponentBeginOverlap.AddUniqueDynamic(this, &ASL_ProjectileBase::OnProjectileBeginOverlap);
 	
 	ProjectileNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("ProjectileNiagaraComponent"));
 	ProjectileNiagaraComponent->SetupAttachment(GetRootComponent());
@@ -29,4 +31,14 @@ ASL_ProjectileBase::ASL_ProjectileBase()
 void ASL_ProjectileBase::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void ASL_ProjectileBase::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+}
+
+void ASL_ProjectileBase::OnProjectileBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
 }
