@@ -57,6 +57,7 @@ namespace SL_GameplayTags
 	
 	SWORD_LEGACY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Enemy_Status_Strafing);
 	SWORD_LEGACY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Enemy_Status_UnderAttack);
+	SWORD_LEGACY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Enemy_Status_Unblockable);
 	
 	/** Shared Tags **/
 	SWORD_LEGACY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_Ability_HitReact);
