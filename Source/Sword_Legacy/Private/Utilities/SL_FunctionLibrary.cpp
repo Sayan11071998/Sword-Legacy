@@ -140,3 +140,14 @@ bool USL_FunctionLibrary::IsValidBlock(AActor* InAttacker, AActor* InDefender)
 	
 	return DotResult < -0.1f;
 }
+
+bool USL_FunctionLibrary::ApplyGameplayEffectSpecHandleToTargetActor(AActor* InInstigator, AActor* InTargetActor,
+	const FGameplayEffectSpecHandle& InSpecHandle)
+{
+	USL_AbilitySystemComponent* SourceASC = NativeGetASCFromActor(InInstigator);
+	USL_AbilitySystemComponent* TargetASC = NativeGetASCFromActor(InTargetActor);
+	
+	FActiveGameplayEffectHandle ActiveGameplayEffectHandl = SourceASC->ApplyGameplayEffectSpecToTarget(*InSpecHandle.Data, TargetASC);
+	
+	return ActiveGameplayEffectHandl.WasSuccessfullyApplied();
+}
