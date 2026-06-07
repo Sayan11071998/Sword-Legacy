@@ -8,6 +8,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Sound/SoundBase.h"
+#include "Components/AudioComponent.h"
 
 ASL_ProjectileBase::ASL_ProjectileBase()
 {
@@ -38,6 +39,7 @@ ASL_ProjectileBase::ASL_ProjectileBase()
 	ProjectileSpawnSound = nullptr;
 	ProjectileFlyingSound = nullptr;
 	ProjectileMuzzleFX = nullptr;
+	ProjectileFlyingAudioComponent = nullptr;
 }
 
 void ASL_ProjectileBase::BeginPlay()
@@ -56,13 +58,24 @@ void ASL_ProjectileBase::BeginPlay()
 
 	if (ProjectileFlyingSound)
 	{
-		UGameplayStatics::SpawnSoundAttached(ProjectileFlyingSound, GetRootComponent());
+		ProjectileFlyingAudioComponent = UGameplayStatics::SpawnSoundAttached(ProjectileFlyingSound, GetRootComponent());
 	}
 
 	if (ProjectileMuzzleFX)
 	{
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ProjectileMuzzleFX, GetActorLocation(), GetActorForwardVector().Rotation());
 	}
+}
+
+void ASL_ProjectileBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (ProjectileFlyingAudioComponent)
+	{
+		ProjectileFlyingAudioComponent->Stop();
+		ProjectileFlyingAudioComponent = nullptr;
+	}
+
+	Super::EndPlay(EndPlayReason);
 }
 
 void ASL_ProjectileBase::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,

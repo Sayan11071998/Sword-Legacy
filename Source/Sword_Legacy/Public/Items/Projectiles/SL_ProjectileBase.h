@@ -11,6 +11,7 @@ class UNiagaraComponent;
 class UBoxComponent;
 class USoundBase;
 class UNiagaraSystem;
+class UAudioComponent;
 
 UENUM(BlueprintType)
 enum class ESL_ProjectileDamagePolicy : uint8
@@ -32,6 +33,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	
 	void NativeOnSpawnProjectileHitVFX(const FVector& HitLocation);
 	
@@ -85,4 +87,7 @@ protected:
 	ESL_ProjectileDamagePolicy ProjectileDamagePolicy = ESL_ProjectileDamagePolicy::OnHit;
 private:
 	void HandleApplyProjectileDamage(TObjectPtr<APawn> InHitPawn, const FGameplayEventData& InPayLoad);
+
+	UPROPERTY()
+	TObjectPtr<UAudioComponent> ProjectileFlyingAudioComponent;
 };
