@@ -27,6 +27,9 @@ class SWORD_LEGACY_API ASL_ProjectileBase : public AActor
 public:	
 	ASL_ProjectileBase();
 
+	UPROPERTY(BlueprintReadWrite, Category = "Projectile", meta = (ExposeOnSpawn = "true"))
+	FGameplayEffectSpecHandle ProjectileDamageEffectSpecHandle;
+
 protected:
 	virtual void BeginPlay() override;
 	
@@ -80,10 +83,6 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile")
 	ESL_ProjectileDamagePolicy ProjectileDamagePolicy = ESL_ProjectileDamagePolicy::OnHit;
-	
-	UPROPERTY(BlueprintReadOnly, Category = "Projectile", meta = (ExposeOnSpawn = "true"))
-	FGameplayEffectSpecHandle ProjectileDamageEffectSpecHandle;
-	
 private:
 	void HandleApplyProjectileDamage(TObjectPtr<APawn> InHitPawn, const FGameplayEventData& InPayLoad);
 };

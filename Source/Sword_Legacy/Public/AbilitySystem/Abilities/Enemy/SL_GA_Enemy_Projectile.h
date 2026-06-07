@@ -2,7 +2,11 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/Abilities/SL_EnemyGameplayAbility.h"
+#include "ScalableFloat.h"
 #include "SL_GA_Enemy_Projectile.generated.h"
+
+class ASL_ProjectileBase;
+class UGameplayEffect;
 
 UCLASS()
 class SWORD_LEGACY_API USL_GA_Enemy_Projectile : public USL_EnemyGameplayAbility
@@ -25,7 +29,25 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile Ability")
 	TObjectPtr<UAnimMontage> MontageToPlay;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile Ability")
+	TSubclassOf<ASL_ProjectileBase> ProjectileClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile Ability")
+	TSubclassOf<UGameplayEffect> ProjectileDamageEffectClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile Ability")
+	FScalableFloat ProjectileDamageScalableFloat;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile Ability")
+	FGameplayTag SpawnProjectileEventTag;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile Ability")
+	FName ProjectileSpawnSocketName;
+
 private:
+	UFUNCTION()
+	void OnProjectileSpawnEventReceived(FGameplayEventData Payload);
+
 	UFUNCTION()
 	void OnMontageFinished();
 };
