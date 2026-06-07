@@ -5,6 +5,7 @@
 #include "GameFramework/Actor.h"
 #include "SL_ProjectileBase.generated.h"
 
+struct FGameplayEventData;
 class UProjectileMovementComponent;
 class UNiagaraComponent;
 class UBoxComponent;
@@ -75,5 +76,5 @@ protected:
 	FGameplayEffectSpecHandle ProjectileDamageEffectSpecHandle;
 	
 private:
-	void HandleApplyProjectileDamage(TObjectPtr<APawn> InHitPawn);
+	void HandleApplyProjectileDamage(TObjectPtr<APawn> InHitPawn, const FGameplayEventData& InPayLoad);
 };

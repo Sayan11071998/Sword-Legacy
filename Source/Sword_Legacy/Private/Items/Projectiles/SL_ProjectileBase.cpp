@@ -82,7 +82,7 @@ void ASL_ProjectileBase::OnProjectileHit(UPrimitiveComponent* HitComponent, AAct
 	}
 	else
 	{
-		HandleApplyProjectileDamage(HitPawn);
+		HandleApplyProjectileDamage(HitPawn, Data);
 	}
 	
 	Destroy();
@@ -93,9 +93,20 @@ void ASL_ProjectileBase::OnProjectileBeginOverlap(UPrimitiveComponent* Overlappe
 {
 }
 
-void ASL_ProjectileBase::HandleApplyProjectileDamage(TObjectPtr<APawn> InHitPawn)
+void ASL_ProjectileBase::HandleApplyProjectileDamage(TObjectPtr<APawn> InHitPawn, const FGameplayEventData& InPayLoad)
 {
+	checkf(ProjectileDamageEffectSpecHandle.IsValid(), TEXT("Forgot to assign a valid spec handle to the projectile: %s"), *GetActorNameOrLabel());
 	
+	const bool bWasApplied = USL_FunctionLibrary::ApplyGameplayEffectSpecHandleToTargetActor(GetInstigator(), InHitPawn, ProjectileDamageEffectSpecHandle);
+	
+	if (bWasApplied)
+	{
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+			InHitPawn,
+			SL_GameplayTags::Shared_Event_HitReact,
+			InPayLoad
+		);
+	}
 }
 
 void ASL_ProjectileBase::NativeOnSpawnProjectileHitVFX(const FVector& HitLocation)
