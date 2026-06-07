@@ -35,6 +35,9 @@ ASL_ProjectileBase::ASL_ProjectileBase()
 
 	ProjectileImpactSound = nullptr;
 	ProjectileImpactEffects = nullptr;
+	ProjectileSpawnSound = nullptr;
+	ProjectileFlyingSound = nullptr;
+	ProjectileMuzzleFX = nullptr;
 }
 
 void ASL_ProjectileBase::BeginPlay()
@@ -44,6 +47,21 @@ void ASL_ProjectileBase::BeginPlay()
 	if (ProjectileDamagePolicy == ESL_ProjectileDamagePolicy::OnBeginOverlap)
 	{
 		ProjectileCollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+	}
+
+	if (ProjectileSpawnSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, ProjectileSpawnSound, GetActorLocation());
+	}
+
+	if (ProjectileFlyingSound)
+	{
+		UGameplayStatics::SpawnSoundAttached(ProjectileFlyingSound, GetRootComponent());
+	}
+
+	if (ProjectileMuzzleFX)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ProjectileMuzzleFX, GetActorLocation(), GetActorForwardVector().Rotation());
 	}
 }
 

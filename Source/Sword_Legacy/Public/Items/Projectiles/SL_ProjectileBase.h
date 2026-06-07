@@ -55,6 +55,15 @@ protected:
 	void BP_OnSpawnProjectileHitVFX(const FVector& HitLocation);
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile|Effects")
+	TObjectPtr<USoundBase> ProjectileSpawnSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile|Effects")
+	TObjectPtr<USoundBase> ProjectileFlyingSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile|Effects")
+	TObjectPtr<UNiagaraSystem> ProjectileMuzzleFX;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile|Effects")
 	TObjectPtr<USoundBase> ProjectileImpactSound;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile|Effects")
