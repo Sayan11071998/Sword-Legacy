@@ -82,7 +82,7 @@ void ASL_ProjectileBase::OnProjectileHit(UPrimitiveComponent* HitComponent, AAct
 	}
 	else
 	{
-		// Apply Damage
+		HandleApplyProjectileDamage(HitPawn);
 	}
 	
 	Destroy();
@@ -91,6 +91,11 @@ void ASL_ProjectileBase::OnProjectileHit(UPrimitiveComponent* HitComponent, AAct
 void ASL_ProjectileBase::OnProjectileBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+}
+
+void ASL_ProjectileBase::HandleApplyProjectileDamage(TObjectPtr<APawn> InHitPawn)
+{
+	
 }
 
 void ASL_ProjectileBase::NativeOnSpawnProjectileHitVFX(const FVector& HitLocation)
