@@ -12,7 +12,7 @@ void USL_EnemyCombatComponent::OnHitTargetActor(AActor* HitActor)
 	bool bIsValidBlock = false;
 	
 	const bool bIsPlayerBlocking = USL_FunctionLibrary::NativeDoesActorHaveTag(HitActor, SL_GameplayTags::Player_Status_Blocking);
-	const bool bIsMyAttackUnblockable = false;
+	const bool bIsMyAttackUnblockable = USL_FunctionLibrary::NativeDoesActorHaveTag(GetOwningPawn(), SL_GameplayTags::Enemy_Status_Unblockable);
 	
 	if (bIsPlayerBlocking && !bIsMyAttackUnblockable)
 	{
