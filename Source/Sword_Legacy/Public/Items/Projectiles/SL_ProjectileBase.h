@@ -7,6 +7,8 @@
 class UProjectileMovementComponent;
 class UNiagaraComponent;
 class UBoxComponent;
+class USoundBase;
+class UNiagaraSystem;
 
 UENUM(BlueprintType)
 enum class ESL_ProjectileDamagePolicy : uint8
@@ -25,6 +27,8 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	
+	void NativeOnSpawnProjectileHitVFX(const FVector& HitLocation);
 	
 	UFUNCTION()
 	virtual void OnProjectileHit(
@@ -45,8 +49,14 @@ protected:
 		const FHitResult& SweepResult	
 	);
 	
-	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "On Spawn Projectile Hit VFX"))
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Projectile", meta = (DisplayName = "On Spawn Projectile Hit VFX"))
 	void BP_OnSpawnProjectileHitVFX(const FVector& HitLocation);
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile|Effects")
+	TObjectPtr<USoundBase> ProjectileImpactSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile|Effects")
+	TObjectPtr<UNiagaraSystem> ProjectileImpactEffects;
 	
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Projectile")
 	TObjectPtr<UBoxComponent> ProjectileCollisionBox;

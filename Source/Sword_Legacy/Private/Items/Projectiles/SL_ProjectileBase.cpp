@@ -5,6 +5,9 @@
 #include "Utilities/SL_FunctionLibrary.h"
 #include "Utilities/SL_GameplayTags.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "Kismet/GameplayStatics.h"
+#include "NiagaraFunctionLibrary.h"
+#include "Sound/SoundBase.h"
 
 ASL_ProjectileBase::ASL_ProjectileBase()
 {
@@ -29,6 +32,9 @@ ASL_ProjectileBase::ASL_ProjectileBase()
 	ProjectileMovementComp->ProjectileGravityScale = 0.f;
 	
 	InitialLifeSpan = 4.f;
+
+	ProjectileImpactSound = nullptr;
+	ProjectileImpactEffects = nullptr;
 }
 
 void ASL_ProjectileBase::BeginPlay()
@@ -85,4 +91,26 @@ void ASL_ProjectileBase::OnProjectileHit(UPrimitiveComponent* HitComponent, AAct
 void ASL_ProjectileBase::OnProjectileBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+}
+
+void ASL_ProjectileBase::NativeOnSpawnProjectileHitVFX(const FVector& HitLocation)
+{
+	if (ProjectileImpactSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, ProjectileImpactSound, HitLocation);
+	}
+
+	if (ProjectileImpactEffects)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+			this,
+			ProjectileImpactEffects,
+			HitLocation
+		);
+	}
+}
+
+void ASL_ProjectileBase::BP_OnSpawnProjectileHitVFX_Implementation(const FVector& HitLocation)
+{
+	NativeOnSpawnProjectileHitVFX(HitLocation);
 }
