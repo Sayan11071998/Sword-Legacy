@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayEffectTypes.h"
 #include "GameplayTagContainer.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "PawnTypes/SL_PawnEnumTypes.h"
@@ -43,4 +44,7 @@ public:
 	
 	UFUNCTION(BlueprintPure, Category = "Pawn|Function Library")
 	static bool IsValidBlock(AActor* InAttacker, AActor* InDefender);
+	
+	UFUNCTION(BlueprintCallable, Category = "Pawn|Function Library")
+	static bool ApplyGameplayEffectSpecHandleToTargetActor(AActor* InInstigator, AActor* InTargetActor, const FGameplayEffectSpecHandle& InSpecHandle);
 };

@@ -55,6 +55,7 @@ namespace SL_GameplayTags
 	
 	UE_DEFINE_GAMEPLAY_TAG(Enemy_Status_Strafing, "Enemy.Status.Strafing");
 	UE_DEFINE_GAMEPLAY_TAG(Enemy_Status_UnderAttack, "Enemy.Status.UnderAttack");
+	UE_DEFINE_GAMEPLAY_TAG(Enemy_Status_Unblockable, "Enemy.Status.Unblockable");
 	
 	/** Shared Tags **/
 	UE_DEFINE_GAMEPLAY_TAG(Shared_Ability_HitReact, "Shared.Ability.HitReact");
@@ -62,6 +63,7 @@ namespace SL_GameplayTags
 	
 	UE_DEFINE_GAMEPLAY_TAG(Shared_Event_MeleeHit, "Shared.Event.MeleeHit");
 	UE_DEFINE_GAMEPLAY_TAG(Shared_Event_HitReact, "Shared.Event.HitReact");
+	UE_DEFINE_GAMEPLAY_TAG(Shared_Event_SpawnProjectile, "Shared.Event.SpawnProjectile");
 	
 	UE_DEFINE_GAMEPLAY_TAG(Shared_SetByCaller_BaseDamage, "Shared.SetByCaller.BaseDamage");
 	
@@ -76,6 +78,7 @@ namespace SL_GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Sounds_MeleeHit_EnemyMeleeWeapon, "GameplayCue.Sounds.MeleeHit.EnemyMeleeWeapon");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Sounds_Death_Enemy_Serath, "GameplayCue.Sounds.Death.Enemy.Serath");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Effects, "GameplayCue.Effects");
+	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Effects_UnblockableWarning, "GameplayCue.Effects.UnblockableWarning");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Effects_Katana, "GameplayCue.Effects.Katana");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Effects_Katana_SuccessfulBlock, "GameplayCue.Effects.Katana.SuccessfulBlock");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Effects_Katana_PerfectBlock, "GameplayCue.Effects.Katana.PerfectBlock");

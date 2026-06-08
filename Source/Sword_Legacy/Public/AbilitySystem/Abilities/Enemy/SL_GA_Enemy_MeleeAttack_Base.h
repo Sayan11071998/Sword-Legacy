@@ -39,5 +39,8 @@ protected:
 	
 private:
 	UFUNCTION()
+	void PlayMeleeAttackMontage();
+
+	UFUNCTION()
 	void OnMeleeAttackFinished();
 };
