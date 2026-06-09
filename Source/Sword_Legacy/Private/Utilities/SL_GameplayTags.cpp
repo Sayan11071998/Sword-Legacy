@@ -77,6 +77,8 @@ namespace SL_GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Sounds_MeleeHit_Katana, "GameplayCue.Sounds.MeleeHit.Katana");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Sounds_MeleeHit_EnemyMeleeWeapon, "GameplayCue.Sounds.MeleeHit.EnemyMeleeWeapon");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Sounds_Death_Enemy_Serath, "GameplayCue.Sounds.Death.Enemy.Serath");
+	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Sounds_Death_Enemy_Phase, "GameplayCue.Sounds.Death.Enemy.Phase");
+	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Sounds_Death_Enemy_FrostGiant, "GameplayCue.Sounds.Death.Enemy.FrostGiant");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Effects, "GameplayCue.Effects");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Effects_UnblockableWarning, "GameplayCue.Effects.UnblockableWarning");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Effects_Katana, "GameplayCue.Effects.Katana");
