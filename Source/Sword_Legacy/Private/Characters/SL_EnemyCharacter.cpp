@@ -96,6 +96,11 @@ void ASL_EnemyCharacter::OnEnemyDied_Implementation(const TSoftObjectPtr<UNiagar
 	{
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
+
+	if (EnemyUIComponent)
+	{
+		EnemyUIComponent->RemoveEnemyDrawnWidgetsIfAny();
+	}
 	
 	if (!InSoftNiagaraSystem.IsNull())
 	{

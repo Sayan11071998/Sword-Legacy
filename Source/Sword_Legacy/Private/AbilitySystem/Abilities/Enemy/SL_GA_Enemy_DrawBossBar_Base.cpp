@@ -3,6 +3,7 @@
 #include "Characters/SL_EnemyCharacter.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/TextBlock.h"
+#include "Components/UI/SL_EnemyUIComponent.h"
 
 USL_GA_Enemy_DrawBossBar_Base::USL_GA_Enemy_DrawBossBar_Base()
 {
@@ -48,6 +49,10 @@ void USL_GA_Enemy_DrawBossBar_Base::ActivateAbility(const FGameplayAbilitySpecHa
 		if (ASL_EnemyCharacter* EnemyCharacter = GetEnemyCharacterFromActorInfo())
 		{
 			CreatedWidget->InitEnemyCreatedWidget(EnemyCharacter);
+			if (USL_EnemyUIComponent* EnemyUIComponent = EnemyCharacter->GetEnemyUIComponent())
+			{
+				EnemyUIComponent->RegisterEnemyDrawnWidget(CreatedWidget);
+			}
 		}
 	}
 	
