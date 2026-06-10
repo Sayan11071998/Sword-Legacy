@@ -8,6 +8,7 @@
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraSystem.h"
 #include "NiagaraComponent.h"
+#include "Components/BoxComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Components/UI/SL_EnemyUIComponent.h"
@@ -34,6 +35,17 @@ ASL_EnemyCharacter::ASL_EnemyCharacter()
 	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	
 	EnemyCombatComponent = CreateDefaultSubobject<USL_EnemyCombatComponent>(TEXT("EnemyCombatComponent"));
+	
+	LeftHandCollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("LeftHandCollisionBox"));
+	LeftHandCollisionBox->SetupAttachment(GetMesh());
+	LeftHandCollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	LeftHandCollisionBox->OnComponentBeginOverlap.AddUniqueDynamic(this, &ASL_EnemyCharacter::OnBodyCollisionBoxBeginOverlap);
+	
+	RightHandCollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("RightHandCollisionBox"));
+	RightHandCollisionBox->SetupAttachment(GetMesh());
+	RightHandCollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	RightHandCollisionBox->OnComponentBeginOverlap.AddUniqueDynamic(this, &ASL_EnemyCharacter::OnBodyCollisionBoxBeginOverlap);
+	
 	EnemyUIComponent = CreateDefaultSubobject<USL_EnemyUIComponent>(TEXT("EnemyUIComponent"));
 	
 	EnemyHealthWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("EnemyHealthWidgetComponent"));
@@ -78,6 +90,11 @@ void ASL_EnemyCharacter::PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController);
 	
 	InitEnemyStartupData();
+}
+
+void ASL_EnemyCharacter::OnBodyCollisionBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
 }
 
 TObjectPtr<USL_PawnCombatComponent> ASL_EnemyCharacter::GetPawnCombatComponent() const
