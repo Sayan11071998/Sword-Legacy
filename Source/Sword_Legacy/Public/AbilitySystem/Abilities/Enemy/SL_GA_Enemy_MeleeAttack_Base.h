@@ -34,6 +34,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Melee Attack")
 	FGameplayTag WeaponHitSoundGameplayCueTag;
 	
+	UPROPERTY(EditDefaultsOnly, Category = "Melee Attack")
+	float UnblockableAttackWarningSpawnOffset;
+	
 	UFUNCTION(BlueprintCallable, Category = "Melee Attack")
 	void HandleApplyDamage(FGameplayEventData Payload);
 	

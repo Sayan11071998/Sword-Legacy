@@ -9,6 +9,7 @@
 USL_GA_Enemy_MeleeAttack_Base::USL_GA_Enemy_MeleeAttack_Base()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+	UnblockableAttackWarningSpawnOffset = 100.0f;
 }
 
 void USL_GA_Enemy_MeleeAttack_Base::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -35,8 +36,9 @@ void USL_GA_Enemy_MeleeAttack_Base::ActivateAbility(const FGameplayAbilitySpecHa
 
 	if (bIsUnblockable)
 	{
-		FGameplayEffectContextHandle ContextHandle = GetAbilitySystemComponentFromActorInfo()->MakeEffectContext();
-		K2_ExecuteGameplayCue(SL_GameplayTags::GameplayCue_Effects_UnblockableWarning, ContextHandle);
+		FGameplayCueParameters CueParams;
+		CueParams.RawMagnitude = UnblockableAttackWarningSpawnOffset;
+		K2_ExecuteGameplayCueWithParams(SL_GameplayTags::GameplayCue_Effects_UnblockableWarning, CueParams);
 
 		UAbilityTask_WaitDelay* WaitDelayTask = UAbilityTask_WaitDelay::WaitDelay(this, 0.2f);
 		if (WaitDelayTask)
