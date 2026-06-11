@@ -43,19 +43,32 @@ void USL_PawnCombatComponent::ToggleWeaponCollision(bool bShouldEnable, ESL_Togg
 {
 	if (ToggleDamageType == ESL_ToggleDamageType::CurrentEquippedWeapon)
 	{
-		ASL_WeaponBase* WeaponToToggle = GetCharacterCurrentEquippedWeapon();
-		check(WeaponToToggle);
-		
-		if (bShouldEnable)
-		{
-			WeaponToToggle->GetWeaponCollisionBox()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-		}
-		else
-		{
-			WeaponToToggle->GetWeaponCollisionBox()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-			OverlappedActors.Empty();
-		}
+		ToggleCurrentEquippedWeaponCollision(bShouldEnable);
 	}
+	else
+	{
+		ToggleBodyCollisionBoxCollision(bShouldEnable, ToggleDamageType);
+	}
+}
+
+void USL_PawnCombatComponent::ToggleCurrentEquippedWeaponCollision(bool bShouldEnable)
+{
+	ASL_WeaponBase* WeaponToToggle = GetCharacterCurrentEquippedWeapon();
+	check(WeaponToToggle);
+		
+	if (bShouldEnable)
+	{
+		WeaponToToggle->GetWeaponCollisionBox()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	}
+	else
+	{
+		WeaponToToggle->GetWeaponCollisionBox()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		OverlappedActors.Empty();
+	}
+}
+
+void USL_PawnCombatComponent::ToggleBodyCollisionBoxCollision(bool bShouldEnable, ESL_ToggleDamageType ToggleDamageType)
+{
 }
 
 void USL_PawnCombatComponent::OnHitTargetActor(AActor* HitActor) { }

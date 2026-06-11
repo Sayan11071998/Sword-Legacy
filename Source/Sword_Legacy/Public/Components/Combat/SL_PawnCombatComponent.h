@@ -34,6 +34,10 @@ public:
 	FGameplayTag CurrentEquippedWeaponTag;
 	
 protected:
+	virtual void ToggleCurrentEquippedWeaponCollision(bool bShouldEnable);
+	virtual void ToggleBodyCollisionBoxCollision(bool bShouldEnable, ESL_ToggleDamageType ToggleDamageType);
+	
+	UPROPERTY()
 	TArray<TObjectPtr<AActor>> OverlappedActors;
 	
 private:

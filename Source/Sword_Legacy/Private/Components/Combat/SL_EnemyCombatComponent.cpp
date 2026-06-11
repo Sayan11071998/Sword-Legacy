@@ -1,7 +1,9 @@
 #include "Components/Combat/SL_EnemyCombatComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "Characters/SL_EnemyCharacter.h"
 #include "Utilities/SL_GameplayTags.h"
 #include "Utilities/SL_FunctionLibrary.h"
+#include "Components/BoxComponent.h"
 
 void USL_EnemyCombatComponent::OnHitTargetActor(AActor* HitActor)
 {
@@ -38,5 +40,36 @@ void USL_EnemyCombatComponent::OnHitTargetActor(AActor* HitActor)
 			SL_GameplayTags::Shared_Event_MeleeHit,
 			EventData
 		);
+	}
+}
+
+void USL_EnemyCombatComponent::ToggleBodyCollisionBoxCollision(bool bShouldEnable,
+	ESL_ToggleDamageType ToggleDamageType)
+{
+	ASL_EnemyCharacter* OwningEnemyCharacter = GetOwningPawn<ASL_EnemyCharacter>();
+	check(OwningEnemyCharacter);
+	
+	UBoxComponent* LeftHandCollisionBox = OwningEnemyCharacter->GetLeftHandCollisionBox();
+	UBoxComponent* RightHandCollisionBox = OwningEnemyCharacter->GetRightHandCollisionBox();
+	
+	check(LeftHandCollisionBox && RightHandCollisionBox);
+
+	switch (ToggleDamageType)
+	{
+	case ESL_ToggleDamageType::LeftHand:
+		LeftHandCollisionBox->SetCollisionEnabled(bShouldEnable ? ECollisionEnabled::QueryOnly : ECollisionEnabled::NoCollision);
+		break;
+		
+	case ESL_ToggleDamageType::RightHand:
+		RightHandCollisionBox->SetCollisionEnabled(bShouldEnable ? ECollisionEnabled::QueryOnly : ECollisionEnabled::NoCollision);
+		break;
+		
+	default:
+		break;
+	}
+	
+	if (!bShouldEnable)
+	{
+		OverlappedActors.Empty();
 	}
 }
