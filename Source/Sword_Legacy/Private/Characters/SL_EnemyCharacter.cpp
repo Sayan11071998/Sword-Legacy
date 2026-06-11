@@ -13,6 +13,7 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Components/UI/SL_EnemyUIComponent.h"
 #include "Widgets/SL_WidgetBase.h"
+#include "Utilities/SL_FunctionLibrary.h"
 
 ASL_EnemyCharacter::ASL_EnemyCharacter()
 {
@@ -112,6 +113,13 @@ void ASL_EnemyCharacter::PostEditChangeProperty(struct FPropertyChangedEvent& Pr
 void ASL_EnemyCharacter::OnBodyCollisionBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (APawn* HitPawn = Cast<APawn>(OtherActor))
+	{
+		if (USL_FunctionLibrary::IsTargetPawnHostile(this, HitPawn))
+		{
+			EnemyCombatComponent->OnHitTargetActor(HitPawn);
+		}
+	}
 }
 
 TObjectPtr<USL_PawnCombatComponent> ASL_EnemyCharacter::GetPawnCombatComponent() const
