@@ -42,6 +42,12 @@ protected:
 	virtual void PossessedBy(AController* NewController) override;
 	// ~ End APawn Interface
 	
+	// ~ Begin UObject Interface
+#if WITH_EDITOR
+	virtual void PostEditChangeProperty( struct FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif
+	// ~ End UObject Interface
+	
 	UFUNCTION()
 	virtual void OnBodyCollisionBoxBeginOverlap(
 		UPrimitiveComponent* OverlappedComponent,
@@ -60,8 +66,14 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 	TObjectPtr<UBoxComponent> LeftHandCollisionBox;
 	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat")
+	FName LeftHandCollisionBoxAttachBoneName;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 	TObjectPtr<UBoxComponent> RightHandCollisionBox;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat")
+	FName RightHandCollisionBoxAttachBoneName;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
 	TObjectPtr<USL_EnemyUIComponent> EnemyUIComponent;
