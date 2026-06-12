@@ -14,6 +14,11 @@ class SWORD_LEGACY_API USL_AbilityTask_WaitSpawnEnemies : public UAbilityTask
 	GENERATED_BODY()
 	
 public:
+	// ~ Begin UGameplayTask Interface
+	virtual void Activate() override;
+	virtual void OnDestroy(bool bInOwnerFinished) override;
+	// ~ End UGameplayTask Interface
+	
 	UFUNCTION(BlueprintCallable, Category = "Pawn|AbilityTasks", meta = (DisplayName = "Wait Gameplay Event And Spawn Enemies", HidePin = "OwningAbility", DefaultToSelf = "OwningAbility", BlueprintInternalUseOnly = "true", NumToSpawn = "1", RandomSpawnRadius = "200"))
 	static USL_AbilityTask_WaitSpawnEnemies* WaitSpawnEnemies(
 		UGameplayAbility* OwningAbility,
@@ -32,10 +37,13 @@ public:
 	FWaitSpawnEnemiesDelegate DidNotSpawn;
 	
 private:
+	void OnGameplayEventReceived(const FGameplayEventData* InPayload);
+	
 	FGameplayTag CachedEventTag;
 	TSoftClassPtr<ASL_EnemyCharacter> CachedSoftEnemyClassToSpawn;
 	int32 CachedNumToSpawn;
 	FVector CachedSpawnOrigin;
 	float CachedRandomSpawnRadius;
 	FRotator CachedSpawnRotation;
+	FDelegateHandle DelegateHandle;
 };

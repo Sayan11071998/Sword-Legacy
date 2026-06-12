@@ -1,4 +1,21 @@
 #include "AbilitySystem/AbilityTasks/SL_AbilityTask_WaitSpawnEnemies.h"
+#include "AbilitySystemComponent.h"
+
+void USL_AbilityTask_WaitSpawnEnemies::Activate()
+{
+	FGameplayEventMulticastDelegate& Delegate = AbilitySystemComponent->GenericGameplayEventCallbacks.FindOrAdd(CachedEventTag);
+	
+	DelegateHandle = Delegate.AddUObject(this, &USL_AbilityTask_WaitSpawnEnemies::OnGameplayEventReceived);
+}
+
+void USL_AbilityTask_WaitSpawnEnemies::OnDestroy(bool bInOwnerFinished)
+{
+	FGameplayEventMulticastDelegate& Delegate = AbilitySystemComponent->GenericGameplayEventCallbacks.FindOrAdd(CachedEventTag);
+	
+	Delegate.Remove(DelegateHandle);
+	
+	Super::OnDestroy(bInOwnerFinished);
+}
 
 USL_AbilityTask_WaitSpawnEnemies* USL_AbilityTask_WaitSpawnEnemies::WaitSpawnEnemies(UGameplayAbility* OwningAbility,
 	FGameplayTag EventTag, TSoftClassPtr<ASL_EnemyCharacter> SoftEnemyClassToSpawn, int32 NumToSpawn,
@@ -14,4 +31,8 @@ USL_AbilityTask_WaitSpawnEnemies* USL_AbilityTask_WaitSpawnEnemies::WaitSpawnEne
 	Node->CachedSpawnRotation = SpawnRotation;
 	
 	return Node;
+}
+
+void USL_AbilityTask_WaitSpawnEnemies::OnGameplayEventReceived(const FGameplayEventData* InPayload)
+{
 }
