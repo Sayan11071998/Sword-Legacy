@@ -1,6 +1,8 @@
 #include "AbilitySystem/AbilityTasks/SL_AbilityTask_WaitSpawnEnemies.h"
 #include "AbilitySystemComponent.h"
 
+#include "SL_DebugHelper.h"
+
 void USL_AbilityTask_WaitSpawnEnemies::Activate()
 {
 	FGameplayEventMulticastDelegate& Delegate = AbilitySystemComponent->GenericGameplayEventCallbacks.FindOrAdd(CachedEventTag);
@@ -35,4 +37,7 @@ USL_AbilityTask_WaitSpawnEnemies* USL_AbilityTask_WaitSpawnEnemies::WaitSpawnEne
 
 void USL_AbilityTask_WaitSpawnEnemies::OnGameplayEventReceived(const FGameplayEventData* InPayload)
 {
+	Debug::Print(TEXT("Gameplay Event Received"));
+	
+	EndTask();
 }
