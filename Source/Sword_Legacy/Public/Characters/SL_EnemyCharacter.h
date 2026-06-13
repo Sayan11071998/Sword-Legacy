@@ -18,7 +18,7 @@ class SWORD_LEGACY_API ASL_EnemyCharacter : public ASL_BaseCharacter, public ISL
 	GENERATED_BODY()
 	
 public:
-	ASL_EnemyCharacter();
+	ASL_EnemyCharacter()
 	
 	// ~ Begin ACharacter Interface
 	virtual void BeginPlay() override;
