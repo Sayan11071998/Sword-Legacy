@@ -1,7 +1,8 @@
 #include "AbilitySystem/AbilityTasks/SL_AbilityTask_WaitSpawnEnemies.h"
 #include "AbilitySystemComponent.h"
-
-#include "SL_DebugHelper.h"
+#include "Engine/AssetManager.h"
+#include "Characters/SL_EnemyCharacter.h"
+#include "NavigationSystem.h"
 
 void USL_AbilityTask_WaitSpawnEnemies::Activate()
 {
@@ -37,7 +38,77 @@ USL_AbilityTask_WaitSpawnEnemies* USL_AbilityTask_WaitSpawnEnemies::WaitSpawnEne
 
 void USL_AbilityTask_WaitSpawnEnemies::OnGameplayEventReceived(const FGameplayEventData* InPayload)
 {
-	Debug::Print(TEXT("Gameplay Event Received"));
+	if (ensure(!CachedSoftEnemyClassToSpawn.IsNull()))
+	{
+		UAssetManager::Get().GetStreamableManager().RequestAsyncLoad(
+			CachedSoftEnemyClassToSpawn.ToSoftObjectPath(),
+			FStreamableDelegate::CreateUObject(this, &USL_AbilityTask_WaitSpawnEnemies::OnEnemyClassLoaded)
+		);
+	}
+	else
+	{
+		if (ShouldBroadcastAbilityTaskDelegates())
+		{
+			DidNotSpawn.Broadcast(TArray<ASL_EnemyCharacter*>());
+		}
+		
+		EndTask();
+	}
+}
+
+void USL_AbilityTask_WaitSpawnEnemies::OnEnemyClassLoaded()
+{
+	UClass* LoadedClass = CachedSoftEnemyClassToSpawn.Get();
+	UWorld* World = GetWorld();
+	
+	if (!LoadedClass || !World)
+	{
+		if (ShouldBroadcastAbilityTaskDelegates())
+		{
+			DidNotSpawn.Broadcast(TArray<ASL_EnemyCharacter*>());
+		}
+		
+		EndTask();
+		return;
+	}
+	
+	TArray<ASL_EnemyCharacter*> SpawnedEnemies;
+	
+	FActorSpawnParameters SpawnParam;
+	SpawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	
+	for (int32 i = 0; i < CachedNumToSpawn; i++)
+	{
+		FVector RandomLocation;
+		
+		UNavigationSystemV1::K2_GetRandomReachablePointInRadius(
+			this,
+			CachedSpawnOrigin,
+			RandomLocation,
+			CachedRandomSpawnRadius
+		);
+		
+		RandomLocation += FVector(0.f, 0.f, 150.f);
+		
+		ASL_EnemyCharacter* SpawnedEnemy = World->SpawnActor<ASL_EnemyCharacter>(LoadedClass, RandomLocation, CachedSpawnRotation, SpawnParam);
+		
+		if (SpawnedEnemy)
+		{
+			SpawnedEnemies.Add(SpawnedEnemy);
+		}
+	}
+	
+	if (ShouldBroadcastAbilityTaskDelegates())
+	{
+		if (!SpawnedEnemies.IsEmpty())
+		{
+			OnSpawnFinished.Broadcast(SpawnedEnemies);
+		}
+		else
+		{
+			DidNotSpawn.Broadcast(TArray<ASL_EnemyCharacter*>());
+		}
+	}
 	
 	EndTask();
 }
