@@ -22,7 +22,7 @@ void USL_AbilityTask_WaitSpawnEnemies::OnDestroy(bool bInOwnerFinished)
 
 USL_AbilityTask_WaitSpawnEnemies* USL_AbilityTask_WaitSpawnEnemies::WaitSpawnEnemies(UGameplayAbility* OwningAbility,
 	FGameplayTag EventTag, TSoftClassPtr<ASL_EnemyCharacter> SoftEnemyClassToSpawn, int32 NumToSpawn,
-	const FVector& SpawnOrigin, float RandomSpawnRadius, const FRotator SpawnRotation)
+	const FVector& SpawnOrigin, float RandomSpawnRadius)
 {
 	USL_AbilityTask_WaitSpawnEnemies* Node = NewAbilityTask<USL_AbilityTask_WaitSpawnEnemies>(OwningAbility);
 	
@@ -31,7 +31,6 @@ USL_AbilityTask_WaitSpawnEnemies* USL_AbilityTask_WaitSpawnEnemies::WaitSpawnEne
 	Node->CachedNumToSpawn = NumToSpawn;
 	Node->CachedSpawnOrigin = SpawnOrigin;
 	Node->CachedRandomSpawnRadius = RandomSpawnRadius;
-	Node->CachedSpawnRotation = SpawnRotation;
 	
 	return Node;
 }
@@ -90,7 +89,14 @@ void USL_AbilityTask_WaitSpawnEnemies::OnEnemyClassLoaded()
 		
 		RandomLocation += FVector(0.f, 0.f, 150.f);
 		
-		ASL_EnemyCharacter* SpawnedEnemy = World->SpawnActor<ASL_EnemyCharacter>(LoadedClass, RandomLocation, CachedSpawnRotation, SpawnParam);
+		const FRotator SpawnFacingRotation = AbilitySystemComponent->GetAvatarActor()->GetActorForwardVector().ToOrientationRotator();
+		
+		ASL_EnemyCharacter* SpawnedEnemy = World->SpawnActor<ASL_EnemyCharacter>(
+			LoadedClass,
+			RandomLocation,
+			SpawnFacingRotation,
+			SpawnParam	
+		);
 		
 		if (SpawnedEnemy)
 		{
