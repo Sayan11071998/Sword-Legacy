@@ -14,6 +14,7 @@
 #include "Components/UI/SL_EnemyUIComponent.h"
 #include "Widgets/SL_WidgetBase.h"
 #include "Utilities/SL_FunctionLibrary.h"
+#include "Animation/AnimMontage.h"
 
 ASL_EnemyCharacter::ASL_EnemyCharacter()
 {
@@ -74,6 +75,28 @@ void ASL_EnemyCharacter::BeginPlay()
 		FinishedDelegate.BindUFunction(this, FName("HandleDissolveFinished"));
 		DissolveTimeline.SetTimelineFinishedFunc(FinishedDelegate);
 	}
+
+	if (EntryRestoreCurve)
+	{
+		FOnTimelineFloat EntryRestoreUpdateDelegate;
+		EntryRestoreUpdateDelegate.BindUFunction(this, FName("HandleEntryRestoreUpdate"));
+		EntryRestoreTimeline.AddInterpFloat(EntryRestoreCurve, EntryRestoreUpdateDelegate);
+
+		const float PlayRate = 1.0f / FMath::Max(TotalEntryRestoreTime, 0.1f);
+		EntryRestoreTimeline.SetPlayRate(PlayRate);
+		EntryRestoreTimeline.ReverseFromEnd();
+
+		SetActorTickEnabled(true);
+	}
+
+	if (EntryMontagesToPlay.Num() > 0)
+	{
+		const int32 RandomIndex = FMath::RandRange(0, EntryMontagesToPlay.Num() - 1);
+		if (UAnimMontage* SelectedMontage = EntryMontagesToPlay[RandomIndex])
+		{
+			PlayAnimMontage(SelectedMontage);
+		}
+	}
 }
 
 void ASL_EnemyCharacter::Tick(float DeltaTime)
@@ -83,6 +106,11 @@ void ASL_EnemyCharacter::Tick(float DeltaTime)
 	if (DissolveTimeline.IsPlaying())
 	{
 		DissolveTimeline.TickTimeline(DeltaTime);
+	}
+	
+	if (EntryRestoreTimeline.IsPlaying())
+	{
+		EntryRestoreTimeline.TickTimeline(DeltaTime);
 	}
 }
 
@@ -252,4 +280,23 @@ void ASL_EnemyCharacter::HandleDissolveFinished()
 	}
 	
 	Destroy();
+}
+
+void ASL_EnemyCharacter::HandleEntryRestoreUpdate(float Value)
+{
+	if (GetMesh())
+	{
+		GetMesh()->SetScalarParameterValueOnMaterials(DissolveParameterName, Value);
+	}
+	
+	if (EnemyCombatComponent)
+	{
+		if (ASL_WeaponBase* EquippedWeapon = EnemyCombatComponent->GetCharacterCurrentEquippedWeapon())
+		{
+			if (EquippedWeapon->GetWeaponMesh())
+			{
+				EquippedWeapon->GetWeaponMesh()->SetScalarParameterValueOnMaterials(DissolveParameterName, Value);
+			}
+		}
+	}
 }

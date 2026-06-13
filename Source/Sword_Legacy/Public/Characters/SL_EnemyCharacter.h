@@ -10,6 +10,7 @@ class UBoxComponent;
 class UWidgetComponent;
 class USL_EnemyUIComponent;
 class USL_EnemyCombatComponent;
+class UAnimMontage;
 
 UCLASS()
 class SWORD_LEGACY_API ASL_EnemyCharacter : public ASL_BaseCharacter, public ISL_EnemyDeathInterface
@@ -87,9 +88,18 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CharacterData")
 	TObjectPtr<UCurveFloat> DissolveCurve;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CharacterData")
+	TObjectPtr<UCurveFloat> EntryRestoreCurve;
     
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CharacterData")
 	float TotalDissolveTime = 6.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CharacterData")
+	float TotalEntryRestoreTime = 2.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CharacterData")
+	TArray<TObjectPtr<UAnimMontage>> EntryMontagesToPlay;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CharacterData")
 	FName LeftWeaponBoneName = FName(TEXT("weapon_l"));
@@ -109,12 +119,16 @@ private:
 	void InitEnemyStartupData();
 	
 	FTimeline DissolveTimeline;
+	FTimeline EntryRestoreTimeline;
     
 	UFUNCTION()
 	void HandleDissolveUpdate(float Value);
     
 	UFUNCTION()
 	void HandleDissolveFinished();
+
+	UFUNCTION()
+	void HandleEntryRestoreUpdate(float Value);
 	
 public:
 	FORCEINLINE TObjectPtr<USL_EnemyCombatComponent> GetEnemyCombatComponent() const { return EnemyCombatComponent; }
