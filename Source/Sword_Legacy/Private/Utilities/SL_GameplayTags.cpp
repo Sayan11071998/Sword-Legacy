@@ -50,8 +50,11 @@ namespace SL_GameplayTags
 	/** Enemy Tags **/
 	UE_DEFINE_GAMEPLAY_TAG(Enemy_Ability_Melee, "Enemy.Ability.Melee");
 	UE_DEFINE_GAMEPLAY_TAG(Enemy_Ability_Ranged, "Enemy.Ability.Ranged");
+	UE_DEFINE_GAMEPLAY_TAG(Enemy_Ability_SummonEnemies, "Enemy.Ability.SummonEnemies");
 	
 	UE_DEFINE_GAMEPLAY_TAG(Enemy_Weapon, "Enemy.Weapon");
+	
+	UE_DEFINE_GAMEPLAY_TAG(Enemy_Event_SummonEnemies, "Enemy.Event.SummonEnemies");
 	
 	UE_DEFINE_GAMEPLAY_TAG(Enemy_Status_Strafing, "Enemy.Status.Strafing");
 	UE_DEFINE_GAMEPLAY_TAG(Enemy_Status_UnderAttack, "Enemy.Status.UnderAttack");
@@ -76,7 +79,10 @@ namespace SL_GameplayTags
 	/** Gameplay Cues **/
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Sounds_MeleeHit_Katana, "GameplayCue.Sounds.MeleeHit.Katana");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Sounds_MeleeHit_EnemyMeleeWeapon, "GameplayCue.Sounds.MeleeHit.EnemyMeleeWeapon");
+	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Sounds_MeleeHit_BossEnemy, "GameplayCue.Sounds.MeleeHit.BossEnemy");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Sounds_Death_Enemy_Serath, "GameplayCue.Sounds.Death.Enemy.Serath");
+	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Sounds_Death_Enemy_Phase, "GameplayCue.Sounds.Death.Enemy.Phase");
+	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Sounds_Death_Enemy_FrostGiant, "GameplayCue.Sounds.Death.Enemy.FrostGiant");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Effects, "GameplayCue.Effects");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Effects_UnblockableWarning, "GameplayCue.Effects.UnblockableWarning");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Effects_Katana, "GameplayCue.Effects.Katana");

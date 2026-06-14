@@ -22,7 +22,8 @@ public class Sword_Legacy : ModuleRules
 			"Niagara",
 			"UMG",
 			"AIModule",
-			"MotionWarping"
+			"MotionWarping",
+			"NavigationSystem"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });

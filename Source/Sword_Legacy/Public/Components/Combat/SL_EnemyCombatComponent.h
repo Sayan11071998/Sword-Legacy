@@ -13,4 +13,9 @@ public:
 	// ~ Begin USL_PawnCombatComponent Interface
 	virtual void OnHitTargetActor(AActor* HitActor) override;
 	// ~ End USL_PawnCombatComponent Interface
+	
+protected:
+	// ~ Begin USL_PawnCombatComponent Interface
+	virtual void ToggleBodyCollisionBoxCollision(bool bShouldEnable, ESL_ToggleDamageType ToggleDamageType) override;
+	// ~ Begin USL_PawnCombatComponent Interface
 };
