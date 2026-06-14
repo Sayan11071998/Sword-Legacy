@@ -21,6 +21,7 @@ namespace SL_GameplayTags
 	
 	SWORD_LEGACY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputTag_Toggleable);
 	SWORD_LEGACY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputTag_Toggleable_TargetLock);
+	SWORD_LEGACY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputTag_Toggleable_Rage);
 	
 	/** Player Tags **/
 	SWORD_LEGACY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player_Ability_Equip_Katana);
