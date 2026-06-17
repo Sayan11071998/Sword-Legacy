@@ -47,6 +47,4 @@ private:
 	void OnRageNoneTagAdded();
 
 	FActiveGameplayEffectHandle AppliedRageCostEffectHandle;
-
-	bool bIgnoreFirstActivateEvent;
 };

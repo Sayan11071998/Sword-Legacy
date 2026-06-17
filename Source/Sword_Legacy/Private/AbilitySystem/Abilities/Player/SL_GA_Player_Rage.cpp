@@ -10,7 +10,6 @@
 USL_GA_Player_Rage::USL_GA_Player_Rage()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-	bIgnoreFirstActivateEvent = false;
 }
 
 void USL_GA_Player_Rage::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -24,15 +23,6 @@ void USL_GA_Player_Rage::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
-	}
-
-	if (TriggerEventData && TriggerEventData->EventTag == SL_GameplayTags::Player_Event_ActivateRage)
-	{
-		bIgnoreFirstActivateEvent = true;
-	}
-	else
-	{
-		bIgnoreFirstActivateEvent = false;
 	}
 
 	USL_FunctionLibrary::AddGameplayTagToActorIfNone(PlayerCharacter, SL_GameplayTags::Player_Status_Rage_Activating);
@@ -100,12 +90,6 @@ void USL_GA_Player_Rage::OnMontageFinished()
 
 void USL_GA_Player_Rage::OnActivateRageEventReceived(FGameplayEventData Payload)
 {
-	if (bIgnoreFirstActivateEvent)
-	{
-		bIgnoreFirstActivateEvent = false;
-		return;
-	}
-
 	FGameplayCueParameters CueParams;
 	if (const FGameplayAbilityActorInfo* ActorInfo = GetCurrentActorInfo())
 	{
