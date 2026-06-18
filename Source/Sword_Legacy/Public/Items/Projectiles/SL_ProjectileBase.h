@@ -89,5 +89,8 @@ private:
 	void HandleApplyProjectileDamage(TObjectPtr<APawn> InHitPawn, const FGameplayEventData& InPayLoad);
 
 	UPROPERTY()
+	TArray<TObjectPtr<AActor>> OverlappedActors;
+	
+	UPROPERTY()
 	TObjectPtr<UAudioComponent> ProjectileFlyingAudioComponent;
 };
