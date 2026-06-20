@@ -80,6 +80,11 @@ void USL_GA_Player_LightAttackMaster::ActivateAbility(const FGameplayAbilitySpec
 	{
 		CurrentLightAttackComboCount++;
 	}
+
+	if (AvatarActor && USL_FunctionLibrary::NativeDoesActorHaveTag(AvatarActor, SL_GameplayTags::Player_Status_Rage_Active))
+	{
+		WhileRageActive();
+	}
 }
 
 void USL_GA_Player_LightAttackMaster::OnMeleeHitEventReceived(FGameplayEventData Payload)
@@ -140,4 +145,8 @@ void USL_GA_Player_LightAttackMaster::OnMontageCompleted()
 		ComboResetTime,
 		false
 	);
+}
+
+void USL_GA_Player_LightAttackMaster::WhileRageActive_Implementation()
+{
 }
