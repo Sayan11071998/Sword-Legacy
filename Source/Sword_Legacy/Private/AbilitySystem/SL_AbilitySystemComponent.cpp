@@ -35,11 +35,25 @@ void USL_AbilitySystemComponent::OnAbilityInputReleased(const FGameplayTag& InIn
 }
 
 void USL_AbilitySystemComponent::GrantPlayerWeaponAbilities(
-	const TArray<FSL_PlayerAbilitySet>& InDefaultWeaponAbilities, int32 ApplyLevel, TArray<FGameplayAbilitySpecHandle>& OutGrantedAbilitySpecHandles)
+	const TArray<FSL_PlayerAbilitySet>& InDefaultWeaponAbilities,
+	const TArray<FSL_PlayerSpecialAbilitySet>& InSpecialWeaponAbilities, int32 ApplyLevel,
+	TArray<FGameplayAbilitySpecHandle>& OutGrantedAbilitySpecHandles)
 {
 	if (InDefaultWeaponAbilities.IsEmpty()) return;
 	
 	for (const FSL_PlayerAbilitySet& AbilitySet : InDefaultWeaponAbilities)
+	{
+		if (!AbilitySet.IsValid()) continue;
+		
+		FGameplayAbilitySpec AbilitySpec(AbilitySet.AbilityToGrant);
+		AbilitySpec.SourceObject = GetAvatarActor();
+		AbilitySpec.Level = ApplyLevel;
+		AbilitySpec.DynamicAbilityTags.AddTag(AbilitySet.InputTag);
+		
+		OutGrantedAbilitySpecHandles.AddUnique(GiveAbility(AbilitySpec));
+	}
+	
+	for (const FSL_PlayerSpecialAbilitySet& AbilitySet : InSpecialWeaponAbilities)
 	{
 		if (!AbilitySet.IsValid()) continue;
 		

@@ -30,7 +30,7 @@ struct FSL_PlayerSpecialAbilitySet : public FSL_PlayerAbilitySet
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSoftObjectPtr<UMaterialInterface> AbilityIconInterface;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (Categories = "Player.Cooldown"))
 	FGameplayTag AbilityCooldownTag;
 };
 
@@ -47,6 +47,9 @@ struct FSL_PlayerWeaponData
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (TitleProperty = "InputTag"))
 	TArray<FSL_PlayerAbilitySet> DefaultWeaponAbilities;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (TitleProperty = "InputTag"))
+	TArray<FSL_PlayerSpecialAbilitySet> SpecialWeaponAbilities;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FScalableFloat WeaponBaseDamage;
