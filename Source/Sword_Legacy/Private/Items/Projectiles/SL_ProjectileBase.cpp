@@ -9,6 +9,8 @@
 #include "NiagaraFunctionLibrary.h"
 #include "Sound/SoundBase.h"
 #include "Components/AudioComponent.h"
+#include "Components/Combat/SL_PawnCombatComponent.h"
+#include "Items/Weapons/SL_WeaponBase.h"
 
 ASL_ProjectileBase::ASL_ProjectileBase()
 {
@@ -49,6 +51,24 @@ void ASL_ProjectileBase::BeginPlay()
 	if (ProjectileDamagePolicy == ESL_ProjectileDamagePolicy::OnBeginOverlap)
 	{
 		ProjectileCollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+	}
+
+	if (AActor* MyOwner = GetOwner())
+	{
+		ProjectileCollisionBox->IgnoreActorWhenMoving(MyOwner, true);
+		
+		if (USL_PawnCombatComponent* CombatComp = USL_FunctionLibrary::NativeGetPawnCombatComponentFromActor(MyOwner))
+		{
+			if (ASL_WeaponBase* EquippedWeapon = CombatComp->GetCharacterCurrentEquippedWeapon())
+			{
+				ProjectileCollisionBox->IgnoreActorWhenMoving(EquippedWeapon, true);
+			}
+		}
+	}
+
+	if (APawn* MyInstigator = GetInstigator())
+	{
+		ProjectileCollisionBox->IgnoreActorWhenMoving(MyInstigator, true);
 	}
 
 	if (ProjectileSpawnSound)

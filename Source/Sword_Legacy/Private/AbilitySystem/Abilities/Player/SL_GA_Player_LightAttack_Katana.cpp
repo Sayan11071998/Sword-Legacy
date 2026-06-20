@@ -10,7 +10,7 @@ USL_GA_Player_LightAttack_Katana::USL_GA_Player_LightAttack_Katana()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	
-	ProjectileSpawnSocketName = FName(TEXT("EdgeSlashSocket"));
+	ProjectileSpawnSocketName = FName(TEXT("RageSlashSocket"));
 	RageDamageMultiplier = 2.0f;
 	RageComboCount = 3;
 }

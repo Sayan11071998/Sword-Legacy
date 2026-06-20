@@ -10,7 +10,7 @@ USL_GA_Player_HeavyAttack_Katana::USL_GA_Player_HeavyAttack_Katana()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	
-	ProjectileSpawnSocketName = FName(TEXT("EdgeSlashSocket"));
+	ProjectileSpawnSocketName = FName(TEXT("RageSlashSocket"));
 	RageDamageMultiplier = 2.0f;
 	RageComboCount = 1;
 }
