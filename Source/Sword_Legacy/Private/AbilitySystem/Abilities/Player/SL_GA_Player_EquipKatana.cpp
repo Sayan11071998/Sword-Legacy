@@ -91,7 +91,14 @@ void USL_GA_Player_EquipKatana::HandleEquipWeapon(ASL_PlayerWeapon* InWeapon)
 	if (USL_AbilitySystemComponent* ASCToGive = GetPawnAbilitySystemComponentFromActorInfo())
 	{
 		TArray<FGameplayAbilitySpecHandle> OutHandles;
-		ASCToGive->GrantPlayerWeaponAbilities(WeaponData.DefaultWeaponAbilities, GetAbilityLevel(), OutHandles);
+		
+		ASCToGive->GrantPlayerWeaponAbilities(
+			WeaponData.DefaultWeaponAbilities,
+			WeaponData.SpecialWeaponAbilities,
+			GetAbilityLevel(),
+			OutHandles	
+		);
+		
 		InWeapon->AssignGrantedAbilitySpecHandles(OutHandles);
 	}
 	
