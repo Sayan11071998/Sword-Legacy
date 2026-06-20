@@ -1,4 +1,4 @@
-#include "AbilitySystem/Abilities/Player/SL_GA_Player_LightAttack_Katana.h"
+#include "AbilitySystem/Abilities/Player/SL_GA_Player_HeavyAttack_Katana.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Components/Combat/SL_PlayerCombatComponent.h"
 #include "Items/Weapons/SL_PlayerWeapon.h"
@@ -6,16 +6,16 @@
 #include "Items/Projectiles/SL_ProjectileBase.h"
 #include "Utilities/SL_GameplayTags.h"
 
-USL_GA_Player_LightAttack_Katana::USL_GA_Player_LightAttack_Katana()
+USL_GA_Player_HeavyAttack_Katana::USL_GA_Player_HeavyAttack_Katana()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	
 	ProjectileSpawnSocketName = FName(TEXT("EdgeSlashSocket"));
 	RageDamageMultiplier = 2.0f;
-	RageComboCount = 3;
+	RageComboCount = 1;
 }
 
-void USL_GA_Player_LightAttack_Katana::WhileRageActive_Implementation()
+void USL_GA_Player_HeavyAttack_Katana::WhileRageActive_Implementation()
 {
 	UAbilityTask_WaitGameplayEvent* WaitEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 		this,
@@ -24,11 +24,11 @@ void USL_GA_Player_LightAttack_Katana::WhileRageActive_Implementation()
 		true,
 		true
 	);
-	WaitEventTask->EventReceived.AddDynamic(this, &USL_GA_Player_LightAttack_Katana::OnSpawnProjectileEventReceived);
+	WaitEventTask->EventReceived.AddDynamic(this, &USL_GA_Player_HeavyAttack_Katana::OnSpawnProjectileEventReceived);
 	WaitEventTask->ReadyForActivation();
 }
 
-void USL_GA_Player_LightAttack_Katana::OnSpawnProjectileEventReceived(FGameplayEventData Payload)
+void USL_GA_Player_HeavyAttack_Katana::OnSpawnProjectileEventReceived(FGameplayEventData Payload)
 {
 	ASL_PlayerCharacter* PlayerCharacter = GetPlayerCharacterFromActorInfo();
 	if (!PlayerCharacter || !ProjectileClass) return;
@@ -41,7 +41,7 @@ void USL_GA_Player_LightAttack_Katana::OnSpawnProjectileEventReceived(FGameplayE
 
 	UStaticMeshComponent* WeaponMesh = EquippedWeapon->GetWeaponMesh();
 	if (!WeaponMesh) return;
-	
+
 	FTransform SocketTransform = WeaponMesh->GetSocketTransform(ProjectileSpawnSocketName);
 	FVector SpawnLocation = SocketTransform.GetLocation();
 
@@ -64,11 +64,11 @@ void USL_GA_Player_LightAttack_Katana::OnSpawnProjectileEventReceived(FGameplayE
 	if (SpawnedProjectile && ProjectileDamageEffectClass)
 	{
 		const float RawLevelDamage = CombatComponent->GetPlayerCurrentEquippedWeaponDamageAtLevel(static_cast<float>(GetAbilityLevel()) * RageDamageMultiplier);
-		
+
 		const FGameplayEffectSpecHandle DamageSpecHandle = MakePlayerDamageEffectSpecHandle(
 			ProjectileDamageEffectClass,
 			RawLevelDamage,
-			SL_GameplayTags::Player_SetByCaller_AttackType_Light,
+			SL_GameplayTags::Player_SetByCaller_AttackType_Heavy,
 			RageComboCount
 		);
 

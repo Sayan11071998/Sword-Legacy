@@ -33,6 +33,9 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	float ComboResetTime;
+
+	UFUNCTION(BlueprintNativeEvent, Category = "Combat")
+	void WhileRageActive();
 	
 private:
 	UFUNCTION()

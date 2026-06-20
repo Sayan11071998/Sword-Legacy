@@ -1,18 +1,18 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/Abilities/Player/SL_GA_Player_LightAttackMaster.h"
-#include "SL_GA_Player_LightAttack_Katana.generated.h"
+#include "AbilitySystem/Abilities/Player/SL_GA_Player_HeavyAttackMaster.h"
+#include "SL_GA_Player_HeavyAttack_Katana.generated.h"
 
 class ASL_ProjectileBase;
 
 UCLASS()
-class SWORD_LEGACY_API USL_GA_Player_LightAttack_Katana : public USL_GA_Player_LightAttackMaster
+class SWORD_LEGACY_API USL_GA_Player_HeavyAttack_Katana : public USL_GA_Player_HeavyAttackMaster
 {
 	GENERATED_BODY()
 
 public:
-	USL_GA_Player_LightAttack_Katana();
+	USL_GA_Player_HeavyAttack_Katana();
 
 protected:
 	virtual void WhileRageActive_Implementation() override;

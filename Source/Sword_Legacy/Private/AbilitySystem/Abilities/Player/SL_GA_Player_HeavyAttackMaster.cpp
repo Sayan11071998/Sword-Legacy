@@ -77,6 +77,11 @@ void USL_GA_Player_HeavyAttackMaster::ActivateAbility(const FGameplayAbilitySpec
 	{
 		CurrentHeavyAttackComboCount++;
 	}
+
+	if (AvatarActor && USL_FunctionLibrary::NativeDoesActorHaveTag(AvatarActor, SL_GameplayTags::Player_Status_Rage_Active))
+	{
+		WhileRageActive();
+	}
 }
 
 void USL_GA_Player_HeavyAttackMaster::OnMeleeHitEventReceived(FGameplayEventData Payload)
@@ -138,4 +143,8 @@ void USL_GA_Player_HeavyAttackMaster::OnMontageCompleted()
 		ComboResetTime,
 		false
 	);
+}
+
+void USL_GA_Player_HeavyAttackMaster::WhileRageActive_Implementation()
+{
 }
