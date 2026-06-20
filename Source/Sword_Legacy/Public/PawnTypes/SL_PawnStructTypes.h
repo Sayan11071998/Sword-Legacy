@@ -23,6 +23,18 @@ struct FSL_PlayerAbilitySet
 };
 
 USTRUCT(BlueprintType)
+struct FSL_PlayerSpecialAbilitySet : public FSL_PlayerAbilitySet
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSoftObjectPtr<UMaterialInterface> AbilityIconInterface;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FGameplayTag AbilityCooldownTag;
+};
+
+USTRUCT(BlueprintType)
 struct FSL_PlayerWeaponData
 {
 	GENERATED_BODY()
