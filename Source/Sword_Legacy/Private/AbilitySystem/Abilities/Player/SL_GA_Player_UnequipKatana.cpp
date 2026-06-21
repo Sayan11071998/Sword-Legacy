@@ -109,5 +109,10 @@ void USL_GA_Player_UnequipKatana::HandleUnequipWeapon(ASL_PlayerWeapon* InWeapon
 	if (USL_PlayerUIComponent* UIComponent = GetPlayerUIComponentFromActorInfo())
 	{
 		UIComponent->OnEquippedWeaponChanged.Broadcast(nullptr);
+
+		for (const FSL_PlayerSpecialAbilitySet& SpecialAbility : WeaponData.SpecialWeaponAbilities)
+		{
+			UIComponent->OnAbilityIconSlotUpdated.Broadcast(SpecialAbility.InputTag, nullptr);
+		}
 	}
 }

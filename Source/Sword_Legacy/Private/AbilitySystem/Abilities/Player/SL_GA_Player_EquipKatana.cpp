@@ -119,5 +119,10 @@ void USL_GA_Player_EquipKatana::HandleEquipWeapon(ASL_PlayerWeapon* InWeapon)
 	if (USL_PlayerUIComponent* UIComponent = GetPlayerUIComponentFromActorInfo())
 	{
 		UIComponent->OnEquippedWeaponChanged.Broadcast(WeaponData.SoftWeaponIconTexture);
+
+		for (const FSL_PlayerSpecialAbilitySet& SpecialAbility : WeaponData.SpecialWeaponAbilities)
+		{
+			UIComponent->OnAbilityIconSlotUpdated.Broadcast(SpecialAbility.InputTag, SpecialAbility.SoftAbilityIconMaterial);
+		}
 	}
 }
