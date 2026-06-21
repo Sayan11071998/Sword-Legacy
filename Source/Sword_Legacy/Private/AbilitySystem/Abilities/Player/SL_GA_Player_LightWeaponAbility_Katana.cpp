@@ -30,6 +30,8 @@ void USL_GA_Player_LightWeaponAbility_Katana::ActivateAbility(const FGameplayAbi
 	WaitMeleeHitTask->EventReceived.AddDynamic(this, &USL_GA_Player_LightWeaponAbility_Katana::OnMeleeHitEventReceived);
 	WaitMeleeHitTask->ReadyForActivation();
 
+	CommitAbility(Handle, ActorInfo, ActivationInfo);
+
 	UAbilityTask_PlayMontageAndWait* PlayMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 		this,
 		NAME_None,
