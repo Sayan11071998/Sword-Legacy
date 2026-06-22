@@ -31,3 +31,18 @@ enum class ESL_SuccessType : uint8
 	Successful,
 	Failed
 };
+
+UENUM()
+enum class ESL_CountDownActionInput : uint8
+{
+	Start,
+	Cancel
+};
+
+UENUM()
+enum class ESL_CountDownActionOutput : uint8
+{
+	Updated,
+	Completed,
+	Cancelled
+};
