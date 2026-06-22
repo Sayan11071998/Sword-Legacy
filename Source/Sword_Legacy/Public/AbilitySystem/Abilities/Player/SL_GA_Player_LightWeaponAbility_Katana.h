@@ -43,6 +43,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	int32 LevelComboCount;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+	FGameplayTag AbilityInputTag;
+
 private:
 	UFUNCTION()
 	void OnMontageCompleted();

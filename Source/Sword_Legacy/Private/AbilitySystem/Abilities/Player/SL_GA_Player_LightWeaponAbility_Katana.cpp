@@ -5,6 +5,7 @@
 #include "Utilities/SL_GameplayTags.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "Components/UI/SL_PlayerUIComponent.h"
 
 USL_GA_Player_LightWeaponAbility_Katana::USL_GA_Player_LightWeaponAbility_Katana()
 {
@@ -31,6 +32,15 @@ void USL_GA_Player_LightWeaponAbility_Katana::ActivateAbility(const FGameplayAbi
 	WaitMeleeHitTask->ReadyForActivation();
 
 	CommitAbility(Handle, ActorInfo, ActivationInfo);
+
+	float RemainingTime = 0.f;
+	float TotalDuration = 0.f;
+	GetCooldownTimeRemainingAndDuration(Handle, ActorInfo, RemainingTime, TotalDuration);
+
+	if (USL_PlayerUIComponent* UIComponent = GetPlayerUIComponentFromActorInfo())
+	{
+		UIComponent->OnAbilityCooldownBegin.Broadcast(AbilityInputTag, TotalDuration, RemainingTime);
+	}
 
 	UAbilityTask_PlayMontageAndWait* PlayMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 		this,
