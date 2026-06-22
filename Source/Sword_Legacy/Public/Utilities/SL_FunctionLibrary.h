@@ -49,5 +49,5 @@ public:
 	static bool ApplyGameplayEffectSpecHandleToTargetActor(AActor* InInstigator, AActor* InTargetActor, const FGameplayEffectSpecHandle& InSpecHandle);
 	
 	UFUNCTION(BlueprintCallable, Category = "Pawn|Function Library", meta = (Latent, WorldContext = "WorldContextObject", LatentInfo = "LatentInfo", ExpandEnumAsExecs = "CountdownInput|CountdownOutput", TotalTime = "1.0", UpdateInterval = "0.1"))
-	static void CountDown(const UObject* WorldContextObject, float TotalTime, float UpdateInterval, float& OutRemainingTime, ESL_CountDownActionInput CountdownInput, ESL_CountDownActionOutput& CountdownOutput, FLatentActionInfo LatentInfo);
+	static void CountDown(const UObject* WorldContextObject, float TotalTime, float UpdateInterval, float& OutRemainingTime, ESL_CountDownActionInput CountdownInput, UPARAM(DisplayName = "Output") ESL_CountDownActionOutput& CountdownOutput, FLatentActionInfo LatentInfo);
 };

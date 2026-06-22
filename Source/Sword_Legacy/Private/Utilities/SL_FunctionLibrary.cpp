@@ -153,7 +153,7 @@ bool USL_FunctionLibrary::ApplyGameplayEffectSpecHandleToTargetActor(AActor* InI
 }
 
 void USL_FunctionLibrary::CountDown(const UObject* WorldContextObject, float TotalTime, float UpdateInterval,
-	float& OutRemainingTime, ESL_CountDownActionInput CountdownInput, ESL_CountDownActionOutput& CountdownOutput,
+	float& OutRemainingTime, ESL_CountDownActionInput CountdownInput, UPARAM(DisplayName = "Output") ESL_CountDownActionOutput& CountdownOutput,
 	FLatentActionInfo LatentInfo)
 {
 }
