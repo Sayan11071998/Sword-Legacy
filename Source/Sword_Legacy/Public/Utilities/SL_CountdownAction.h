@@ -25,6 +25,10 @@ public:
 	  ElapsedTimeSinceStart(0.f)
 	{ }
 	
+	// ~ Begin FPendingLatentAction Interface
+	virtual void UpdateOperation(FLatentResponse& Response) override;
+	// ~ End FPendingLatentAction Interface
+	
 	void CancelAction();
 	
 private:
