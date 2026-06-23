@@ -25,6 +25,8 @@ public:
 	  ElapsedTimeSinceStart(0.f)
 	{ }
 	
+	void CancelAction();
+	
 private:
 	bool bNeedToCancel;
 	float TotalCountdownTime;

@@ -5,6 +5,7 @@
 #include "GenericTeamAgentInterface.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Utilities/SL_GameplayTags.h"
+#include "Utilities/SL_CountdownAction.h"
 
 #include "SL_DebugHelper.h"
 
@@ -156,4 +157,41 @@ void USL_FunctionLibrary::CountDown(const UObject* WorldContextObject, float Tot
 	float& OutRemainingTime, ESL_CountDownActionInput CountdownInput, UPARAM(DisplayName = "Output") ESL_CountDownActionOutput& CountdownOutput,
 	FLatentActionInfo LatentInfo)
 {
+	UWorld* World = nullptr;
+	
+	if (GEngine)
+	{
+		World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull);
+	}
+	
+	if (!World) return;
+	
+	FLatentActionManager& LatentActionManager = World->GetLatentActionManager();
+	FSL_CountdownAction* FoundAction = LatentActionManager.FindExistingAction<FSL_CountdownAction>(LatentInfo.CallbackTarget, LatentInfo.UUID);
+	
+	if (CountdownInput == ESL_CountDownActionInput::Start)
+	{
+		if (!FoundAction)
+		{
+			LatentActionManager.AddNewAction(
+				LatentInfo.CallbackTarget,
+				LatentInfo.UUID,
+				new FSL_CountdownAction(
+					TotalTime,
+					UpdateInterval,
+					OutRemainingTime,
+					CountdownOutput,
+					LatentInfo
+				)
+			);
+		}
+	}
+	
+	if (CountdownInput == ESL_CountDownActionInput::Cancel)
+	{
+		if (FoundAction)
+		{
+			FoundAction->CancelAction();
+		}
+	}
 }
