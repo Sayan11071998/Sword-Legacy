@@ -35,6 +35,9 @@ public:
 		int32 InUsedComboCount	
 	);
 	
+	UFUNCTION(BlueprintCallable, Category = "Player|Ability")
+	bool GetAbilityRemainingCooldownByTag(FGameplayTag InCooldownTag, float& TotalCooldownTime, float& RemainingCooldownTime);
+	
 private:
 	TWeakObjectPtr<ASL_PlayerCharacter> CachedPlayerCharacter;
 	TWeakObjectPtr<ASL_PlayerController> CachedPlayerController;
