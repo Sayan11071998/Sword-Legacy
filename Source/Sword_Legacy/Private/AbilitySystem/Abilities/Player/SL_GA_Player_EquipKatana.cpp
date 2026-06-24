@@ -123,6 +123,13 @@ void USL_GA_Player_EquipKatana::HandleEquipWeapon(ASL_PlayerWeapon* InWeapon)
 		for (const FSL_PlayerSpecialAbilitySet& SpecialAbility : WeaponData.SpecialWeaponAbilities)
 		{
 			UIComponent->OnAbilityIconSlotUpdated.Broadcast(SpecialAbility.InputTag, SpecialAbility.SoftAbilityIconMaterial);
+
+			float TotalCooldownTime = 0.f;
+			float RemainingCooldownTime = 0.f;
+			if (GetAbilityRemainingCooldownByTag(SpecialAbility.AbilityCooldownTag, TotalCooldownTime, RemainingCooldownTime))
+			{
+				UIComponent->OnAbilityCooldownBegin.Broadcast(SpecialAbility.InputTag, TotalCooldownTime, RemainingCooldownTime);
+			}
 		}
 	}
 }
