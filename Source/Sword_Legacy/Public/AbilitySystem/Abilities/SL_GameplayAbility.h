@@ -37,6 +37,9 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Pawn|Ability", meta = (DisplayName = "Apply Gameplay Effect Spec Handle To Target Actor", ExpandEnumAsExecs = "OutSuccessType"))
 	FActiveGameplayEffectHandle BP_ApplyEffectSpecHandleToTarget(AActor* TargetActor, const FGameplayEffectSpecHandle& InSpecHandle, ESL_SuccessType& OutSuccessType);
 	
+	UFUNCTION(BlueprintCallable, Category = "Pawn|Ability")
+	void ApplyGameplayEffectSpecHandleToHitResults(const FGameplayEffectSpecHandle& InSpecHandle, const TArray<FHitResult>& InHitResults);
+	
 	UPROPERTY(EditDefaultsOnly, Category = "CharacterAbility")
 	ESL_AbilityActivationPolicy AbilityActivationPolicy = ESL_AbilityActivationPolicy::OnTriggered;
 };
