@@ -8,6 +8,7 @@
 #include "Components/UI/SL_PlayerUIComponent.h"
 #include "Characters/SL_PlayerCharacter.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/KismetMathLibrary.h"
 
 USL_GA_Player_HeavyWeaponAbility_Katana::USL_GA_Player_HeavyWeaponAbility_Katana()
 {
@@ -19,28 +20,7 @@ void USL_GA_Player_HeavyWeaponAbility_Katana::ActivateAbility(const FGameplayAbi
 	const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
-	UAbilityTask_WaitGameplayEvent* WaitAOETask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
-		this,
-		AOEEventTag,
-		nullptr,
-		false,
-		true
-	);
-	WaitAOETask->EventReceived.AddDynamic(this, &USL_GA_Player_HeavyWeaponAbility_Katana::OnAOEEventReceived);
-	WaitAOETask->ReadyForActivation();
-
-	CommitAbility(Handle, ActorInfo, ActivationInfo);
-
-	float RemainingTime = 0.f;
-	float TotalDuration = 0.f;
-	GetCooldownTimeRemainingAndDuration(Handle, ActorInfo, RemainingTime, TotalDuration);
-
-	if (USL_PlayerUIComponent* UIComponent = GetPlayerUIComponentFromActorInfo())
-	{
-		UIComponent->OnAbilityCooldownBegin.Broadcast(AbilityInputTag, TotalDuration, RemainingTime);
-	}
-
+	
 	UAbilityTask_PlayMontageAndWait* PlayMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 		this,
 		NAME_None,
@@ -54,6 +34,27 @@ void USL_GA_Player_HeavyWeaponAbility_Katana::ActivateAbility(const FGameplayAbi
 	PlayMontageTask->OnInterrupted.AddDynamic(this, &USL_GA_Player_HeavyWeaponAbility_Katana::OnMontageCompleted);
 	PlayMontageTask->OnCancelled.AddDynamic(this, &USL_GA_Player_HeavyWeaponAbility_Katana::OnMontageCompleted);
 	PlayMontageTask->ReadyForActivation();
+	
+	CommitAbility(Handle, ActorInfo, ActivationInfo);
+
+	float RemainingTime = 0.f;
+	float TotalDuration = 0.f;
+	GetCooldownTimeRemainingAndDuration(Handle, ActorInfo, RemainingTime, TotalDuration);
+
+	if (USL_PlayerUIComponent* UIComponent = GetPlayerUIComponentFromActorInfo())
+	{
+		UIComponent->OnAbilityCooldownBegin.Broadcast(AbilityInputTag, TotalDuration, RemainingTime);
+	}
+
+	UAbilityTask_WaitGameplayEvent* WaitAOETask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+		this,
+		AOEEventTag,
+		nullptr,
+		true,
+		true
+	);
+	WaitAOETask->EventReceived.AddDynamic(this, &USL_GA_Player_HeavyWeaponAbility_Katana::OnAOEEventReceived);
+	WaitAOETask->ReadyForActivation();
 }
 
 void USL_GA_Player_HeavyWeaponAbility_Katana::OnMontageCompleted()
@@ -65,8 +66,8 @@ void USL_GA_Player_HeavyWeaponAbility_Katana::OnAOEEventReceived(FGameplayEventD
 {
 	USL_PlayerCombatComponent* CombatComponent = GetPlayerCombatComponentFromActorInfo();
 	if (!CombatComponent) return;
-
-	const float WeaponBaseDamage = CombatComponent->GetPlayerCurrentEquippedWeaponDamageAtLevel(static_cast<float>(GetAbilityLevel()) * WeaponDamageLevelMultiplier);
+	
+	const float WeaponBaseDamage = CombatComponent->GetPlayerCurrentEquippedWeaponDamageAtLevel(static_cast<float>(GetAbilityLevel()));
 
 	const FGameplayEffectSpecHandle DamageSpecHandle = MakePlayerDamageEffectSpecHandle(
 		DamageEffectClass,
@@ -93,11 +94,11 @@ void USL_GA_Player_HeavyWeaponAbility_Katana::OnAOEEventReceived(FGameplayEventD
 		StartLocation,
 		EndLocation,
 		BoxTraceHalfSize,
-		ForwardVector.ToOrientationRotator(),
+		UKismetMathLibrary::MakeRotFromX(ForwardVector),
 		ObjectTypes,
 		false,
 		ActorsToIgnore,
-		EDrawDebugTrace::Persistent,
+		EDrawDebugTrace::None,
 		OutHits,
 		true
 	);
