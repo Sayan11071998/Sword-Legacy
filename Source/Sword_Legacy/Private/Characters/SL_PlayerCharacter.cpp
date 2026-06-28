@@ -13,8 +13,6 @@
 #include "Components/UI/SL_PlayerUIComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
 
-#include "SL_DebugHelper.h"
-
 ASL_PlayerCharacter::ASL_PlayerCharacter()
 {
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.f);
@@ -67,6 +65,8 @@ void ASL_PlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	
 	EnhancedInputComponent->BindNativeInputAction(InputConfigDataAsset, SL_GameplayTags::InputTag_SwitchTarget, ETriggerEvent::Triggered, this, &ASL_PlayerCharacter::Input_SwitchTargetTriggered);
 	EnhancedInputComponent->BindNativeInputAction(InputConfigDataAsset, SL_GameplayTags::InputTag_SwitchTarget, ETriggerEvent::Completed, this, &ASL_PlayerCharacter::Input_SwitchTargetCompleted);
+	
+	EnhancedInputComponent->BindNativeInputAction(InputConfigDataAsset, SL_GameplayTags::InputTag_Pickup_Stones, ETriggerEvent::Started, this, &ASL_PlayerCharacter::Input_PickupStonesStarted);
 
 	EnhancedInputComponent->BindAbilityInputAction(InputConfigDataAsset, this, &ASL_PlayerCharacter::Input_AbilityInputPressed, &ASL_PlayerCharacter::Input_AbilityInputRelease);
 }
@@ -157,6 +157,17 @@ void ASL_PlayerCharacter::Input_SwitchTargetCompleted(const FInputActionValue& I
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
 		this,
 		SwitchDirection.X > 0.f ? SL_GameplayTags::Player_Event_SwitchTarget_Right : SL_GameplayTags::Player_Event_SwitchTarget_Left,
+		Data
+	);
+}
+
+void ASL_PlayerCharacter::Input_PickupStonesStarted(const FInputActionValue& InputActionValue)
+{
+	FGameplayEventData Data;
+	
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+		this,
+		SL_GameplayTags::Player_Event_ConsumeStones,
 		Data
 	);
 }
