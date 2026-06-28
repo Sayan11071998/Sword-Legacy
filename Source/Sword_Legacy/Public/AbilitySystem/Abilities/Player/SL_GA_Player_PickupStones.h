@@ -46,7 +46,7 @@ private:
 	TArray<TEnumAsByte<EObjectTypeQuery>> StoneTraceChannel;
 	
 	UPROPERTY(EditDefaultsOnly)
-	bool bDrawPersistentDebugShape = false;
+	bool bDrawDebugShape = false;
 	
 	UPROPERTY()
 	TArray<TObjectPtr<ASL_StoneBase>> CollectedStones;

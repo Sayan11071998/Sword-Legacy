@@ -37,7 +37,7 @@ void USL_GA_Player_PickupStones::CollectStones()
 		StoneTraceChannel,
 		false,
 		TArray<AActor*>(),
-		bDrawPersistentDebugShape ? EDrawDebugTrace::Persistent : EDrawDebugTrace::None,
+		bDrawDebugShape ? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None,
 		TraceHits,
 		true
 	);
