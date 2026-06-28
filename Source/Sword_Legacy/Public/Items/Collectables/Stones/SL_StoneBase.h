@@ -11,7 +11,6 @@ class SWORD_LEGACY_API ASL_StoneBase : public ASL_PickupBase
 	
 protected:
 	// ~ Begin ASL_PickupBase Interface
-	UFUNCTION()
 	virtual void OnPickupCollisionSphereBeginOverlap(
 		UPrimitiveComponent* OverlappedComponent,
 		AActor* OtherActor,
