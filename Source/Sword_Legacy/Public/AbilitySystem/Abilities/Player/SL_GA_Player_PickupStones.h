@@ -9,6 +9,9 @@ class SWORD_LEGACY_API USL_GA_Player_PickupStones : public USL_PlayerGameplayAbi
 {
 	GENERATED_BODY()
 	
+public:
+	USL_GA_Player_PickupStones();
+	
 protected:
 	// ~ Begin UGameplayAbility Interface
 	virtual void ActivateAbility(
