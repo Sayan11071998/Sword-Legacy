@@ -1,6 +1,7 @@
 #include "AbilitySystem/Abilities/Player/SL_GA_Player_PickupStones.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Characters/SL_PlayerCharacter.h"
+#include "AbilitySystem/SL_AbilitySystemComponent.h"
 #include "Items/Collectables/Stones/SL_StoneBase.h"
 
 USL_GA_Player_PickupStones::USL_GA_Player_PickupStones()
@@ -53,5 +54,22 @@ void USL_GA_Player_PickupStones::CollectStones()
 	if (CollectedStones.IsEmpty())
 	{
 		CancelAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true);
+	}
+}
+
+void USL_GA_Player_PickupStones::ConsumeStones()
+{
+	if (CollectedStones.IsEmpty())
+	{
+		CancelAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true);
+		return;
+	}
+	
+	for (ASL_StoneBase* CollectedStone : CollectedStones)
+	{
+		if (CollectedStone)
+		{
+			CollectedStone->Consume(Cast<USL_AbilitySystemComponent>(GetAbilitySystemComponentFromActorInfo()), GetAbilityLevel());
+		}
 	}
 }
