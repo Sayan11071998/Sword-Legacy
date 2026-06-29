@@ -2,6 +2,8 @@
 #include "Characters/SL_PlayerCharacter.h"
 #include "AbilitySystem/SL_AbilitySystemComponent.h"
 #include "Utilities/SL_GameplayTags.h"
+#include "NiagaraFunctionLibrary.h"
+#include "Kismet/GameplayStatics.h"
 
 void ASL_StoneBase::Consume(USL_AbilitySystemComponent* AbilitySystemComponent, int32 ApplyLevel)
 {
@@ -15,7 +17,27 @@ void ASL_StoneBase::Consume(USL_AbilitySystemComponent* AbilitySystemComponent, 
 		AbilitySystemComponent->MakeEffectContext()
 	);
 	
+	if (ConsumeEffects)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+			this,
+			ConsumeEffects,
+			GetActorLocation()
+		);
+	}
+	
+	if (ConsumeSoundEffects)
+	{
+		UGameplayStatics::PlaySoundAtLocation(
+			this,
+			ConsumeSoundEffects,
+			GetActorLocation()
+		);
+	}
+	
 	BP_OnStoneConsumed();
+	
+	Destroy();
 }
 
 void ASL_StoneBase::OnPickupCollisionSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,

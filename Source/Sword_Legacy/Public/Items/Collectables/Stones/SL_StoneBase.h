@@ -6,6 +6,8 @@
 
 class UGameplayEffect;
 class USL_AbilitySystemComponent;
+class UNiagaraSystem;
+class USoundBase;
 
 UCLASS()
 class SWORD_LEGACY_API ASL_StoneBase : public ASL_PickupBase
@@ -30,6 +32,12 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "On Stone Consumed"))
 	void BP_OnStoneConsumed();
 	
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Stone")
 	TSubclassOf<UGameplayEffect> StoneGameplayEffectClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Stone")
+	TObjectPtr<UNiagaraSystem> ConsumeEffects;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Stone")
+	TObjectPtr<USoundBase> ConsumeSoundEffects;
 };

@@ -39,6 +39,12 @@ protected:
 	void ConsumeStones();
 	
 private:
+	UFUNCTION()
+	void OnPickupStonesTick(float DeltaTime);
+	
+	UFUNCTION()
+	void OnConsumeStonesEventReceived(FGameplayEventData Payload);
+
 	UPROPERTY(EditDefaultsOnly)
 	float BoxTraceDistance = 50.f;
 	
