@@ -5,6 +5,7 @@
 #include "Items/Collectables/Stones/SL_StoneBase.h"
 #include "AbilitySystem/AbilityTasks/SL_AbilityTask_ExecuteTaskOnTick.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+#include "Components/UI/SL_PlayerUIComponent.h"
 #include "Utilities/SL_GameplayTags.h"
 
 USL_GA_Player_PickupStones::USL_GA_Player_PickupStones()
@@ -16,6 +17,8 @@ void USL_GA_Player_PickupStones::ActivateAbility(const FGameplayAbilitySpecHandl
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
+	GetPlayerUIComponentFromActorInfo()->OnStoneInteracted.Broadcast(true);
+	
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
 	USL_AbilityTask_ExecuteTaskOnTick* TickTask = USL_AbilityTask_ExecuteTaskOnTick::ExecuteTaskOnTick(this);
@@ -43,6 +46,8 @@ void USL_GA_Player_PickupStones::EndAbility(const FGameplayAbilitySpecHandle Han
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	bool bReplicateEndAbility, bool bWasCancelled)
 {
+	GetPlayerUIComponentFromActorInfo()->OnStoneInteracted.Broadcast(false);
+	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
