@@ -286,7 +286,7 @@ void ASL_EnemyCharacter::HandleDissolveFinished()
 		CharacterAbilitySystemComponent->TryActivateAbilityByTag(SL_GameplayTags::Enemy_Ability_SpawnStone);
 	}
 	
-	Destroy();
+	SetLifeSpan(0.5f);
 }
 
 void ASL_EnemyCharacter::HandleEntryRestoreUpdate(float Value)
