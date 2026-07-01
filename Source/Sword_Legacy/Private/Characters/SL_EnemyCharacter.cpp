@@ -15,6 +15,8 @@
 #include "Widgets/SL_WidgetBase.h"
 #include "Utilities/SL_FunctionLibrary.h"
 #include "Animation/AnimMontage.h"
+#include "AbilitySystem/SL_AbilitySystemComponent.h"
+#include "Utilities/SL_GameplayTags.h"
 
 ASL_EnemyCharacter::ASL_EnemyCharacter()
 {
@@ -277,6 +279,11 @@ void ASL_EnemyCharacter::HandleDissolveFinished()
 		{
 			EquippedWeapon->Destroy();
 		}
+	}
+	
+	if (CharacterAbilitySystemComponent)
+	{
+		CharacterAbilitySystemComponent->TryActivateAbilityByTag(SL_GameplayTags::Enemy_Ability_SpawnStone);
 	}
 	
 	Destroy();
