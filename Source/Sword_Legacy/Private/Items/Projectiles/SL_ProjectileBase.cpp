@@ -9,6 +9,8 @@
 #include "NiagaraFunctionLibrary.h"
 #include "Sound/SoundBase.h"
 #include "Components/AudioComponent.h"
+#include "Components/Combat/SL_PawnCombatComponent.h"
+#include "Items/Weapons/SL_WeaponBase.h"
 
 ASL_ProjectileBase::ASL_ProjectileBase()
 {
@@ -49,6 +51,24 @@ void ASL_ProjectileBase::BeginPlay()
 	if (ProjectileDamagePolicy == ESL_ProjectileDamagePolicy::OnBeginOverlap)
 	{
 		ProjectileCollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+	}
+
+	if (AActor* MyOwner = GetOwner())
+	{
+		ProjectileCollisionBox->IgnoreActorWhenMoving(MyOwner, true);
+		
+		if (USL_PawnCombatComponent* CombatComp = USL_FunctionLibrary::NativeGetPawnCombatComponentFromActor(MyOwner))
+		{
+			if (ASL_WeaponBase* EquippedWeapon = CombatComp->GetCharacterCurrentEquippedWeapon())
+			{
+				ProjectileCollisionBox->IgnoreActorWhenMoving(EquippedWeapon, true);
+			}
+		}
+	}
+
+	if (APawn* MyInstigator = GetInstigator())
+	{
+		ProjectileCollisionBox->IgnoreActorWhenMoving(MyInstigator, true);
 	}
 
 	if (ProjectileSpawnSound)
@@ -122,6 +142,21 @@ void ASL_ProjectileBase::OnProjectileHit(UPrimitiveComponent* HitComponent, AAct
 void ASL_ProjectileBase::OnProjectileBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (OverlappedActors.Contains(OtherActor)) return;
+	
+	OverlappedActors.AddUnique(OtherActor);
+	
+	if (APawn* HitPawn = Cast<APawn>(OtherActor))
+	{
+		FGameplayEventData Data;
+		Data.Instigator = GetInstigator();
+		Data.Target = HitPawn;
+		
+		if (USL_FunctionLibrary::IsTargetPawnHostile(GetInstigator(), HitPawn))
+		{
+			HandleApplyProjectileDamage(HitPawn, Data);
+		}
+	}
 }
 
 void ASL_ProjectileBase::HandleApplyProjectileDamage(TObjectPtr<APawn> InHitPawn, const FGameplayEventData& InPayLoad)

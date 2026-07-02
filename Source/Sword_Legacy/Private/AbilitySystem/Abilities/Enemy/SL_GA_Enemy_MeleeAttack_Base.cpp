@@ -89,7 +89,9 @@ void USL_GA_Enemy_MeleeAttack_Base::HandleApplyDamage(FGameplayEventData Payload
 		const FGameplayEffectSpecHandle DamageSpecHandle = MakeEnemyDamageEffectSpecHandle(DamageEffectClass, InDamageScalableFloat);
 		if (DamageSpecHandle.IsValid())
 		{
-			NativeApplyEffectSpecHandleToTarget(TargetActor, DamageSpecHandle);
+			const FActiveGameplayEffectHandle ActiveHandle = NativeApplyEffectSpecHandleToTarget(TargetActor, DamageSpecHandle);
+			
+			if (!ActiveHandle.WasSuccessfullyApplied()) return;
 
 			if (WeaponHitSoundGameplayCueTag.IsValid())
 			{

@@ -10,16 +10,9 @@ void USL_AbilitySystemComponent::OnAbilityInputPressed(const FGameplayTag& InInp
 	{
 		if (!AbilitySpec.DynamicAbilityTags.HasTagExact(InInputTag)) continue;
 		
-		if (InInputTag.MatchesTag(SL_GameplayTags::InputTag_Toggleable))
+		if (InInputTag.MatchesTag(SL_GameplayTags::InputTag_Toggleable) && AbilitySpec.IsActive())
 		{
-			if (AbilitySpec.IsActive())
-			{
-				CancelAbilityHandle(AbilitySpec.Handle);
-			}
-			else
-			{
-				TryActivateAbility(AbilitySpec.Handle);
-			}
+			CancelAbilityHandle(AbilitySpec.Handle);
 		}
 		else
 		{
@@ -42,11 +35,25 @@ void USL_AbilitySystemComponent::OnAbilityInputReleased(const FGameplayTag& InIn
 }
 
 void USL_AbilitySystemComponent::GrantPlayerWeaponAbilities(
-	const TArray<FSL_PlayerAbilitySet>& InDefaultWeaponAbilities, int32 ApplyLevel, TArray<FGameplayAbilitySpecHandle>& OutGrantedAbilitySpecHandles)
+	const TArray<FSL_PlayerAbilitySet>& InDefaultWeaponAbilities,
+	const TArray<FSL_PlayerSpecialAbilitySet>& InSpecialWeaponAbilities, int32 ApplyLevel,
+	TArray<FGameplayAbilitySpecHandle>& OutGrantedAbilitySpecHandles)
 {
 	if (InDefaultWeaponAbilities.IsEmpty()) return;
 	
 	for (const FSL_PlayerAbilitySet& AbilitySet : InDefaultWeaponAbilities)
+	{
+		if (!AbilitySet.IsValid()) continue;
+		
+		FGameplayAbilitySpec AbilitySpec(AbilitySet.AbilityToGrant);
+		AbilitySpec.SourceObject = GetAvatarActor();
+		AbilitySpec.Level = ApplyLevel;
+		AbilitySpec.DynamicAbilityTags.AddTag(AbilitySet.InputTag);
+		
+		OutGrantedAbilitySpecHandles.AddUnique(GiveAbility(AbilitySpec));
+	}
+	
+	for (const FSL_PlayerSpecialAbilitySet& AbilitySet : InSpecialWeaponAbilities)
 	{
 		if (!AbilitySet.IsValid()) continue;
 		

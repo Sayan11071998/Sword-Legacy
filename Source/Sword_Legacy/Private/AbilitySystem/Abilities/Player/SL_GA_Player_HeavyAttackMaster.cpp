@@ -5,6 +5,7 @@
 #include "Utilities/SL_FunctionLibrary.h"
 #include "Utilities/SL_GameplayTags.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemComponent.h"
 
 USL_GA_Player_HeavyAttackMaster::USL_GA_Player_HeavyAttackMaster()
 {
@@ -77,6 +78,11 @@ void USL_GA_Player_HeavyAttackMaster::ActivateAbility(const FGameplayAbilitySpec
 	{
 		CurrentHeavyAttackComboCount++;
 	}
+
+	if (AvatarActor && USL_FunctionLibrary::NativeDoesActorHaveTag(AvatarActor, SL_GameplayTags::Player_Status_Rage_Active))
+	{
+		WhileRageActive();
+	}
 }
 
 void USL_GA_Player_HeavyAttackMaster::OnMeleeHitEventReceived(FGameplayEventData Payload)
@@ -102,17 +108,32 @@ void USL_GA_Player_HeavyAttackMaster::OnMeleeHitEventReceived(FGameplayEventData
 			K2_ExecuteGameplayCue(WeaponHitSoundGameplayCueTag, ContextHandle);
 		}
 		
-		NativeApplyEffectSpecHandleToTarget(TargetActor, DamageSpecHandle);
+		const FActiveGameplayEffectHandle ActiveEffectHandle = NativeApplyEffectSpecHandleToTarget(TargetActor, DamageSpecHandle);
 
-		FGameplayEventData HitReactPayload;
-		HitReactPayload.Instigator = GetAvatarActorFromActorInfo();
-		HitReactPayload.Target = TargetActor;
+		if (ActiveEffectHandle.WasSuccessfullyApplied())
+		{
+			FGameplayEventData HitReactPayload;
+			HitReactPayload.Instigator = GetAvatarActorFromActorInfo();
+			HitReactPayload.Target = TargetActor;
 
-		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
-			TargetActor,
-			SL_GameplayTags::Shared_Event_HitReact,
-			HitReactPayload
-		);
+			UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+				TargetActor,
+				SL_GameplayTags::Shared_Event_HitReact,
+				HitReactPayload
+			);
+
+			if (GainRageEffectClass)
+			{
+				if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
+				{
+					FGameplayEffectSpecHandle RageSpecHandle = MakeOutgoingGameplayEffectSpec(GainRageEffectClass, GetAbilityLevel());
+					if (RageSpecHandle.IsValid())
+					{
+						ASC->ApplyGameplayEffectSpecToSelf(*RageSpecHandle.Data.Get());
+					}
+				}
+			}
+		}
 	}
 }
 
@@ -138,4 +159,8 @@ void USL_GA_Player_HeavyAttackMaster::OnMontageCompleted()
 		ComboResetTime,
 		false
 	);
+}
+
+void USL_GA_Player_HeavyAttackMaster::WhileRageActive_Implementation()
+{
 }

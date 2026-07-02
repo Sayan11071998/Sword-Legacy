@@ -28,12 +28,18 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+	TSubclassOf<UGameplayEffect> GainRageEffectClass;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	FGameplayTag WeaponHitSoundGameplayCueTag;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	float ComboResetTime;
+
+	UFUNCTION(BlueprintNativeEvent, Category = "Combat")
+	void WhileRageActive();
 	
 private:
 	UFUNCTION()

@@ -15,6 +15,8 @@
 #include "Widgets/SL_WidgetBase.h"
 #include "Utilities/SL_FunctionLibrary.h"
 #include "Animation/AnimMontage.h"
+#include "AbilitySystem/SL_AbilitySystemComponent.h"
+#include "Utilities/SL_GameplayTags.h"
 
 ASL_EnemyCharacter::ASL_EnemyCharacter()
 {
@@ -279,7 +281,16 @@ void ASL_EnemyCharacter::HandleDissolveFinished()
 		}
 	}
 	
-	Destroy();
+	bool bAbilityActivated = false;
+	if (CharacterAbilitySystemComponent)
+	{
+		bAbilityActivated = CharacterAbilitySystemComponent->TryActivateAbilityByTag(SL_GameplayTags::Enemy_Ability_SpawnStone);
+	}
+	
+	if (!bAbilityActivated)
+	{
+		SetLifeSpan(0.5f);
+	}
 }
 
 void ASL_EnemyCharacter::HandleEntryRestoreUpdate(float Value)

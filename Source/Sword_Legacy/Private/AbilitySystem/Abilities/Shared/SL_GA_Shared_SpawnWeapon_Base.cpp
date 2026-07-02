@@ -37,6 +37,11 @@ void USL_GA_Shared_SpawnWeapon_Base::ActivateAbility(const FGameplayAbilitySpecH
 		{
 			CombatComponent->RegisterSpawnedWeapon(WeaponTagToRegister, SpawnedWeapon, bRegisterAsEquippedWeapon);
 		}
+
+		if (UStaticMeshComponent* WeaponMesh = SpawnedWeapon->GetWeaponMesh())
+		{
+			WeaponMesh->SetScalarParameterValueOnMaterials(FName(TEXT("DissolveAmount")), 1.0f);
+		}
 	}
 	
 	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);

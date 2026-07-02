@@ -91,7 +91,14 @@ void USL_GA_Player_EquipKatana::HandleEquipWeapon(ASL_PlayerWeapon* InWeapon)
 	if (USL_AbilitySystemComponent* ASCToGive = GetPawnAbilitySystemComponentFromActorInfo())
 	{
 		TArray<FGameplayAbilitySpecHandle> OutHandles;
-		ASCToGive->GrantPlayerWeaponAbilities(WeaponData.DefaultWeaponAbilities, GetAbilityLevel(), OutHandles);
+		
+		ASCToGive->GrantPlayerWeaponAbilities(
+			WeaponData.DefaultWeaponAbilities,
+			WeaponData.SpecialWeaponAbilities,
+			GetAbilityLevel(),
+			OutHandles	
+		);
+		
 		InWeapon->AssignGrantedAbilitySpecHandles(OutHandles);
 	}
 	
@@ -112,5 +119,17 @@ void USL_GA_Player_EquipKatana::HandleEquipWeapon(ASL_PlayerWeapon* InWeapon)
 	if (USL_PlayerUIComponent* UIComponent = GetPlayerUIComponentFromActorInfo())
 	{
 		UIComponent->OnEquippedWeaponChanged.Broadcast(WeaponData.SoftWeaponIconTexture);
+
+		for (const FSL_PlayerSpecialAbilitySet& SpecialAbility : WeaponData.SpecialWeaponAbilities)
+		{
+			UIComponent->OnAbilityIconSlotUpdated.Broadcast(SpecialAbility.InputTag, SpecialAbility.SoftAbilityIconMaterial);
+
+			float TotalCooldownTime = 0.f;
+			float RemainingCooldownTime = 0.f;
+			if (GetAbilityRemainingCooldownByTag(SpecialAbility.AbilityCooldownTag, TotalCooldownTime, RemainingCooldownTime))
+			{
+				UIComponent->OnAbilityCooldownBegin.Broadcast(SpecialAbility.InputTag, TotalCooldownTime, RemainingCooldownTime);
+			}
+		}
 	}
 }

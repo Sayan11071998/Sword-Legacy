@@ -2,6 +2,8 @@
 #include "AbilitySystem/SL_AbilitySystemComponent.h"
 #include "Components/Combat/SL_PawnCombatComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "Utilities/SL_FunctionLibrary.h"
+#include "Utilities/SL_GameplayTags.h"
 
 void USL_GameplayAbility::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
@@ -59,4 +61,36 @@ FActiveGameplayEffectHandle USL_GameplayAbility::BP_ApplyEffectSpecHandleToTarge
 	OutSuccessType = ActiveGameplayEffectHandle.WasSuccessfullyApplied() ? ESL_SuccessType::Successful : ESL_SuccessType::Failed;
 
 	return ActiveGameplayEffectHandle;
+}
+
+void USL_GameplayAbility::ApplyGameplayEffectSpecHandleToHitResults(const FGameplayEffectSpecHandle& InSpecHandle,
+	const TArray<FHitResult>& InHitResults)
+{
+	if (InHitResults.IsEmpty()) return;
+	
+	APawn* OwningPawn = CastChecked<APawn>(GetAvatarActorFromActorInfo());
+	
+	for (const FHitResult& Hit : InHitResults)
+	{
+		if (APawn* HitPawn = Cast<APawn>(Hit.GetActor()))
+		{
+			if (USL_FunctionLibrary::IsTargetPawnHostile(OwningPawn, HitPawn))
+			{
+				FActiveGameplayEffectHandle ActiveGameplayEffectHandle = NativeApplyEffectSpecHandleToTarget(HitPawn, InSpecHandle);
+				
+				if (ActiveGameplayEffectHandle.WasSuccessfullyApplied())
+				{
+					FGameplayEventData Data;
+					Data.Instigator = OwningPawn;
+					Data.Target = HitPawn;
+					
+					UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+						HitPawn,
+						SL_GameplayTags::Player_Event_AOE,
+						Data
+					);
+				}
+			}
+		}
+	}
 }
