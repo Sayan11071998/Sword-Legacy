@@ -281,12 +281,16 @@ void ASL_EnemyCharacter::HandleDissolveFinished()
 		}
 	}
 	
+	bool bAbilityActivated = false;
 	if (CharacterAbilitySystemComponent)
 	{
-		CharacterAbilitySystemComponent->TryActivateAbilityByTag(SL_GameplayTags::Enemy_Ability_SpawnStone);
+		bAbilityActivated = CharacterAbilitySystemComponent->TryActivateAbilityByTag(SL_GameplayTags::Enemy_Ability_SpawnStone);
 	}
 	
-	SetLifeSpan(0.5f);
+	if (!bAbilityActivated)
+	{
+		SetLifeSpan(0.5f);
+	}
 }
 
 void ASL_EnemyCharacter::HandleEntryRestoreUpdate(float Value)
