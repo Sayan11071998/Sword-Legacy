@@ -32,8 +32,10 @@ public:
 	FGameplayEffectSpecHandle ProjectileDamageEffectSpecHandle;
 
 protected:
+	// ~ Begin AActor Interface
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	// ~ End AActor Interface
 	
 	void NativeOnSpawnProjectileHitVFX(const FVector& HitLocation);
 	
@@ -85,6 +87,7 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile")
 	ESL_ProjectileDamagePolicy ProjectileDamagePolicy = ESL_ProjectileDamagePolicy::OnHit;
+
 private:
 	void HandleApplyProjectileDamage(TObjectPtr<APawn> InHitPawn, const FGameplayEventData& InPayLoad);
 
