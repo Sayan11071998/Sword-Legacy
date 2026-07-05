@@ -67,9 +67,6 @@ void USL_PawnCombatComponent::ToggleCurrentEquippedWeaponCollision(bool bShouldE
 	}
 }
 
-void USL_PawnCombatComponent::ToggleBodyCollisionBoxCollision(bool bShouldEnable, ESL_ToggleDamageType ToggleDamageType)
-{
-}
-
+void USL_PawnCombatComponent::ToggleBodyCollisionBoxCollision(bool bShouldEnable, ESL_ToggleDamageType ToggleDamageType) { }
 void USL_PawnCombatComponent::OnHitTargetActor(AActor* HitActor) { }
 void USL_PawnCombatComponent::OnWeaponPulledFromTargetActor(AActor* InteractedActor) { }
