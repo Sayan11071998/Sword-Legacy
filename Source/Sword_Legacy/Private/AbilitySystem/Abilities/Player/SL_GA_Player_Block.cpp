@@ -136,13 +136,13 @@ void USL_GA_Player_Block::OnSuccessfulBlockEventReceived(FGameplayEventData Payl
 		FGameplayCueParameters PerfectCueParams = MakeBlockGameplayCueParams();
 		K2_ExecuteGameplayCueWithParams(SL_GameplayTags::GameplayCue_Effects_Katana_PerfectBlock, PerfectCueParams);
 
-		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 0.2f);
+		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), PerfectBlockTimeDilation);
 
 		GetWorld()->GetTimerManager().SetTimer(
 			TimeDilationTimerHandle,
 			this,
 			&USL_GA_Player_Block::RestoreTimeDilation,
-			0.08f,
+			PerfectBlockDilationDuration,
 			false
 		);
 	}
@@ -160,7 +160,7 @@ void USL_GA_Player_Block::StartResetJumpToFinisherTimer()
 		ResetJumpToFinisherTimerHandle,
 		this,
 		&USL_GA_Player_Block::ResetJumpToFinisherState,
-		0.3f,
+		JumpToFinisherTagDuration,
 		false
 	);
 }
