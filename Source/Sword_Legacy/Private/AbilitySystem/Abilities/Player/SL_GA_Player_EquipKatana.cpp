@@ -110,7 +110,7 @@ void USL_GA_Player_EquipKatana::HandleEquipWeapon(ASL_PlayerWeapon* InWeapon)
 			{
 				if (UEnhancedInputLocalPlayerSubsystem* Subsystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
 				{
-					Subsystem->AddMappingContext(WeaponData.WeaponInputMappingContext, 1);
+					Subsystem->AddMappingContext(WeaponData.WeaponInputMappingContext, WeaponData.WeaponInputMappingPriority);
 				}
 			}
 		}
