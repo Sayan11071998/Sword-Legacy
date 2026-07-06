@@ -66,6 +66,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CharacterData", meta = (AllowPrivateAccess = "true"))
 	float MaxSprintSpeed = 500.f;
 	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CharacterData", meta = (AllowPrivateAccess = "true"))
+	int32 DefaultInputMappingPriority = 0;
+	
 	UPROPERTY()
 	FVector2D SwitchDirection = FVector2D::ZeroVector;
 	
