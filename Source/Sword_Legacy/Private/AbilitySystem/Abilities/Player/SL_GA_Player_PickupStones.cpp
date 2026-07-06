@@ -35,6 +35,7 @@ void USL_GA_Player_PickupStones::ActivateAbility(const FGameplayAbilitySpecHandl
 		false,
 		true
 	);
+	
 	if (WaitEventTask)
 	{
 		WaitEventTask->EventReceived.AddDynamic(this, &USL_GA_Player_PickupStones::OnConsumeStonesEventReceived);

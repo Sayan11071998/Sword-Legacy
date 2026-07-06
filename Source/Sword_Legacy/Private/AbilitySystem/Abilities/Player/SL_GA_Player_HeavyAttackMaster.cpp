@@ -10,6 +10,7 @@
 USL_GA_Player_HeavyAttackMaster::USL_GA_Player_HeavyAttackMaster()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+	
 	ComboResetTime = 0.3f;
 }
 
@@ -161,6 +162,4 @@ void USL_GA_Player_HeavyAttackMaster::OnMontageCompleted()
 	);
 }
 
-void USL_GA_Player_HeavyAttackMaster::WhileRageActive_Implementation()
-{
-}
+void USL_GA_Player_HeavyAttackMaster::WhileRageActive_Implementation() { }

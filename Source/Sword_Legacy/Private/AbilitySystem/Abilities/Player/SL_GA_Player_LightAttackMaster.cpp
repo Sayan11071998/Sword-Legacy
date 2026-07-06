@@ -10,6 +10,7 @@
 USL_GA_Player_LightAttackMaster::USL_GA_Player_LightAttackMaster()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+	
 	ComboResetTime = 0.3f;
 }
 
@@ -163,6 +164,4 @@ void USL_GA_Player_LightAttackMaster::OnMontageCompleted()
 	);
 }
 
-void USL_GA_Player_LightAttackMaster::WhileRageActive_Implementation()
-{
-}
+void USL_GA_Player_LightAttackMaster::WhileRageActive_Implementation() { }

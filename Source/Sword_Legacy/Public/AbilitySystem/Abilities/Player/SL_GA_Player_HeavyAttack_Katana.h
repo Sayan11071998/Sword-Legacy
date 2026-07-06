@@ -15,7 +15,9 @@ public:
 	USL_GA_Player_HeavyAttack_Katana();
 
 protected:
+	// ~ Begin USL_GA_Player_HeavyAttackMaster Interface
 	virtual void WhileRageActive_Implementation() override;
+	// ~ End USL_GA_Player_HeavyAttackMaster Interface
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Rage")
 	TSubclassOf<ASL_ProjectileBase> ProjectileClass;
