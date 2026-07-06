@@ -47,18 +47,15 @@ bool USL_BTD_ShouldAbortAllLogic::CalculateRawConditionValue(UBehaviorTreeCompon
 	AActor* CachedTargetActor = Cast<AActor>(BlackboardComp->GetValueAsObject(InTargetActorKey.SelectedKeyName));
 	if (CachedTargetActor)
 	{
-		// 1. Check if Target Actor has the Death Tag
 		if (UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(CachedTargetActor))
 		{
 			bIsTargetActorDead = TargetASC->HasMatchingGameplayTag(SL_GameplayTags::Shared_Status_Death);
 		}
-
-		// 2. Check if the distance to the target is nearly zero
+		
 		const float DistanceToTarget = BlackboardComp->GetValueAsFloat(InDistToTargetKey.SelectedKeyName);
 		bIsDistNearlyZero = FMath::IsNearlyEqual(DistanceToTarget, 0.f, 0.000001f);
 	}
 	
-	// 3. Check if Owning AI Pawn has the Death Tag (this should run whether we have a target or not)
 	if (AAIController* AIController = OwnerComp.GetAIOwner())
 	{
 		if (APawn* ControlledPawn = AIController->GetPawn())

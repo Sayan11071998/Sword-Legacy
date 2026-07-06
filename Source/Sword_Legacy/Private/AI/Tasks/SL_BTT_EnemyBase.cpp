@@ -13,10 +13,7 @@ EBTNodeResult::Type USL_BTT_EnemyBase::ExecuteTask(UBehaviorTreeComponent& Owner
 	if (!OwnerController) return EBTNodeResult::Failed;
 
 	ASL_EnemyCharacter* OwningEnemyCharacter = Cast<ASL_EnemyCharacter>(OwnerController->GetPawn());
-	if (!OwningEnemyCharacter)
-	{
-		return EBTNodeResult::Failed;
-	}
+	if (!OwningEnemyCharacter) return EBTNodeResult::Failed;
 
 	return OnEnemyExecuteTask(OwnerController, OwningEnemyCharacter);
 }

@@ -10,6 +10,7 @@
 USL_BTT_ToggleStrafingState::USL_BTT_ToggleStrafingState()
 {
 	NodeName = TEXT("Toggle Strafing State");
+	
 	bShouldEnable = true;
 	bShouldChangeMaxWalkSpeed = true;
 	StrafingWalkSpeed = 250.f;

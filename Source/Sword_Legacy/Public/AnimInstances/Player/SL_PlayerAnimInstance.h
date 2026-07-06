@@ -27,5 +27,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "AnimData|LocomotionData")
 	float EnterRelaxStateThreshold = 5.f;
 	
+	UPROPERTY()
 	float IdleElapsedTime;
 };

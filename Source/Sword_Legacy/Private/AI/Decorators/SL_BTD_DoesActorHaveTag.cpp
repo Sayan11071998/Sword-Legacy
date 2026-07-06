@@ -7,6 +7,7 @@
 USL_BTD_DoesActorHaveTag::USL_BTD_DoesActorHaveTag()
 {
 	NodeName = TEXT("Does Actor Have Tag");
+	
 	bInverseConditionCheck = false;
 
 	InActorKeyToCheck.AddObjectFilter(this, GET_MEMBER_NAME_CHECKED(ThisClass, InActorKeyToCheck), AActor::StaticClass());
@@ -27,6 +28,7 @@ FString USL_BTD_DoesActorHaveTag::GetStaticDescription() const
 	const FString KeyDescription = InActorKeyToCheck.SelectedKeyName.ToString();
 	const FString TagDescription = TagToCheck.IsValid() ? TagToCheck.ToString() : TEXT("None");
 	const FString InverseText = bInverseConditionCheck ? TEXT("NOT ") : TEXT("");
+	
 	return FString::Printf(TEXT("Condition: Expect %sActor %s to have tag %s"), *InverseText, *KeyDescription, *TagDescription);
 }
 
@@ -35,7 +37,7 @@ bool USL_BTD_DoesActorHaveTag::CalculateRawConditionValue(UBehaviorTreeComponent
 	UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
 	if (!BlackboardComp)
 	{
-		return bInverseConditionCheck ? true : false;
+		return bInverseConditionCheck;
 	}
 	
 	bool bHasTag = false;
