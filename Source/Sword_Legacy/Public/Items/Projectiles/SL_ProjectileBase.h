@@ -87,6 +87,18 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile")
 	ESL_ProjectileDamagePolicy ProjectileDamagePolicy = ESL_ProjectileDamagePolicy::OnHit;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile|Movement")
+	float ProjectileInitialSpeed = 700.f;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile|Movement")
+	float ProjectileMaxSpeed = 900.f;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile|Movement")
+	float ProjectileGravityScale = 0.f;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile|Movement")
+	float ProjectileLifeSpan = 4.f;
 
 private:
 	void HandleApplyProjectileDamage(TObjectPtr<APawn> InHitPawn, const FGameplayEventData& InPayLoad);

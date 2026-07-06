@@ -29,12 +29,12 @@ ASL_ProjectileBase::ASL_ProjectileBase()
 	ProjectileNiagaraComponent->SetupAttachment(GetRootComponent());
 	
 	ProjectileMovementComp = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComp"));
-	ProjectileMovementComp->InitialSpeed = 700.f;
-	ProjectileMovementComp->MaxSpeed = 900.f;
+	ProjectileMovementComp->InitialSpeed = ProjectileInitialSpeed;
+	ProjectileMovementComp->MaxSpeed = ProjectileMaxSpeed;
 	ProjectileMovementComp->Velocity = FVector(1.f, 0.f, 0.f);
-	ProjectileMovementComp->ProjectileGravityScale = 0.f;
+	ProjectileMovementComp->ProjectileGravityScale = ProjectileGravityScale;
 	
-	InitialLifeSpan = 4.f;
+	InitialLifeSpan = ProjectileLifeSpan;
 
 	ProjectileImpactSound = nullptr;
 	ProjectileImpactEffects = nullptr;
@@ -47,6 +47,15 @@ ASL_ProjectileBase::ASL_ProjectileBase()
 void ASL_ProjectileBase::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	if (ProjectileMovementComp)
+	{
+		ProjectileMovementComp->InitialSpeed = ProjectileInitialSpeed;
+		ProjectileMovementComp->MaxSpeed = ProjectileMaxSpeed;
+		ProjectileMovementComp->ProjectileGravityScale = ProjectileGravityScale;
+	}
+	
+	SetLifeSpan(ProjectileLifeSpan);
 	
 	if (ProjectileDamagePolicy == ESL_ProjectileDamagePolicy::OnBeginOverlap)
 	{
