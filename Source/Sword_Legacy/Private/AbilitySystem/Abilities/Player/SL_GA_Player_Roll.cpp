@@ -11,7 +11,6 @@ USL_GA_Player_Roll::USL_GA_Player_Roll()
 
 	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_WorldStatic));
 
-	DelayDuration = 0.05f;
 	TraceHeight = 500.f;
 	RotationWarpTargetName = FName("RollingDirection");
 	LocationWarpTargetName = FName("RollTargetLocation");
