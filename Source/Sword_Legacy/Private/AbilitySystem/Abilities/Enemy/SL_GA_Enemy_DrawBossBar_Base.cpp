@@ -40,7 +40,7 @@ void USL_GA_Enemy_DrawBossBar_Base::ActivateAbility(const FGameplayAbilitySpecHa
 	USL_WidgetBase* CreatedWidget = CreateWidget<USL_WidgetBase>(PC, BossHealthBarWidgetClass);
 	if (CreatedWidget)
 	{
-		if (UTextBlock* BossNameText = Cast<UTextBlock>(CreatedWidget->GetWidgetFromName(FName(TEXT("TextBlock_BossNameText")))))
+		if (UTextBlock* BossNameText = Cast<UTextBlock>(CreatedWidget->GetWidgetFromName(BossNameTextBlockName)))
 		{
 			BossNameText->SetText(BossName);
 		}

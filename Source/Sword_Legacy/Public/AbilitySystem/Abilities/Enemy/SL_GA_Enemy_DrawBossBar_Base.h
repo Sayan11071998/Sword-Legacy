@@ -29,4 +29,7 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Boss Bar")
 	FText BossName;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Boss Bar")
+	FName BossNameTextBlockName = FName(TEXT("TextBlock_BossNameText"));
 };
