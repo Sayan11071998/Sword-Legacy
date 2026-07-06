@@ -26,12 +26,22 @@ ASL_PlayerController* USL_PlayerGameplayAbility::GetPlayerControllerFromActorInf
 
 USL_PlayerCombatComponent* USL_PlayerGameplayAbility::GetPlayerCombatComponentFromActorInfo()
 {
-	return GetPlayerCharacterFromActorInfo()->GetPlayerCombatComponent();
+	if (ASL_PlayerCharacter* PlayerCharacter = GetPlayerCharacterFromActorInfo())
+	{
+		return PlayerCharacter->GetPlayerCombatComponent();
+	}
+	
+	return nullptr;
 }
 
 USL_PlayerUIComponent* USL_PlayerGameplayAbility::GetPlayerUIComponentFromActorInfo()
 {
-	return GetPlayerCharacterFromActorInfo()->GetPlayerUIComponent();
+	if (ASL_PlayerCharacter* PlayerCharacter = GetPlayerCharacterFromActorInfo())
+	{
+		return PlayerCharacter->GetPlayerUIComponent();
+	}
+	
+	return nullptr;
 }
 
 FGameplayEffectSpecHandle USL_PlayerGameplayAbility::MakePlayerDamageEffectSpecHandle(
