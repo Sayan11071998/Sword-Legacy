@@ -40,10 +40,16 @@ public:
 	static float GetScalableFloatValueAtLevel(const FScalableFloat& InScalableFloat, float InLevel = 1.f);
 	
 	UFUNCTION(BlueprintPure, Category = "Pawn|Function Library")
-	static FGameplayTag ComputeHitReactDirectionTag(AActor* InAttacker, AActor* InVictim, float& OutAngleDifference);
+	static FGameplayTag ComputeHitReactDirectionTag(
+		AActor* InAttacker,
+		AActor* InVictim,
+		float& OutAngleDifference,
+		float FrontArcHalfAngle = 45.f,
+		float SideArcBoundaryAngle = 135.f
+	);
 	
 	UFUNCTION(BlueprintPure, Category = "Pawn|Function Library")
-	static bool IsValidBlock(AActor* InAttacker, AActor* InDefender);
+	static bool IsValidBlock(AActor* InAttacker, AActor* InDefender, float BlockFacingDotThreshold = -0.1f);
 	
 	UFUNCTION(BlueprintCallable, Category = "Pawn|Function Library")
 	static bool ApplyGameplayEffectSpecHandleToTargetActor(AActor* InInstigator, AActor* InTargetActor, const FGameplayEffectSpecHandle& InSpecHandle);
