@@ -77,19 +77,24 @@ void USL_GA_Enemy_HitReactBase::ActivateAbility(const FGameplayAbilitySpecHandle
 		}
 	}
 	
-	FTimerHandle DummyTimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(DummyTimerHandle, [this]()
-	{
-		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
-	}, 0.2f, false);
-	
-	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+	GetWorld()->GetTimerManager().SetTimer(
+		HitReactFallbackTimerHandle,
+		this,
+		&USL_GA_Enemy_HitReactBase::OnHitReactFinished,
+		HitReactFallbackDuration,
+		false
+	);
 }
 
 void USL_GA_Enemy_HitReactBase::EndAbility(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	bool bReplicateEndAbility, bool bWasCancelled)
 {
+	if (GetWorld())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(HitReactFallbackTimerHandle);
+	}
+	
 	if (USkeletalMeshComponent* SkeletalMeshComponent = GetCurrentActorInfo()->SkeletalMeshComponent.Get())
 	{
 		SkeletalMeshComponent->SetScalarParameterValueOnMaterials(HitParameterName, 0.f);
