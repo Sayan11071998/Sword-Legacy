@@ -17,9 +17,12 @@ void USL_GA_Player_PickupStones::ActivateAbility(const FGameplayAbilitySpecHandl
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
-	GetPlayerUIComponentFromActorInfo()->OnStoneInteracted.Broadcast(true);
-	
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	
+	if (USL_PlayerUIComponent* PlayerUIComponent = GetPlayerUIComponentFromActorInfo())
+	{
+		PlayerUIComponent->OnStoneInteracted.Broadcast(true);
+	}
 
 	USL_AbilityTask_ExecuteTaskOnTick* TickTask = USL_AbilityTask_ExecuteTaskOnTick::ExecuteTaskOnTick(this);
 	if (TickTask)
@@ -47,7 +50,10 @@ void USL_GA_Player_PickupStones::EndAbility(const FGameplayAbilitySpecHandle Han
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	bool bReplicateEndAbility, bool bWasCancelled)
 {
-	GetPlayerUIComponentFromActorInfo()->OnStoneInteracted.Broadcast(false);
+	if (USL_PlayerUIComponent* PlayerUIComponent = GetPlayerUIComponentFromActorInfo())
+	{
+		PlayerUIComponent->OnStoneInteracted.Broadcast(false);
+	}
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
