@@ -1,6 +1,7 @@
 #include "AbilitySystem/Abilities/Player/SL_GA_Player_DrawOverlayWidget.h"
 #include "Blueprint/UserWidget.h"
 #include "Controllers/SL_PlayerController.h"
+#include "Components/UI/SL_PlayerUIComponent.h"
 
 void USL_GA_Player_DrawOverlayWidget::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
@@ -17,6 +18,11 @@ void USL_GA_Player_DrawOverlayWidget::ActivateAbility(const FGameplayAbilitySpec
 			if (CreatedWidget)
 			{
 				CreatedWidget->AddToViewport();
+				
+				if (USL_PlayerUIComponent* PlayerUIComponent = GetPlayerUIComponentFromActorInfo())
+				{
+					PlayerUIComponent->RegisterPlayerDrawnWidget(CreatedWidget);
+				}
 			}
 		}
 	}

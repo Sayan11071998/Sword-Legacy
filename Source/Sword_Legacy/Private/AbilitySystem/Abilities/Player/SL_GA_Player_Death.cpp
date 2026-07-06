@@ -3,6 +3,7 @@
 #include "Characters/SL_PlayerCharacter.h"
 #include "Controllers/SL_PlayerController.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/UI/SL_PlayerUIComponent.h"
 
 USL_GA_Player_Death::USL_GA_Player_Death()
 {
@@ -66,6 +67,11 @@ void USL_GA_Player_Death::EndAbility(const FGameplayAbilitySpecHandle Handle,
 		InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 		PlayerController->SetInputMode(InputModeData);
 		PlayerController->SetShowMouseCursor(true);
+	}
+	
+	if (USL_PlayerUIComponent* PlayerUIComponent = GetPlayerUIComponentFromActorInfo())
+	{
+		PlayerUIComponent->RemovePlayerDrawnWidgetsIfAny();
 	}
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
