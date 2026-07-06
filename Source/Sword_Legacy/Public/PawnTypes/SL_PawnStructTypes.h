@@ -52,6 +52,9 @@ struct FSL_PlayerWeaponData
 	TArray<FSL_PlayerSpecialAbilitySet> SpecialWeaponAbilities;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	int32 WeaponInputMappingPriority = 1;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FScalableFloat WeaponBaseDamage;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
