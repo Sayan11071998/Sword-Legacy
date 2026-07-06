@@ -6,8 +6,6 @@
 #include "Components/UI/SL_PawnUIComponent.h"
 #include "Components/UI/SL_PlayerUIComponent.h"
 
-#include "SL_DebugHelper.h"
-
 USL_AttributeSet::USL_AttributeSet()
 {
 	InitCurrentHealth(1.f);
@@ -67,17 +65,9 @@ void USL_AttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectMod
 	{
 		const float OldHealth = GetCurrentHealth();
 		const float DamageDone = GetDamageTaken();
-		
 		const float NewCurrentHealth = FMath::Clamp(OldHealth - DamageDone, 0.f, GetMaxHealth());
-		SetCurrentHealth(NewCurrentHealth);
 		
-		// const FString DebugString = FString::Printf(
-		// 	TEXT("Old Health: %f, Damage Done: %f, New Current Health: %f"),
-		// 	OldHealth,
-		// 	DamageDone,
-		// 	NewCurrentHealth	
-		// );
-		// Debug::Print(DebugString, FColor::Green);
+		SetCurrentHealth(NewCurrentHealth);
 		
 		PawnUIComponent->OnCurrentHealthChanged.Broadcast(GetCurrentHealth() / GetMaxHealth());
 		

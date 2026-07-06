@@ -1,5 +1,4 @@
 #include "AbilitySystem/Abilities/Player/SL_GA_Player_HitPause.h"
-
 #include "Controllers/SL_PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Utilities/SL_GameplayTags.h"

@@ -56,10 +56,7 @@ EBTNodeResult::Type USL_BTT_RotateToFaceTarget::ExecuteTask(UBehaviorTreeCompone
 	Memory->OwningPawn = OwningPawn;
 	Memory->TargetActor = TargetActor;
 	
-	if (!Memory->IsValid())
-	{
-		return EBTNodeResult::Failed;
-	}
+	if (!Memory->IsValid()) return EBTNodeResult::Failed;
 	
 	if (HasReachedAnglePrecision(OwningPawn, TargetActor))
 	{

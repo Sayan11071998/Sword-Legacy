@@ -7,8 +7,6 @@
 #include "Utilities/SL_GameplayTags.h"
 #include "Utilities/SL_CountdownAction.h"
 
-#include "SL_DebugHelper.h"
-
 TObjectPtr<USL_AbilitySystemComponent> USL_FunctionLibrary::NativeGetASCFromActor(TObjectPtr<AActor> InActor)
 {
 	check(InActor);
@@ -135,9 +133,6 @@ bool USL_FunctionLibrary::IsValidBlock(AActor* InAttacker, AActor* InDefender)
 		InAttacker->GetActorForwardVector(), 
 		InDefender->GetActorForwardVector()
 	);
-	
-	// const FString DebugString = FString::Printf(TEXT("Dot Result: %f %s"), DotResult, DotResult < 0.f ? TEXT("Valid Block") : TEXT("Invalid Block"));
-	// Debug::Print(DebugString, DotResult < -0.1f ? FColor::Green : FColor::Red);
 	
 	return DotResult < -0.1f;
 }

@@ -30,6 +30,7 @@ void USL_BTS_UpdateMotionWarpTarget::InitializeFromAsset(UBehaviorTree& Asset)
 FString USL_BTS_UpdateMotionWarpTarget::GetStaticDescription() const
 {
 	const FString KeyDescription = InTargetActorKey.SelectedKeyName.ToString();
+	
 	return FString::Printf(TEXT("Update Motion Warp Target from %s Key %s"), *KeyDescription, *GetStaticServiceDescription());
 }
 

@@ -10,6 +10,7 @@ USL_BTT_ActivateAbilityByTag::USL_BTT_ActivateAbilityByTag()
 FString USL_BTT_ActivateAbilityByTag::GetStaticDescription() const
 {
 	const FString TagDesc = AbilityTagToActivate.IsValid() ? AbilityTagToActivate.ToString() : TEXT("None");
+	
 	return FString::Printf(TEXT("Activate Ability: %s"), *TagDesc);
 }
 
