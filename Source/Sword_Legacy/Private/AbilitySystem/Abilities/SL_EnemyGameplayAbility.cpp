@@ -15,7 +15,12 @@ ASL_EnemyCharacter* USL_EnemyGameplayAbility::GetEnemyCharacterFromActorInfo()
 
 USL_EnemyCombatComponent* USL_EnemyGameplayAbility::GetEnemyCombatComponentFromActorInfo()
 {
-	return GetEnemyCharacterFromActorInfo()->GetEnemyCombatComponent();
+	if (ASL_EnemyCharacter* EnemyCharacter = GetEnemyCharacterFromActorInfo())
+	{
+		return EnemyCharacter->GetEnemyCombatComponent();
+	}
+	
+	return nullptr;
 }
 
 FGameplayEffectSpecHandle USL_EnemyGameplayAbility::MakeEnemyDamageEffectSpecHandle(
