@@ -55,4 +55,7 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Spawn Stone")
 	float TraceDistance = 200.0f;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Spawn Stone", meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
+	float HealingStoneSelectionWeight = 0.5f;
 };

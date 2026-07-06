@@ -37,6 +37,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Melee Attack")
 	float UnblockableAttackWarningSpawnOffset;
 	
+	UPROPERTY(EditDefaultsOnly, Category = "Melee Attack")
+	float UnblockableWarningDelay = 0.2f;
+	
 	UFUNCTION(BlueprintCallable, Category = "Melee Attack")
 	void HandleApplyDamage(FGameplayEventData Payload);
 	

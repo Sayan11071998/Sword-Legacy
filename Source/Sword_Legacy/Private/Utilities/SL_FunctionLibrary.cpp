@@ -88,7 +88,7 @@ float USL_FunctionLibrary::GetScalableFloatValueAtLevel(const FScalableFloat& In
 }
 
 FGameplayTag USL_FunctionLibrary::ComputeHitReactDirectionTag(AActor* InAttacker, AActor* InVictim,
-	float& OutAngleDifference)
+	float& OutAngleDifference, float FrontArcHalfAngle, float SideArcBoundaryAngle)
 {
 	check(InAttacker && InVictim);
 	
@@ -105,19 +105,19 @@ FGameplayTag USL_FunctionLibrary::ComputeHitReactDirectionTag(AActor* InAttacker
 		OutAngleDifference *= -1.f;
 	}
 	
-	if (OutAngleDifference >= -45.f && OutAngleDifference <= 45.f)
+	if (OutAngleDifference >= -FrontArcHalfAngle && OutAngleDifference <= FrontArcHalfAngle)
 	{
 		return SL_GameplayTags::Shared_Status_HitReact_Front;
 	}
-	else if (OutAngleDifference < -45.f && OutAngleDifference >= -135.f)
+	else if (OutAngleDifference < -FrontArcHalfAngle && OutAngleDifference >= -SideArcBoundaryAngle)
 	{
 		return SL_GameplayTags::Shared_Status_HitReact_Left;
 	}
-	else if (OutAngleDifference < -135.f || OutAngleDifference > 135.f)
+	else if (OutAngleDifference < -SideArcBoundaryAngle || OutAngleDifference > SideArcBoundaryAngle)
 	{
 		return SL_GameplayTags::Shared_Status_HitReact_Back;
 	}
-	else if (OutAngleDifference > 45.f && OutAngleDifference <= 135.f)
+	else if (OutAngleDifference > FrontArcHalfAngle && OutAngleDifference <= SideArcBoundaryAngle)
 	{
 		return SL_GameplayTags::Shared_Status_HitReact_Right;
 	}
@@ -125,7 +125,7 @@ FGameplayTag USL_FunctionLibrary::ComputeHitReactDirectionTag(AActor* InAttacker
 	return SL_GameplayTags::Shared_Status_HitReact_Front;
 }
 
-bool USL_FunctionLibrary::IsValidBlock(AActor* InAttacker, AActor* InDefender)
+bool USL_FunctionLibrary::IsValidBlock(AActor* InAttacker, AActor* InDefender, float BlockFacingDotThreshold)
 {
 	check(InAttacker && InDefender);
 	
@@ -134,7 +134,7 @@ bool USL_FunctionLibrary::IsValidBlock(AActor* InAttacker, AActor* InDefender)
 		InDefender->GetActorForwardVector()
 	);
 	
-	return DotResult < -0.1f;
+	return DotResult < BlockFacingDotThreshold;
 }
 
 bool USL_FunctionLibrary::ApplyGameplayEffectSpecHandleToTargetActor(AActor* InInstigator, AActor* InTargetActor,

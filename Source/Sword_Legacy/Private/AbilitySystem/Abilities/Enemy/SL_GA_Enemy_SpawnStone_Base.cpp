@@ -56,7 +56,7 @@ void USL_GA_Enemy_SpawnStone_Base::ActivateAbility(const FGameplayAbilitySpecHan
 	float SpawnChance = StoneSpawnChanceScalableFloat.GetValueAtLevel(GetAbilityLevel());
 	if (FMath::FRand() < SpawnChance)
 	{
-		TSoftClassPtr<ASL_StoneBase> SelectedSoftClass = (FMath::FRand() < 0.5f) ? HealingStoneClass : RageStoneClass;
+		TSoftClassPtr<ASL_StoneBase> SelectedSoftClass = (FMath::FRand() < HealingStoneSelectionWeight) ? HealingStoneClass : RageStoneClass;
 
 		if (!SelectedSoftClass.IsNull())
 		{

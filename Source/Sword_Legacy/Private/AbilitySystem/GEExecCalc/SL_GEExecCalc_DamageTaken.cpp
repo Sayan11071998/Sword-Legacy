@@ -77,19 +77,18 @@ void USL_GEExecCalc_DamageTaken::Execute_Implementation(const FGameplayEffectCus
 	
 	if (UsedLightAttackComboCount != 0)
 	{
-		// Increasing Damage value 5% per combo count
-		const float DamageIncreasePercentLight = (UsedLightAttackComboCount - 1) * 0.05f + 1.f;
+		const float DamageIncreasePercentLight = (UsedLightAttackComboCount - 1) * LightComboDamagePercentPerStep + 1.f;
 		BaseDamage *= DamageIncreasePercentLight;
 	}
 	
 	if (UsedHeavyAttackComboCount != 0)
 	{
-		// Increasing Damage value 15% per combo count
-		const float DamageIncreasePercentHeavy = UsedHeavyAttackComboCount * 0.15 + 1.f;
+		const float DamageIncreasePercentHeavy = UsedHeavyAttackComboCount * HeavyComboDamagePercentPerStep + 1.f;
 		BaseDamage *= DamageIncreasePercentHeavy;
 	}
 	
-	const float FinalDamageDone = BaseDamage * SourceAttackPower / TargetDefensePower;
+	const float SafeDefensePower = FMath::Max(TargetDefensePower, MinDefensePower);
+	const float FinalDamageDone = BaseDamage * FMath::Max(SourceAttackPower, 0.f) / SafeDefensePower;
 	
 	if (FinalDamageDone > 0.f)
 	{

@@ -45,9 +45,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Hit React")
 	float HitFlashIntensity = 1.f;
 	
+	UPROPERTY(EditDefaultsOnly, Category = "Hit React")
+	float HitReactFallbackDuration = 0.2f;
+	
 private:
 	UFUNCTION()
 	void OnHitReactFinished();
+	
+	FTimerHandle HitReactFallbackTimerHandle;
 	
 	FActiveGameplayEffectHandle AppliedHitReactEffectHandle;
 };

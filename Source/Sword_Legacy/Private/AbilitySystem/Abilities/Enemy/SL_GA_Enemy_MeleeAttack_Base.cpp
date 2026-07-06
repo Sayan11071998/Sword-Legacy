@@ -40,7 +40,7 @@ void USL_GA_Enemy_MeleeAttack_Base::ActivateAbility(const FGameplayAbilitySpecHa
 		CueParams.RawMagnitude = UnblockableAttackWarningSpawnOffset;
 		K2_ExecuteGameplayCueWithParams(SL_GameplayTags::GameplayCue_Effects_UnblockableWarning, CueParams);
 
-		UAbilityTask_WaitDelay* WaitDelayTask = UAbilityTask_WaitDelay::WaitDelay(this, 0.2f);
+		UAbilityTask_WaitDelay* WaitDelayTask = UAbilityTask_WaitDelay::WaitDelay(this, UnblockableWarningDelay);
 		if (WaitDelayTask)
 		{
 			WaitDelayTask->OnFinish.AddDynamic(this, &USL_GA_Enemy_MeleeAttack_Base::PlayMeleeAttackMontage);

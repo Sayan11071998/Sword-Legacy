@@ -42,6 +42,15 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Block|Perfect Block")
 	float PerfectBlockTimeWindow = 0.25f;
 	
+	UPROPERTY(EditDefaultsOnly, Category = "Block|Perfect Block")
+	float PerfectBlockTimeDilation = 0.2f;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Block|Perfect Block")
+	float PerfectBlockDilationDuration = 0.08f;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Block|Perfect Block")
+	float JumpToFinisherTagDuration = 0.3f;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Block|Successful Block")
 	FGameplayTag SuccessfulBlockEventTag;
 	

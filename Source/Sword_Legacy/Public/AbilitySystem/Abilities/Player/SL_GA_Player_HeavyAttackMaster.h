@@ -35,7 +35,7 @@ protected:
 	FGameplayTag WeaponHitSoundGameplayCueTag;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
-	float ComboResetTime;
+	float ComboResetTime = 0.3f;
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Combat")
 	void WhileRageActive();

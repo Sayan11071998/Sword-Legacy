@@ -289,7 +289,7 @@ void ASL_EnemyCharacter::HandleDissolveFinished()
 	
 	if (!bAbilityActivated)
 	{
-		SetLifeSpan(0.5f);
+		SetLifeSpan(DestroyDelayWhenNoStoneSpawn);
 	}
 }
 

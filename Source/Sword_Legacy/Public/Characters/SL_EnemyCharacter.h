@@ -113,6 +113,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CharacterData")
 	FName DissolveNiagaraParticleColorName = FName(TEXT("DissolveParticleColor"));
 	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CharacterData", meta = (AllowPrivateAccess = "true"))
+	float DestroyDelayWhenNoStoneSpawn = 0.5f;
+	
 #pragma endregion
 	
 private:

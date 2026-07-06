@@ -32,7 +32,7 @@ protected:
 	FScalableFloat RollingDistanceScalableFloat;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Roll")
-	float DelayDuration;
+	float DelayDuration = 0.05f;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Roll")
 	float TraceHeight;

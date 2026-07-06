@@ -54,7 +54,7 @@ void ASL_PlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer);
 	check(Subsystem);
 	
-	Subsystem->AddMappingContext(InputConfigDataAsset->DefaultMappingContext, 0);
+	Subsystem->AddMappingContext(InputConfigDataAsset->DefaultMappingContext, DefaultInputMappingPriority);
 	USL_EnhancedInputComponent* EnhancedInputComponent = CastChecked<USL_EnhancedInputComponent>(PlayerInputComponent);
 	
 	EnhancedInputComponent->BindNativeInputAction(InputConfigDataAsset, SL_GameplayTags::InputTag_Move, ETriggerEvent::Triggered, this, &ASL_PlayerCharacter::Input_Move);
