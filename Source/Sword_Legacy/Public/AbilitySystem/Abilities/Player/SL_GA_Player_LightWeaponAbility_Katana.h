@@ -38,10 +38,10 @@ protected:
 	FGameplayTag WeaponHitSoundGameplayCueTag;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
-	float WeaponDamageLevelMultiplier;
+	float WeaponDamageLevelMultiplier = 2.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
-	int32 LevelComboCount;
+	int32 LevelComboCount = 4;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	FGameplayTag AbilityInputTag;
