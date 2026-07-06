@@ -10,8 +10,6 @@
 USL_GA_Player_HeavyAttackMaster::USL_GA_Player_HeavyAttackMaster()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-	
-	ComboResetTime = 0.3f;
 }
 
 void USL_GA_Player_HeavyAttackMaster::ActivateAbility(const FGameplayAbilitySpecHandle Handle,

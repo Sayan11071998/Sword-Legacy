@@ -10,8 +10,6 @@
 USL_GA_Player_LightAttackMaster::USL_GA_Player_LightAttackMaster()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-	
-	ComboResetTime = 0.3f;
 }
 
 void USL_GA_Player_LightAttackMaster::ActivateAbility(const FGameplayAbilitySpecHandle Handle,

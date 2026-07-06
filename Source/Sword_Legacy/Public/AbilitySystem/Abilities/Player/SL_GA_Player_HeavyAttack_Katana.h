@@ -29,10 +29,10 @@ protected:
 	FName ProjectileSpawnSocketName;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Rage")
-	float RageDamageMultiplier;
+	float RageDamageMultiplier = 2.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Rage")
-	int32 RageComboCount;
+	int32 RageComboCount = 1;
 
 private:
 	UFUNCTION()

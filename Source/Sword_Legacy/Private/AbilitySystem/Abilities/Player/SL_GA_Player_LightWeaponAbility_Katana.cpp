@@ -10,9 +10,6 @@
 USL_GA_Player_LightWeaponAbility_Katana::USL_GA_Player_LightWeaponAbility_Katana()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerExecution;
-
-	WeaponDamageLevelMultiplier = 2.0f;
-	LevelComboCount = 4;
 }
 
 void USL_GA_Player_LightWeaponAbility_Katana::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
