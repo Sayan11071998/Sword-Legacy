@@ -82,7 +82,7 @@ void USL_AbilitySystemComponent::RemoveGrantedPlayerWeaponAbilities(
 	InSpecHandlesToRemove.Empty();
 }
 
-bool USL_AbilitySystemComponent::TryActivateAbilityByTag(FGameplayTag AbilityTagToActivate)
+bool USL_AbilitySystemComponent::TryActivateAbilityByTag(FGameplayTag AbilityTagToActivate, bool bPickRandomMatchingAbility)
 {
 	check(AbilityTagToActivate.IsValid());
 	
@@ -91,12 +91,12 @@ bool USL_AbilitySystemComponent::TryActivateAbilityByTag(FGameplayTag AbilityTag
 	
 	if (!FoundAbilitiesSpecs.IsEmpty())
 	{
-		const int32 RandomAbilityIndex = FMath::RandRange(0, FoundAbilitiesSpecs.Num() - 1);
-		FGameplayAbilitySpec* SpecToActivate = FoundAbilitiesSpecs[RandomAbilityIndex];
+		const int32 AbilityIndex = bPickRandomMatchingAbility
+			? FMath::RandRange(0, FoundAbilitiesSpecs.Num() - 1) : 0;
 		
-		check(SpecToActivate);
+		FGameplayAbilitySpec* SpecToActivate = FoundAbilitiesSpecs[AbilityIndex];
 		
-		if (!SpecToActivate->IsActive())
+		if (SpecToActivate && !SpecToActivate->IsActive())
 		{
 			return TryActivateAbility(SpecToActivate->Handle);
 		}
