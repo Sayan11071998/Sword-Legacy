@@ -17,6 +17,11 @@ public:
 	virtual FGenericTeamId GetGenericTeamId() const override;
 	// ~ End IGenericTeamAgentInterface Interface
 	
+protected:
+	// ~ Begin APlayerController Interface
+	virtual void OnPossess(APawn* aPawn) override;
+	// ~ End APlayerController Interface
+	
 private:
 	FGenericTeamId PlayerTeamID;
 };
