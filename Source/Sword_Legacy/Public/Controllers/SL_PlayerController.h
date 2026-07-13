@@ -19,8 +19,11 @@ public:
 	
 protected:
 	// ~ Begin APlayerController Interface
+	virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* aPawn) override;
 	// ~ End APlayerController Interface
+
+	void SetViewTargetToDefaultCamera();
 	
 private:
 	FGenericTeamId PlayerTeamID;
