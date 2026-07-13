@@ -12,30 +12,38 @@ FGenericTeamId ASL_PlayerController::GetGenericTeamId() const
 	return PlayerTeamID;
 }
 
-void ASL_PlayerController::BeginPlay()
+void ASL_PlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	Super::BeginPlay();
-
-	if (!GetPawn())
+	if (AActor* CurrentViewTarget = GetViewTarget())
 	{
-		SetViewTargetToDefaultCamera();
+		if (CurrentViewTarget != this && CurrentViewTarget != GetPawn())
+		{
+			SetViewTarget(this);
+		}
 	}
+
+	Super::EndPlay(EndPlayReason);
 }
 
 void ASL_PlayerController::OnPossess(APawn* aPawn)
 {
 	Super::OnPossess(aPawn);
-	
-	SetViewTargetToDefaultCamera();
+
+	if (!aPawn)
+	{
+		SetViewTargetToDefaultCamera();
+	}
 }
 
 void ASL_PlayerController::SetViewTargetToDefaultCamera()
 {
+	if (!GetWorld() || GetWorld()->bIsTearingDown) return;
+
 	TArray<AActor*> FoundCameras;
 
 	UGameplayStatics::GetAllActorsOfClassWithTag(this, ACameraActor::StaticClass(), FName("Default"), FoundCameras);
 
-	if (!FoundCameras.IsEmpty())
+	if (!FoundCameras.IsEmpty() && IsValid(FoundCameras[0]))
 	{
 		SetViewTarget(FoundCameras[0]);
 	}

@@ -22,6 +22,7 @@ public:
 	
 	// ~ Begin ACharacter Interface
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void Tick(float DeltaTime) override;
 	// ~ End ACharacter Interface
 	
@@ -120,6 +121,8 @@ protected:
 	
 private:
 	void InitEnemyStartupData();
+	
+	TSharedPtr<struct FStreamableHandle> StartupDataStreamableHandle;
 	
 	FTimeline DissolveTimeline;
 	FTimeline EntryRestoreTimeline;

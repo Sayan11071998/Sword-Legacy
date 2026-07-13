@@ -59,7 +59,6 @@ ASL_EnemyCharacter::ASL_EnemyCharacter()
 void ASL_EnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
 	GetMesh()->HideBoneByName(LeftWeaponBoneName, PBO_Term);
 	
 	if (USL_WidgetBase* HealthWidget = Cast<USL_WidgetBase>(EnemyHealthWidgetComponent->GetUserWidgetObject()))
@@ -114,6 +113,17 @@ void ASL_EnemyCharacter::Tick(float DeltaTime)
 	{
 		EntryRestoreTimeline.TickTimeline(DeltaTime);
 	}
+}
+
+void ASL_EnemyCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (StartupDataStreamableHandle.IsValid())
+	{
+		StartupDataStreamableHandle->CancelHandle();
+		StartupDataStreamableHandle.Reset();
+	}
+
+	Super::EndPlay(EndPlayReason);
 }
 
 void ASL_EnemyCharacter::PossessedBy(AController* NewController)
@@ -237,15 +247,24 @@ TObjectPtr<USL_EnemyUIComponent> ASL_EnemyCharacter::GetEnemyUIComponent() const
 void ASL_EnemyCharacter::InitEnemyStartupData()
 {
 	if (CharacterStartupData.IsNull()) return;
-	
-	UAssetManager::GetStreamableManager().RequestAsyncLoad(
+
+	if (StartupDataStreamableHandle.IsValid())
+	{
+		StartupDataStreamableHandle->CancelHandle();
+	}
+
+	StartupDataStreamableHandle = UAssetManager::GetStreamableManager().RequestAsyncLoad(
 		CharacterStartupData.ToSoftObjectPath(),
 		FStreamableDelegate::CreateLambda(
-			[this]()
+			[WeakThis = TWeakObjectPtr<ASL_EnemyCharacter>(this), SoftStartupData = CharacterStartupData]()
 			{
-				if (USL_DataAsset_StartupData_Base* LoadedData = CharacterStartupData.Get())
+				ASL_EnemyCharacter* StrongThis = WeakThis.Get();
+				
+				if (!IsValid(StrongThis) || !IsValid(StrongThis->CharacterAbilitySystemComponent)) return;
+
+				if (USL_DataAsset_StartupData_Base* LoadedData = SoftStartupData.Get())
 				{
-					LoadedData->GiveToAbilitySystemComponent(CharacterAbilitySystemComponent);
+					LoadedData->GiveToAbilitySystemComponent(StrongThis->CharacterAbilitySystemComponent);
 				}
 			}
 		)

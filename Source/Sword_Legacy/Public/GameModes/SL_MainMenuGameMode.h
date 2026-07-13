@@ -11,4 +11,9 @@ class SWORD_LEGACY_API ASL_MainMenuGameMode : public AGameModeBase
 
 public:
 	ASL_MainMenuGameMode();
+
+protected:
+	// ~ Begin AGameModeBase Interface
+	virtual void HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer) override;
+	// ~ End AGameModeBase Interface
 };
