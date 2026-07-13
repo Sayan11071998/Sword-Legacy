@@ -23,7 +23,8 @@ public class Sword_Legacy : ModuleRules
 			"UMG",
 			"AIModule",
 			"MotionWarping",
-			"NavigationSystem"
+			"NavigationSystem",
+			"CommonUI"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });
