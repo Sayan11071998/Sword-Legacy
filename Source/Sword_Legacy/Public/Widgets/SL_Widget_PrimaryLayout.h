@@ -17,7 +17,7 @@ public:
 	
 protected:
 	UFUNCTION(BlueprintCallable)
-	void RegisterWidgetStack(FGameplayTag InStackTag, UCommonActivatableWidgetContainerBase* InStack);
+	void RegisterWidgetStack(UPARAM(meta = (Categories = "UI.WidgetStack")) FGameplayTag InStackTag, UCommonActivatableWidgetContainerBase* InStack);
 	
 private:
 	UPROPERTY(Transient)
