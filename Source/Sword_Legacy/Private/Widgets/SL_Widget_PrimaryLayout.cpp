@@ -1,5 +1,7 @@
 #include "Widgets/SL_Widget_PrimaryLayout.h"
 
+#include "SL_DebugHelper.h"
+
 TObjectPtr<UCommonActivatableWidgetContainerBase> USL_Widget_PrimaryLayout::FindWidgetStackByTag(
 	const FGameplayTag& InTag) const
 {
@@ -11,11 +13,15 @@ TObjectPtr<UCommonActivatableWidgetContainerBase> USL_Widget_PrimaryLayout::Find
 void USL_Widget_PrimaryLayout::RegisterWidgetStack(FGameplayTag InStackTag,
 	UCommonActivatableWidgetContainerBase* InStack)
 {
-	if (!IsDesignTime())
+	if (IsDesignTime() || !InStack)
 	{
-		if (RegisteredWidgetStackMap.Contains(InStackTag))
-		{
-			RegisteredWidgetStackMap.Add(InStackTag, InStack);
-		}
+		return;
+	}
+
+	if (!RegisteredWidgetStackMap.Contains(InStackTag))
+	{
+		RegisteredWidgetStackMap.Add(InStackTag, InStack);
+
+		Debug::Print(TEXT("Widget Stack Register under the tag ") + InStackTag.ToString());
 	}
 }
