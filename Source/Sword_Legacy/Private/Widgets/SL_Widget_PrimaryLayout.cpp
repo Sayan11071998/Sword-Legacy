@@ -13,10 +13,7 @@ TObjectPtr<UCommonActivatableWidgetContainerBase> USL_Widget_PrimaryLayout::Find
 void USL_Widget_PrimaryLayout::RegisterWidgetStack(FGameplayTag InStackTag,
 	UCommonActivatableWidgetContainerBase* InStack)
 {
-	if (IsDesignTime() || !InStack)
-	{
-		return;
-	}
+	if (IsDesignTime() || !InStack) return;
 
 	if (!RegisteredWidgetStackMap.Contains(InStackTag))
 	{
