@@ -15,6 +15,10 @@ class SWORD_LEGACY_API USL_AsyncAction_PushSoftWidget : public UBlueprintAsyncAc
 	GENERATED_BODY()
 	
 public:
+	// ~ Begin UBlueprintAsyncActionBase Interface
+	virtual void Activate() override;
+	// ~ End UBlueprintAsyncActionBase Interface
+	
 	UFUNCTION(BlueprintCallable, meta = (WorldContext = "WorldContextObject", HidePin = "WorldContextObject", BlueprintInternalUseOnly = "true", DisplayName = "Push Soft Widget To Widget Stack"))
 	static USL_AsyncAction_PushSoftWidget* PushSoftWidget(
 		const UObject* WorldContextObject,
