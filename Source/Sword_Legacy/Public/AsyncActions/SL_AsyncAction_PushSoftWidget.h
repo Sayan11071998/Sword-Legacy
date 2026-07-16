@@ -7,6 +7,8 @@
 
 class USL_Widget_Activatable_Base;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPushSoftWidgetDelegate, USL_Widget_Activatable_Base*, PushedWidget);
+
 UCLASS()
 class SWORD_LEGACY_API USL_AsyncAction_PushSoftWidget : public UBlueprintAsyncActionBase
 {
@@ -21,4 +23,10 @@ public:
 		UPARAM(meta = (Categories = "UI.WidgetStack")) FGameplayTag InWidgetStackTag,
 		bool bFocusOnNewlyPushedWidget = true
 	);
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnPushSoftWidgetDelegate OnWidgetCreatedBeforePush;
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnPushSoftWidgetDelegate OnWidgetCreatedAfterPush;
 };
