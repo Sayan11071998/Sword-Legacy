@@ -12,6 +12,12 @@ USL_AsyncAction_PushSoftWidget* USL_AsyncAction_PushSoftWidget::PushSoftWidget(c
 		{
 			USL_AsyncAction_PushSoftWidget* Node = NewObject<USL_AsyncAction_PushSoftWidget>();
 			
+			Node->CachedOwningWorld = World;
+			Node->CachedOwningPC = OwningPlayerController;
+			Node->CachedSoftWidgetClass = InSoftWidgetClass;
+			Node->CachedWidgetStackTag = InWidgetStackTag;
+			Node->bCachedFocusOnNewlyPushedWidget = bFocusOnNewlyPushedWidget;
+			
 			Node->RegisterWithGameInstance(World);
 			
 			return Node;

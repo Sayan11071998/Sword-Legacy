@@ -29,4 +29,20 @@ public:
 	
 	UPROPERTY(BlueprintAssignable)
 	FOnPushSoftWidgetDelegate OnWidgetCreatedAfterPush;
+	
+private:
+	UPROPERTY()
+	TWeakObjectPtr<UWorld> CachedOwningWorld;
+	
+	UPROPERTY()
+	TWeakObjectPtr<APlayerController> CachedOwningPC;
+	
+	UPROPERTY()
+	TSoftClassPtr<USL_Widget_Activatable_Base> CachedSoftWidgetClass;
+	
+	UPROPERTY()
+	FGameplayTag CachedWidgetStackTag;
+	
+	UPROPERTY()
+	bool bCachedFocusOnNewlyPushedWidget = false;
 };
