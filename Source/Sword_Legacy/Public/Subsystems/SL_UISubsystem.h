@@ -29,7 +29,7 @@ public:
 	void PushSoftWidgetToStackAsync(
 		const FGameplayTag& InWidgetStackTag,
 		TSoftClassPtr<USL_Widget_Activatable_Base> InSoftWidgetClass,
-		TFunction<void>(EAsyncPushWidgetState, TObjectPtr<USL_Widget_Activatable_Base> AsyncPushStateCallback)	
+		TFunction<void(EAsyncPushWidgetState, TObjectPtr<USL_Widget_Activatable_Base>)> AsyncPushStateCallback
 	);
 	
 	UFUNCTION(BlueprintCallable)

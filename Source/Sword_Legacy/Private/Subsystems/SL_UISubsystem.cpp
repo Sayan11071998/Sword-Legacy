@@ -32,8 +32,10 @@ bool USL_UISubsystem::ShouldCreateSubsystem(UObject* Outer) const
 	return false;
 }
 
-void USL_UISubsystem::PushSoftWidgetToStackAsync(const FGameplayTag& InWidgetStackTag,
-	TSoftClassPtr<USL_Widget_Activatable_Base> InSoftWidgetClass, TFunction<void>(EAsyncPushWidgetState, TObjectPtr<USL_Widget_Activatable_Base> AsyncPushStateCallback))
+void USL_UISubsystem::PushSoftWidgetToStackAsync(
+	const FGameplayTag& InWidgetStackTag,
+	TSoftClassPtr<USL_Widget_Activatable_Base> InSoftWidgetClass,
+	TFunction<void(EAsyncPushWidgetState, TObjectPtr<USL_Widget_Activatable_Base>)> AsyncPushStateCallback)
 {
 	check(!InSoftWidgetClass.IsNull());
 	
