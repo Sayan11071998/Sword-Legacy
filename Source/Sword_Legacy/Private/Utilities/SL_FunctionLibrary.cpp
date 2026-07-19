@@ -192,7 +192,7 @@ void USL_FunctionLibrary::CountDown(const UObject* WorldContextObject, float Tot
 	}
 }
 
-TSoftClassPtr<USL_Widget_Activatable_Base> USL_FunctionLibrary::GetGameSoftWidgetClassByTag(FGameplayTag InWidgetTag)
+TSoftClassPtr<USL_Widget_Activatable_Base> USL_FunctionLibrary::GetGameSoftWidgetClassByTag(UPARAM(meta = (Categories = "UI.Widget")) FGameplayTag InWidgetTag)
 {
 	const USL_DeveloperSettings* GameDeveloperSettings = GetDefault<USL_DeveloperSettings>();
 	
