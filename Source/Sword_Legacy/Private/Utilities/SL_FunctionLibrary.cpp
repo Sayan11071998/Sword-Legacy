@@ -6,6 +6,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Utilities/SL_GameplayTags.h"
 #include "Utilities/SL_CountdownAction.h"
+#include "Utilities/SL_DeveloperSettings.h"
 
 TObjectPtr<USL_AbilitySystemComponent> USL_FunctionLibrary::NativeGetASCFromActor(TObjectPtr<AActor> InActor)
 {
@@ -189,4 +190,13 @@ void USL_FunctionLibrary::CountDown(const UObject* WorldContextObject, float Tot
 			FoundAction->CancelAction();
 		}
 	}
+}
+
+TSoftClassPtr<USL_Widget_Activatable_Base> USL_FunctionLibrary::GetGameSoftWidgetClassByTag(FGameplayTag InWidgetTag)
+{
+	const USL_DeveloperSettings* GameDeveloperSettings = GetDefault<USL_DeveloperSettings>();
+	
+	checkf(GameDeveloperSettings->GameWidgetMap.Contains(InWidgetTag), TEXT("Could not find the corresponding widget under the tag %s"), *InWidgetTag.ToString());
+	
+	return GameDeveloperSettings->GameWidgetMap.FindRef(InWidgetTag);
 }
