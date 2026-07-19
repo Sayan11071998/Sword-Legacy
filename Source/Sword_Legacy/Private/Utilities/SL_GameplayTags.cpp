@@ -109,4 +109,14 @@ namespace SL_GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Effects_Katana, "GameplayCue.Effects.Katana");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Effects_Katana_SuccessfulBlock, "GameplayCue.Effects.Katana.SuccessfulBlock");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Effects_Katana_PerfectBlock, "GameplayCue.Effects.Katana.PerfectBlock");
+	
+	/** UI Widget Stack **/
+	UE_DEFINE_GAMEPLAY_TAG(UI_WidgetStack_Modal, "UI.WidgetStack.Modal");
+	UE_DEFINE_GAMEPLAY_TAG(UI_WidgetStack_GameMenu, "UI.WidgetStack.GameMenu");
+	UE_DEFINE_GAMEPLAY_TAG(UI_WidgetStack_GameHUD, "UI.WidgetStack.GameHUD");
+	UE_DEFINE_GAMEPLAY_TAG(UI_WidgetStack_Frontend, "UI.WidgetStack.Frontend");
+	
+	/** UI Widgets **/
+	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_PressAnyKeyScreen, "UI.Widget.PressAnyKeyScreen");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_MainMenu, "UI.Widget.MainMenu");
 }

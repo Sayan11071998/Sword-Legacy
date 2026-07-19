@@ -7,6 +7,7 @@
 #include "PawnTypes/SL_PawnEnumTypes.h"
 #include "SL_FunctionLibrary.generated.h"
 
+class USL_Widget_Activatable_Base;
 struct FScalableFloat;
 class USL_PawnCombatComponent;
 class USL_AbilitySystemComponent;
@@ -56,4 +57,7 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Pawn|Function Library", meta = (Latent, WorldContext = "WorldContextObject", LatentInfo = "LatentInfo", ExpandEnumAsExecs = "CountdownInput|CountdownOutput", TotalTime = "1.0", UpdateInterval = "0.1"))
 	static void CountDown(const UObject* WorldContextObject, float TotalTime, float UpdateInterval, float& OutRemainingTime, ESL_CountDownActionInput CountdownInput, UPARAM(DisplayName = "Output") ESL_CountDownActionOutput& CountdownOutput, FLatentActionInfo LatentInfo);
+
+	UFUNCTION(BlueprintPure, Category = "Pawn|Function Library")
+	static TSoftClassPtr<USL_Widget_Activatable_Base> GetGameSoftWidgetClassByTag(UPARAM(meta = (Categories = "UI.Widget")) FGameplayTag InWidgetTag);
 };

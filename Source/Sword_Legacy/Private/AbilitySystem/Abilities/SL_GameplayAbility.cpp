@@ -4,6 +4,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Utilities/SL_FunctionLibrary.h"
 #include "Utilities/SL_GameplayTags.h"
+#include "AbilitySystemGlobals.h"
 
 void USL_GameplayAbility::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
@@ -31,6 +32,81 @@ void USL_GameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle,
 			ActorInfo->AbilitySystemComponent->ClearAbility(Handle);
 		}
 	}
+}
+
+bool USL_GameplayAbility::DoesAbilitySatisfyTagRequirements(const UAbilitySystemComponent& AbilitySystemComponent,
+	const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags,
+	FGameplayTagContainer* OptionalRelevantTags) const
+{
+	bool bBlocked = false;
+	
+	auto CheckForBlocked = [&](const FGameplayTagContainer& ContainerA, const FGameplayTagContainer& ContainerB)
+	{
+		if (ContainerA.IsEmpty() || ContainerB.IsEmpty() || !ContainerA.HasAny(ContainerB)) return;
+ 
+		if (OptionalRelevantTags)
+		{
+			if (!bBlocked)
+			{
+				UAbilitySystemGlobals& AbilitySystemGlobals = UAbilitySystemGlobals::Get();
+				const FGameplayTag& BlockedTag = AbilitySystemGlobals.ActivateFailTagsBlockedTag;
+				OptionalRelevantTags->AddTag(BlockedTag);
+			}
+			
+			OptionalRelevantTags->AppendMatchingTags(ContainerA, ContainerB);
+		}
+ 
+		bBlocked = true;
+	};
+
+	bool bMissing = false;
+	auto CheckForRequired = [&](const FGameplayTagContainer& TagsToCheck, const FGameplayTagContainer& RequiredTags)
+	{
+		if (RequiredTags.IsEmpty() || TagsToCheck.HasAll(RequiredTags)) return;
+ 
+		if (OptionalRelevantTags)
+		{
+			if (!bMissing)
+			{
+				UAbilitySystemGlobals& AbilitySystemGlobals = UAbilitySystemGlobals::Get();
+				const FGameplayTag& MissingTag = AbilitySystemGlobals.ActivateFailTagsMissingTag;
+				OptionalRelevantTags->AddTag(MissingTag);
+			}
+ 
+			FGameplayTagContainer MissingTags = RequiredTags; 
+			MissingTags.RemoveTags(TagsToCheck.GetGameplayTagParents());
+			OptionalRelevantTags->AppendTags(MissingTags);
+		}
+ 
+		bMissing = true;
+	};
+	
+	CheckForBlocked(GetAssetTags(),AbilitySystemComponent.GetBlockedAbilityTags());
+	CheckForBlocked(AbilitySystemComponent.GetOwnedGameplayTags(), ActivationBlockedTags);
+	
+	if (SourceTags != nullptr)
+	{
+		CheckForBlocked(*SourceTags, SourceBlockedTags);
+	}
+	
+	if (TargetTags != nullptr)
+	{
+		CheckForBlocked(*TargetTags, TargetBlockedTags);
+	}
+
+	CheckForRequired(AbilitySystemComponent.GetOwnedGameplayTags(), ActivationRequiredTags);
+	
+	if (SourceTags != nullptr)
+	{
+		CheckForRequired(*SourceTags, SourceRequiredTags);
+	}
+	
+	if (TargetTags != nullptr)
+	{
+		CheckForRequired(*TargetTags, TargetRequiredTags);
+	}
+	
+	return !bBlocked && !bMissing;
 }
 
 FActiveGameplayEffectHandle USL_GameplayAbility::NativeApplyEffectSpecHandleToTarget(TObjectPtr<AActor> TargetActor,

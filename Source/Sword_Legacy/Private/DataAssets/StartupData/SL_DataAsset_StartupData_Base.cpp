@@ -5,7 +5,7 @@
 void USL_DataAsset_StartupData_Base::GiveToAbilitySystemComponent(
 	TObjectPtr<USL_AbilitySystemComponent> InASCToGive, int32 ApplyLevel)
 {
-	check(InASCToGive);
+	if (!IsValid(InASCToGive)) return;
 	
 	GrantAbilities(ActivateOnGivenAbilities, InASCToGive, ApplyLevel);
 	GrantAbilities(ReactiveAbilities, InASCToGive, ApplyLevel);
@@ -26,7 +26,7 @@ void USL_DataAsset_StartupData_Base::GiveToAbilitySystemComponent(
 void USL_DataAsset_StartupData_Base::GrantAbilities(const TArray<TSubclassOf<USL_GameplayAbility>>& InAbilitiesToGive,
 	TObjectPtr<USL_AbilitySystemComponent> InASCToGive, int32 ApplyLevel)
 {
-	if (InAbilitiesToGive.IsEmpty()) return;
+	if (InAbilitiesToGive.IsEmpty() || !IsValid(InASCToGive)) return;
 	
 	for (const TSubclassOf<USL_GameplayAbility>& Ability : InAbilitiesToGive)
 	{

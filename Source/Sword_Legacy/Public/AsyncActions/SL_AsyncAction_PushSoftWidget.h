@@ -1,0 +1,52 @@
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
+#include "Kismet/BlueprintAsyncActionBase.h"
+#include "SL_AsyncAction_PushSoftWidget.generated.h"
+
+class USL_Widget_Activatable_Base;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPushSoftWidgetDelegate, USL_Widget_Activatable_Base*, PushedWidget);
+
+UCLASS()
+class SWORD_LEGACY_API USL_AsyncAction_PushSoftWidget : public UBlueprintAsyncActionBase
+{
+	GENERATED_BODY()
+	
+public:
+	// ~ Begin UBlueprintAsyncActionBase Interface
+	virtual void Activate() override;
+	// ~ End UBlueprintAsyncActionBase Interface
+	
+	UFUNCTION(BlueprintCallable, meta = (WorldContext = "WorldContextObject", HidePin = "WorldContextObject", BlueprintInternalUseOnly = "true", DisplayName = "Push Soft Widget To Widget Stack"))
+	static USL_AsyncAction_PushSoftWidget* PushSoftWidget(
+		const UObject* WorldContextObject,
+		APlayerController* OwningPlayerController,
+		TSoftClassPtr<USL_Widget_Activatable_Base> InSoftWidgetClass,
+		UPARAM(meta = (Categories = "UI.WidgetStack")) FGameplayTag InWidgetStackTag,
+		bool bFocusOnNewlyPushedWidget = true
+	);
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnPushSoftWidgetDelegate OnWidgetCreatedBeforePush;
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnPushSoftWidgetDelegate OnWidgetCreatedAfterPush;
+	
+private:
+	UPROPERTY()
+	TWeakObjectPtr<UWorld> CachedOwningWorld;
+	
+	UPROPERTY()
+	TWeakObjectPtr<APlayerController> CachedOwningPC;
+	
+	UPROPERTY()
+	TSoftClassPtr<USL_Widget_Activatable_Base> CachedSoftWidgetClass;
+	
+	UPROPERTY()
+	FGameplayTag CachedWidgetStackTag;
+	
+	UPROPERTY()
+	bool bCachedFocusOnNewlyPushedWidget = false;
+};

@@ -17,6 +17,14 @@ public:
 	virtual FGenericTeamId GetGenericTeamId() const override;
 	// ~ End IGenericTeamAgentInterface Interface
 	
+protected:
+	// ~ Begin APlayerController Interface
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	virtual void OnPossess(APawn* aPawn) override;
+	// ~ End APlayerController Interface
+
+	void SetViewTargetToDefaultCamera();
+	
 private:
 	FGenericTeamId PlayerTeamID;
 };
