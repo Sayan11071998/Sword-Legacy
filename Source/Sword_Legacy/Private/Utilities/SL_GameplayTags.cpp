@@ -115,4 +115,8 @@ namespace SL_GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(UI_WidgetStack_GameMenu, "UI.WidgetStack.GameMenu");
 	UE_DEFINE_GAMEPLAY_TAG(UI_WidgetStack_GameHUD, "UI.WidgetStack.GameHUD");
 	UE_DEFINE_GAMEPLAY_TAG(UI_WidgetStack_Frontend, "UI.WidgetStack.Frontend");
+	
+	/** UI Widgets **/
+	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_PressAnyKeyScreen, "UI.Widget.PressAnyKeyScreen");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_MainMenu, "UI.Widget.MainMenu");
 }
