@@ -20,6 +20,10 @@ private:
 	virtual void NativePreConstruct() override;
 	// ~ End UUserWidget Interface
 	
+	// ~ Begin UCommonButtonBase Interface
+	virtual void NativeOnCurrentTextStyleChanged() override;
+	// ~ End UCommonButtonBase Interface
+	
 	// **** Bound Widgets ****//
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UCommonTextBlock> CommonTextBlock_ButtonText;
