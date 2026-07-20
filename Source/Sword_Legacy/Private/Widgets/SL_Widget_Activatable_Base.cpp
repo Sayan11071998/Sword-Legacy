@@ -1,4 +1,5 @@
 #include "Widgets/SL_Widget_Activatable_Base.h"
+#include "Controllers/SL_PlayerController.h"
 
 ASL_PlayerController* USL_Widget_Activatable_Base::GetOwningPlayerController()
 {
