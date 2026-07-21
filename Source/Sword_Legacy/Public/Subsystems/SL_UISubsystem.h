@@ -7,12 +7,15 @@
 class USL_Widget_Activatable_Base;
 struct FGameplayTag;
 class USL_Widget_PrimaryLayout;
+class USL_CommonButtonBase;
 
 enum class EAsyncPushWidgetState : uint8
 {
 	OnCreatedBeforePush,
 	AfterPush
 };
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnButtonDescriptionTextUpdatedDelegate, USL_CommonButtonBase*, BroadcastingButton, FText, DescriptionText);
 
 UCLASS()
 class SWORD_LEGACY_API USL_UISubsystem : public UGameInstanceSubsystem
@@ -34,6 +37,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void RegisterCreatedPrimaryLayoutWidget(USL_Widget_PrimaryLayout* InCreatedWidget);
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnButtonDescriptionTextUpdatedDelegate OnButtonDescriptionTextUpdated;
 	
 private:
 	UPROPERTY(Transient)
