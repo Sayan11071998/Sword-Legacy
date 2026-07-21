@@ -20,7 +20,7 @@ void USL_CommonButtonBase::NativeOnCurrentTextStyleChanged()
 {
 	Super::NativeOnCurrentTextStyleChanged();
 	
-	if (CommonTextBlock_ButtonText)
+	if (CommonTextBlock_ButtonText && GetCurrentTextStyleClass())
 	{
 		CommonTextBlock_ButtonText->SetStyle(GetCurrentTextStyleClass());
 	}
