@@ -4,8 +4,6 @@
 #include "Widgets/SL_Widget_PrimaryLayout.h"
 #include "Widgets/CommonActivatableWidgetContainer.h"
 
-#include "SL_DebugHelper.h"
-
 TObjectPtr<USL_UISubsystem> USL_UISubsystem::Get(const TObjectPtr<UObject> WorldContextObject)
 {
 	if (GEngine)
@@ -69,6 +67,4 @@ void USL_UISubsystem::RegisterCreatedPrimaryLayoutWidget(USL_Widget_PrimaryLayou
 	check(InCreatedWidget);
 	
 	CreatedPrimaryLayout = InCreatedWidget;
-	
-	Debug::Print(TEXT("Primary Layout Widget Stored"));
 }
