@@ -56,7 +56,7 @@ enum class ESL_ConfirmScreenType : uint8
 };
 
 UENUM()
-enum class ESL_ConfirmScreenBittonType : uint8
+enum class ESL_ConfirmScreenButtonType : uint8
 {
 	Confirmed,
 	Cancelled,
