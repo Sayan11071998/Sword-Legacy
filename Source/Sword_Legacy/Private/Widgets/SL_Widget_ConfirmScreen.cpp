@@ -45,4 +45,23 @@ TObjectPtr<USL_ConfirmScreenInfoObject> USL_ConfirmScreenInfoObject::CreateYesNo
 TObjectPtr<USL_ConfirmScreenInfoObject> USL_ConfirmScreenInfoObject::CreateOkCancelScreen(const FText& InScreenTitle,
 	const FText& InScreenMessage)
 {
+	USL_ConfirmScreenInfoObject* InfoObject = NewObject<USL_ConfirmScreenInfoObject>();
+	
+	InfoObject->ScreenTitle = InScreenTitle;
+	InfoObject->ScreenMessage = InScreenMessage;
+	
+	FSL_ConfirmButtonScreenInfo OkButtonInfo;
+	
+	OkButtonInfo.ConfirmScreenButtonType = ESL_ConfirmScreenButtonType::Closed;
+	OkButtonInfo.ButtonTextToDisplay = FText::FromString(TEXT("Ok"));
+	
+	FSL_ConfirmButtonScreenInfo CancelButtonInfo;
+	
+	CancelButtonInfo.ConfirmScreenButtonType = ESL_ConfirmScreenButtonType::Cancelled;
+	CancelButtonInfo.ButtonTextToDisplay = FText::FromString(TEXT("Cancel"));
+	
+	InfoObject->AvailableScreenButtons.Add(OkButtonInfo);
+	InfoObject->AvailableScreenButtons.Add(CancelButtonInfo);
+	
+	return InfoObject;
 }
