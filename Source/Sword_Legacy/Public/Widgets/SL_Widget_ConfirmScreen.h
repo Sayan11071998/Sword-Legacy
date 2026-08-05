@@ -45,6 +45,13 @@ class SWORD_LEGACY_API USL_Widget_ConfirmScreen : public USL_Widget_Activatable_
 {
 	GENERATED_BODY()
 	
+public:
+	// Gets called outside the class when this widget is constructed, and before it's pushed to the modal stack.
+	void InitConfirmScreen(
+		TObjectPtr<USL_ConfirmScreenInfoObject> InScreenInfoObject,
+		TFunction<void(ESL_ConfirmScreenButtonType)> ClickedButtonCallback	
+	);
+	
 private:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UCommonTextBlock> CommonTextBlock_Title;
