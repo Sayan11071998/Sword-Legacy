@@ -52,6 +52,7 @@ enum class ESL_ConfirmScreenType : uint8
 {
 	Ok,
 	YesNo,
+	OkCancel,
 	Unknown UMETA(Hidden)
 };
 

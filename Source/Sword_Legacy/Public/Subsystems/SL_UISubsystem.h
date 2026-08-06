@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PawnTypes/SL_PawnEnumTypes.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "SL_UISubsystem.generated.h"
 
@@ -33,6 +34,13 @@ public:
 		const FGameplayTag& InWidgetStackTag,
 		TSoftClassPtr<USL_Widget_Activatable_Base> InSoftWidgetClass,
 		TFunction<void(EAsyncPushWidgetState, TObjectPtr<USL_Widget_Activatable_Base>)> AsyncPushStateCallback
+	);
+	
+	void PushConfirmScreenToModalStackAsync(
+		ESL_ConfirmScreenType InScreenType,
+		const FText& InScreenTitle,
+		const FText& InScreenMsg,
+		TFunction<void(ESL_ConfirmScreenButtonType)> ButtonClickedCallback
 	);
 	
 	UFUNCTION(BlueprintCallable)
