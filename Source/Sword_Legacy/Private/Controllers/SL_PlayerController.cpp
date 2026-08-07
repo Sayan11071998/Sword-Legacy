@@ -1,6 +1,11 @@
 #include "Controllers/SL_PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Camera/CameraActor.h"
+#include "Subsystems/SL_UISubsystem.h"
+#include "Utilities/SL_FunctionLibrary.h"
+#include "Utilities/SL_GameplayTags.h"
+#include "Widgets/SL_Widget_Activatable_Base.h"
+#include "Widgets/SL_Widget_PrimaryLayout.h"
 
 ASL_PlayerController::ASL_PlayerController()
 {
@@ -10,6 +15,33 @@ ASL_PlayerController::ASL_PlayerController()
 FGenericTeamId ASL_PlayerController::GetGenericTeamId() const
 {
 	return PlayerTeamID;
+}
+
+void ASL_PlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	if (!IsLocalPlayerController() || !PrimaryLayoutWidgetClass) return;
+
+	USL_Widget_PrimaryLayout* CreatedPrimaryLayout = CreateWidget<USL_Widget_PrimaryLayout>(this, PrimaryLayoutWidgetClass);
+	if (!CreatedPrimaryLayout) return;
+
+	CreatedPrimaryLayout->AddToViewport();
+
+	USL_UISubsystem* UISubsystem = USL_UISubsystem::Get(this);
+	UISubsystem->RegisterCreatedPrimaryLayoutWidget(CreatedPrimaryLayout);
+
+	UISubsystem->PushSoftWidgetToStackAsync(
+		SL_GameplayTags::UI_WidgetStack_Frontend,
+		USL_FunctionLibrary::GetGameSoftWidgetClassByTag(SL_GameplayTags::UI_Widget_PressAnyKeyScreen),
+		[this](EAsyncPushWidgetState InPushState, TObjectPtr<USL_Widget_Activatable_Base> PushedWidget)
+		{
+			if (InPushState == EAsyncPushWidgetState::OnCreatedBeforePush)
+			{
+				PushedWidget->SetOwningPlayer(this);
+			}
+		}
+	);
 }
 
 void ASL_PlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
