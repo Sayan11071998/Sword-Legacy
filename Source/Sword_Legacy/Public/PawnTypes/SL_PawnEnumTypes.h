@@ -56,7 +56,7 @@ enum class ESL_ConfirmScreenType : uint8
 	Unknown UMETA(Hidden)
 };
 
-UENUM()
+UENUM(BlueprintType)
 enum class ESL_ConfirmScreenButtonType : uint8
 {
 	Confirmed,
