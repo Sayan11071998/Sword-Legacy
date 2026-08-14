@@ -46,3 +46,21 @@ enum class ESL_CountDownActionOutput : uint8
 	Completed,
 	Cancelled
 };
+
+UENUM(BlueprintType)
+enum class ESL_ConfirmScreenType : uint8
+{
+	Ok,
+	YesNo,
+	OkCancel,
+	Unknown UMETA(Hidden)
+};
+
+UENUM(BlueprintType)
+enum class ESL_ConfirmScreenButtonType : uint8
+{
+	Confirmed,
+	Cancelled,
+	Closed,
+	Unknown UMETA(Hidden)
+};
