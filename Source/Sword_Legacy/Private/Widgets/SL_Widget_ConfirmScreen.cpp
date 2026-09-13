@@ -117,7 +117,7 @@ void USL_Widget_ConfirmScreen::InitConfirmScreen(TObjectPtr<USL_ConfirmScreenInf
 		USL_CommonButtonBase* AddedButton = DynamicEntryBox_Buttons->CreateEntry<USL_CommonButtonBase>();
 		
 		AddedButton->SetButtonText(AvailableButtonInfo.ButtonTextToDisplay);
-		AddedButton->SetTriggeredInputAction(InputActionRowHandle);
+		AddedButton->SetTriggeringInputAction(InputActionRowHandle);
 		
 		AddedButton->OnClicked().AddLambda(
 			[ClickedButtonCallback, AvailableButtonInfo, this]()
