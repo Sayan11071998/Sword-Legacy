@@ -98,10 +98,6 @@ void USL_Widget_ConfirmScreen::InitConfirmScreen(TObjectPtr<USL_ConfirmScreenInf
 		
 		switch (AvailableButtonInfo.ConfirmScreenButtonType)
 		{
-		case ESL_ConfirmScreenButtonType::Confirmed:
-			InputActionRowHandle = ICommonInputModule::GetSettings().GetDefaultClickAction();
-			break;
-			
 		case ESL_ConfirmScreenButtonType::Cancelled:
 			InputActionRowHandle = ICommonInputModule::GetSettings().GetDefaultBackAction();
 			break;
