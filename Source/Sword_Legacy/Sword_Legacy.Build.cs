@@ -25,7 +25,8 @@ public class Sword_Legacy : ModuleRules
 			"MotionWarping",
 			"NavigationSystem",
 			"CommonUI",
-			"DeveloperSettings"
+			"DeveloperSettings",
+			"CommonInput"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });
