@@ -1,6 +1,7 @@
 #include "Controllers/SL_PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Camera/CameraActor.h"
+#include "GameModes/SL_MainMenuGameMode.h"
 #include "Subsystems/SL_UISubsystem.h"
 #include "Utilities/SL_FunctionLibrary.h"
 #include "Utilities/SL_GameplayTags.h"
@@ -22,6 +23,7 @@ void ASL_PlayerController::BeginPlay()
 	Super::BeginPlay();
 	
 	if (!IsLocalPlayerController() || !PrimaryLayoutWidgetClass) return;
+	if (!GetWorld() || !GetWorld()->GetAuthGameMode<ASL_MainMenuGameMode>()) return;
 
 	USL_Widget_PrimaryLayout* CreatedPrimaryLayout = CreateWidget<USL_Widget_PrimaryLayout>(this, PrimaryLayoutWidgetClass);
 	if (!CreatedPrimaryLayout) return;
