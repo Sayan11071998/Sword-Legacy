@@ -10,6 +10,8 @@ class SWORD_LEGACY_API USL_ListDataObject_Collection : public USL_ListDataObject
 	GENERATED_BODY()
 	
 public:
+	void AddChildListData(TObjectPtr<USL_ListDataObject_Base> InChildListData);
+	
 	// ~ Begin USL_ListDataObject_Base Interface
 	virtual TArray<TObjectPtr<USL_ListDataObject_Base>> GetAllChildListData() const override;
 	virtual bool HasAnyChildListData() const override;

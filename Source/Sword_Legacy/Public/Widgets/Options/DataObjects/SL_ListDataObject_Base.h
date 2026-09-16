@@ -21,9 +21,15 @@ public:
 	LIST_DATA_ACCESSOR(TSoftObjectPtr<UTexture2D>, SoftDescriptionImage);
 	LIST_DATA_ACCESSOR(TObjectPtr<USL_ListDataObject_Base>, ParentData);
 	
+	void InitDataObject();
+	
 	// Empty in the base class. Child class ListDataObjectCollection should override it. The function should return all the child data a tab has.
 	virtual TArray<TObjectPtr<USL_ListDataObject_Base>> GetAllChildListData() const { return TArray<TObjectPtr<USL_ListDataObject_Base>>(); }
 	virtual bool HasAnyChildListData() const { return false; }
+	
+protected:
+	// Empty in the base class. The child classes should override it to handle the initialization needed accordingly.
+	virtual void OnDataObjectInitialized();
 	
 private:
 	UPROPERTY()
