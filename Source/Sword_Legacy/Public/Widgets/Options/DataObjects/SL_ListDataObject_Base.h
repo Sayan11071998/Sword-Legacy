@@ -22,8 +22,8 @@ public:
 	LIST_DATA_ACCESSOR(TObjectPtr<USL_ListDataObject_Base>, ParentData);
 	
 	// Empty in the base class. Child class ListDataObjectCollection should override it. The function should return all the child data a tab has.
-	virtual TArray<TObjectPtr<USL_ListDataObject_Base>> GetChildListData() const { return TArray<TObjectPtr<USL_ListDataObject_Base>>(); }
-	virtual bool HasChildListData() const { return false; }
+	virtual TArray<TObjectPtr<USL_ListDataObject_Base>> GetAllChildListData() const { return TArray<TObjectPtr<USL_ListDataObject_Base>>(); }
+	virtual bool HasAnyChildListData() const { return false; }
 	
 private:
 	UPROPERTY()
