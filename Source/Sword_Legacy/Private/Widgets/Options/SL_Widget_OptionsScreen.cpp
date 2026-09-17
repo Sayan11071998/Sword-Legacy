@@ -1,8 +1,8 @@
 #include "Widgets/Options/SL_Widget_OptionsScreen.h"
 #include "Input/CommonUIInputTypes.h"
 #include "ICommonInputModule.h"
-
 #include "SL_DebugHelper.h"
+#include "Widgets/Options/SL_OptionsDataRegistry.h"
 
 void USL_Widget_OptionsScreen::NativeOnInitialized()
 {
@@ -26,6 +26,19 @@ void USL_Widget_OptionsScreen::NativeOnInitialized()
 			FSimpleDelegate::CreateUObject(this, &USL_Widget_OptionsScreen::OnBackBoundActionTriggered)
 		)	
 	);
+}
+
+TObjectPtr<USL_OptionsDataRegistry> USL_Widget_OptionsScreen::GetOrCreateDataRegistry()
+{
+	if (!CreatedOwningDataRegistry)
+	{
+		CreatedOwningDataRegistry = NewObject<USL_OptionsDataRegistry>();
+		CreatedOwningDataRegistry->InitOptionsDataRegistry(GetOwningLocalPlayer());
+	}
+	
+	checkf(CreatedOwningDataRegistry, TEXT("Data Registry for Options Screen is not valid."));
+	
+	return CreatedOwningDataRegistry;
 }
 
 void USL_Widget_OptionsScreen::OnResetBoundActionTriggered()
