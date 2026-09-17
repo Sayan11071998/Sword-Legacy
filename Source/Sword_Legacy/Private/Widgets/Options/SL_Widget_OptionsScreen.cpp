@@ -3,6 +3,8 @@
 #include "ICommonInputModule.h"
 #include "SL_DebugHelper.h"
 #include "Widgets/Options/SL_OptionsDataRegistry.h"
+#include "Widgets/Options/DataObjects/SL_ListDataObject_Collection.h"
+#include "Widgets/Components/SL_TabListWidgetBase.h"
 
 void USL_Widget_OptionsScreen::NativeOnInitialized()
 {
@@ -26,6 +28,22 @@ void USL_Widget_OptionsScreen::NativeOnInitialized()
 			FSimpleDelegate::CreateUObject(this, &USL_Widget_OptionsScreen::OnBackBoundActionTriggered)
 		)	
 	);
+}
+
+void USL_Widget_OptionsScreen::NativeOnActivated()
+{
+	Super::NativeOnActivated();
+	
+	for (USL_ListDataObject_Collection* TabCollection : GetOrCreateDataRegistry()->GetRegisteredOptionsTabCollections())
+	{
+		if (!TabCollection) continue;
+		
+		const FName TabID = TabCollection->GetDataID();
+		
+		if (TabListWidget_OptionsTabs->GetTabButtonBaseByID(TabID) != nullptr) continue;
+		
+		TabListWidget_OptionsTabs->RequestRegisterTab(TabID, TabCollection->GetDataDisplayName());
+	}
 }
 
 TObjectPtr<USL_OptionsDataRegistry> USL_Widget_OptionsScreen::GetOrCreateDataRegistry()

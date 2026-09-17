@@ -2,6 +2,10 @@
 #include "Editor/WidgetCompilerLog.h"
 #include "Widgets/Components/SL_CommonButtonBase.h"
 
+void USL_TabListWidgetBase::RequestRegisterTab(const FName& InTabID, const FText& InTabDisplayName)
+{
+}
+
 #if WITH_EDITOR	
 void USL_TabListWidgetBase::ValidateCompiledDefaults(class IWidgetCompilerLog& CompileLog) const
 {
