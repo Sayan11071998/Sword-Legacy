@@ -4,6 +4,12 @@
 
 void USL_TabListWidgetBase::RequestRegisterTab(const FName& InTabID, const FText& InTabDisplayName)
 {
+	RegisterTab(InTabID, TabButtonEntryWidgetClass, nullptr, -1);
+	
+	if (USL_CommonButtonBase* FoundButton = Cast<USL_CommonButtonBase>(GetTabButtonBaseByID(InTabID)))
+	{
+		FoundButton->SetButtonText(InTabDisplayName);
+	}
 }
 
 #if WITH_EDITOR	
