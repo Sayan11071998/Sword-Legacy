@@ -6,6 +6,7 @@
 
 class USL_TabListWidgetBase;
 class USL_OptionsDataRegistry;
+class USL_CommonListView;
 
 UCLASS(Abstract, BlueprintType, meta = (DisableNativeTick))
 class SWORD_LEGACY_API USL_Widget_OptionsScreen : public USL_Widget_Activatable_Base
@@ -33,6 +34,9 @@ private:
 	// Bound Widgets
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<USL_TabListWidgetBase> TabListWidget_OptionsTabs;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<USL_CommonListView> CommonListView_OptionsList;
 	
 	// Handle the creation of data registry in options screen. Direct access to this variable is forbidden.
 	UPROPERTY(Transient)
