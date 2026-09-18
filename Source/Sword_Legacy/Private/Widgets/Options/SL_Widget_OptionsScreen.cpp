@@ -1,10 +1,11 @@
 #include "Widgets/Options/SL_Widget_OptionsScreen.h"
 #include "Input/CommonUIInputTypes.h"
 #include "ICommonInputModule.h"
-#include "SL_DebugHelper.h"
 #include "Widgets/Options/SL_OptionsDataRegistry.h"
 #include "Widgets/Options/DataObjects/SL_ListDataObject_Collection.h"
 #include "Widgets/Components/SL_TabListWidgetBase.h"
+
+#include "SL_DebugHelper.h"
 
 void USL_Widget_OptionsScreen::NativeOnInitialized()
 {
@@ -28,6 +29,8 @@ void USL_Widget_OptionsScreen::NativeOnInitialized()
 			FSimpleDelegate::CreateUObject(this, &USL_Widget_OptionsScreen::OnBackBoundActionTriggered)
 		)	
 	);
+	
+	TabListWidget_OptionsTabs->OnTabSelected.AddUniqueDynamic(this, &USL_Widget_OptionsScreen::OnOptionsTabSelected);
 }
 
 void USL_Widget_OptionsScreen::NativeOnActivated()
@@ -67,4 +70,9 @@ void USL_Widget_OptionsScreen::OnResetBoundActionTriggered()
 void USL_Widget_OptionsScreen::OnBackBoundActionTriggered()
 {
 	DeactivateWidget();
+}
+
+void USL_Widget_OptionsScreen::OnOptionsTabSelected(FName TabID)
+{
+	Debug::Print(TEXT("New Tab Selected. Tab ID: ") + TabID.ToString());
 }
