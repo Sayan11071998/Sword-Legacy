@@ -4,6 +4,7 @@
 #include "Widgets/Options/SL_OptionsDataRegistry.h"
 #include "Widgets/Options/DataObjects/SL_ListDataObject_Collection.h"
 #include "Widgets/Components/SL_TabListWidgetBase.h"
+#include "Widgets/Components/SL_CommonListView.h"
 
 #include "SL_DebugHelper.h"
 
@@ -74,5 +75,14 @@ void USL_Widget_OptionsScreen::OnBackBoundActionTriggered()
 
 void USL_Widget_OptionsScreen::OnOptionsTabSelected(FName TabID)
 {
-	GetOrCreateDataRegistry()->
+	TArray<USL_ListDataObject_Base*> FoundListSourceItems = GetOrCreateDataRegistry()->GetListSourceItemsBySelectedTabID(TabID);
+	
+	CommonListView_OptionsList->SetListItems(FoundListSourceItems);
+	CommonListView_OptionsList->RequestRefresh();
+	
+	if (CommonListView_OptionsList->GetNumItems() != 0)
+	{
+		CommonListView_OptionsList->NavigateToIndex(0);
+		CommonListView_OptionsList->SetSelectedIndex(0);
+	}
 }
