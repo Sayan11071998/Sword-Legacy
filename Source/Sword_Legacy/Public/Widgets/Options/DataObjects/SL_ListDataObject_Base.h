@@ -8,7 +8,7 @@
 	FORCEINLINE DataType Get##PropertyName() const { return PropertyName; } \
 	FORCEINLINE void Set##PropertyName(DataType In##PropertyName) { PropertyName = In##PropertyName; }
 
-UCLASS()
+UCLASS(Abstract)
 class SWORD_LEGACY_API USL_ListDataObject_Base : public UObject
 {
 	GENERATED_BODY()
