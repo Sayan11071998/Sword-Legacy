@@ -12,9 +12,14 @@ UUserWidget& USL_CommonListView::OnGenerateEntryWidgetInternal(UObject* Item,
 		return Super::OnGenerateEntryWidgetInternal(Item, DesiredEntryClass, OwnerTable);
 	}
 	
-	TSubclassOf<USL_Widget_ListEntry_Base> FoundWidgetClass = DataListEntryMapping->FindEntryWidgetClassByDataObject(CastChecked<USL_ListDataObject_Base>(Item));
-	
-	return GenerateTypedEntry<USL_Widget_ListEntry_Base>(FoundWidgetClass, OwnerTable);
+	if (TSubclassOf<USL_Widget_ListEntry_Base> FoundWidgetClass = DataListEntryMapping->FindEntryWidgetClassByDataObject(CastChecked<USL_ListDataObject_Base>(Item)))
+	{
+		return GenerateTypedEntry<USL_Widget_ListEntry_Base>(FoundWidgetClass, OwnerTable);
+	}
+	else
+	{
+		return Super::OnGenerateEntryWidgetInternal(Item, DesiredEntryClass, OwnerTable);
+	}
 }
 
 #if WITH_EDITOR	
