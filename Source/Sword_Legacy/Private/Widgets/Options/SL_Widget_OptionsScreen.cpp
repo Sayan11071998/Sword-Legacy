@@ -74,5 +74,5 @@ void USL_Widget_OptionsScreen::OnBackBoundActionTriggered()
 
 void USL_Widget_OptionsScreen::OnOptionsTabSelected(FName TabID)
 {
-	Debug::Print(TEXT("New Tab Selected. Tab ID: ") + TabID.ToString());
+	GetOrCreateDataRegistry()->
 }

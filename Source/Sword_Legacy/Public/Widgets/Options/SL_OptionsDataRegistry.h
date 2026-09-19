@@ -4,6 +4,7 @@
 #include "UObject/NoExportTypes.h"
 #include "SL_OptionsDataRegistry.generated.h"
 
+class USL_ListDataObject_Base;
 class USL_ListDataObject_Collection;
 
 UCLASS()
@@ -16,6 +17,8 @@ public:
 	void InitOptionsDataRegistry(TObjectPtr<ULocalPlayer> InOwningLocalPlayer);
 	
 	const TArray<TObjectPtr<USL_ListDataObject_Collection>>& GetRegisteredOptionsTabCollections() const { return RegisteredOptionsTabCollections; }
+	
+	const TArray<TObjectPtr<USL_ListDataObject_Base>> GetListSourceItemsBySelectedTabID(const FName& InSelectedTabID);
 	
 private:
 	void InitGameplayCollectionTab();

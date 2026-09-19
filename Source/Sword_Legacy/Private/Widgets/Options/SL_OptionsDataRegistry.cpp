@@ -10,6 +10,23 @@ void USL_OptionsDataRegistry::InitOptionsDataRegistry(TObjectPtr<ULocalPlayer> I
 	InitControlCollectionTab();
 }
 
+const TArray<TObjectPtr<USL_ListDataObject_Base>> USL_OptionsDataRegistry::GetListSourceItemsBySelectedTabID(
+	const FName& InSelectedTabID)
+{
+	USL_ListDataObject_Collection* const* FoundTabCollectionPtr = RegisteredOptionsTabCollections.FindByPredicate(
+		[InSelectedTabID](USL_ListDataObject_Collection* AvailableTabCollection)->bool
+		{
+			return AvailableTabCollection->GetDataID() == InSelectedTabID;
+		}
+	);
+	
+	checkf(FoundTabCollectionPtr, TEXT("No valid tab found under the ID: %S"), *InSelectedTabID.ToString());
+	
+	USL_ListDataObject_Collection* FoundTabCollection = *FoundTabCollectionPtr;
+	
+	return FoundTabCollection->GetAllChildListData();
+}
+
 void USL_OptionsDataRegistry::InitGameplayCollectionTab()
 {
 	USL_ListDataObject_Collection* GameplayTabCollection = NewObject<USL_ListDataObject_Collection>();
