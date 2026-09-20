@@ -3,8 +3,6 @@
 #include "Widgets/Components/SL_CommonRotator.h"
 #include "Widgets/Components/SL_CommonButtonBase.h"
 
-#include "SL_DebugHelper.h"
-
 void USL_Widget_ListEntry_String::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
@@ -25,10 +23,16 @@ void USL_Widget_ListEntry_String::OnOwningListDataObjectSet(TObjectPtr<USL_ListD
 
 void USL_Widget_ListEntry_String::OnPreviousOptionButtonClicked()
 {
-	Debug::Print(TEXT("Prev Option Button Clicked"));
+	if (CachedOwningStringDataObject)
+	{
+		CachedOwningStringDataObject->BackToPreviousOption();
+	}
 }
 
 void USL_Widget_ListEntry_String::OnNextOptionButtonClicked()
 {
-	Debug::Print(TEXT("Next Option Button Clicked"));
+	if (CachedOwningStringDataObject)
+	{
+		CachedOwningStringDataObject->AdvanceToNextOption();
+	}
 }

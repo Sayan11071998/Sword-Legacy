@@ -6,6 +6,48 @@ void USL_ListDataObject_String::AddDynamicOption(const FString& InStringValue, c
 	AvailableOptionsTextArray.Add(InDisplayText);
 }
 
+void USL_ListDataObject_String::AdvanceToNextOption()
+{
+	if (AvailableOptionsStringArray.IsEmpty() || AvailableOptionsTextArray.IsEmpty()) return;
+	
+	const int32 CurrentDisplayIndex = AvailableOptionsStringArray.IndexOfByKey(CurrentStringValue);
+	const int32 NextIndexToDisplay = CurrentDisplayIndex + 1;
+	
+	const bool bIsNextIndexValid = AvailableOptionsStringArray.IsValidIndex(NextIndexToDisplay);
+	
+	if (bIsNextIndexValid)
+	{
+		CurrentStringValue = AvailableOptionsStringArray[NextIndexToDisplay];
+	}
+	else
+	{
+		CurrentStringValue = AvailableOptionsStringArray[0];
+	}
+	
+	TrySetDisplayTextFromStringValue(CurrentStringValue);
+}
+
+void USL_ListDataObject_String::BackToPreviousOption()
+{
+	if (AvailableOptionsStringArray.IsEmpty() || AvailableOptionsTextArray.IsEmpty()) return;
+	
+	const int32 CurrentDisplayIndex = AvailableOptionsStringArray.IndexOfByKey(CurrentStringValue);
+	const int32 PreviousIndexToDisplay = CurrentDisplayIndex - 1;
+	
+	const bool bIsPreviousIndexValid = AvailableOptionsStringArray.IsValidIndex(PreviousIndexToDisplay);
+	
+	if (bIsPreviousIndexValid)
+	{
+		CurrentStringValue = AvailableOptionsStringArray[bIsPreviousIndexValid];
+	}
+	else
+	{
+		CurrentStringValue = AvailableOptionsStringArray.Last();
+	}
+	
+	TrySetDisplayTextFromStringValue(CurrentStringValue);
+}
+
 void USL_ListDataObject_String::OnDataObjectInitialized()
 {
 	if (!AvailableOptionsStringArray.IsEmpty())

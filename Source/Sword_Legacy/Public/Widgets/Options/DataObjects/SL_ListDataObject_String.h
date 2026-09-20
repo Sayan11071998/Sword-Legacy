@@ -11,6 +11,8 @@ class SWORD_LEGACY_API USL_ListDataObject_String : public USL_ListDataObject_Val
 	
 public:
 	void AddDynamicOption(const FString& InStringValue, const FText& InDisplayText);
+	void AdvanceToNextOption();
+	void BackToPreviousOption();
 	
 protected:
 	// ~ Begin USL_ListDataObject_Base Interface
