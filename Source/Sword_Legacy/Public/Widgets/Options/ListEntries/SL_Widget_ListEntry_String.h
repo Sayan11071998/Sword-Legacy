@@ -14,11 +14,18 @@ class SWORD_LEGACY_API USL_Widget_ListEntry_String : public USL_Widget_ListEntry
 	GENERATED_BODY()
 	
 protected:
+	// ~ Begin UUserWidget Interface
+	virtual void NativeOnInitialized() override;
+	// ~ End UUserWidget Interface
+	
 	// ~ Begin USL_Widget_ListEntry_Base Interface
 	virtual void OnOwningListDataObjectSet(TObjectPtr<USL_ListDataObject_Base> InOwningListDataObject) override;
 	// ~ End USL_Widget_ListEntry_Base Interface
 	
 private:
+	void OnPreviousOptionButtonClicked();
+	void OnNextOptionButtonClicked();
+	
 	// Begin Bound Widgets
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget, AllowPrivateAccess = "true"))
 	TObjectPtr<USL_CommonButtonBase> CommonButton_PreviousOption;
