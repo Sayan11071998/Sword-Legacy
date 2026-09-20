@@ -23,7 +23,7 @@ protected:
 	virtual void OnOwningListDataObjectSet(TObjectPtr<USL_ListDataObject_Base> InOwningListDataObject);
 	
 	// The child class should override this function to update the UI values after the data object has been modified. Super call is not needed.
-	virtual void OnOwningListDataObjectModified(TObjectPtr<USL_ListDataObject_Base> OwningModifiedData, ESL_OptionsListDataModifyReason ModifyReason);
+	virtual void OnOwningListDataObjectModified(USL_ListDataObject_Base* OwningModifiedData, ESL_OptionsListDataModifyReason ModifyReason);
 	
 private:
 	// Bound Widgets

@@ -22,7 +22,7 @@ void USL_Widget_ListEntry_Base::OnOwningListDataObjectSet(TObjectPtr<USL_ListDat
 	}
 }
 
-void USL_Widget_ListEntry_Base::OnOwningListDataObjectModified(TObjectPtr<USL_ListDataObject_Base> OwningModifiedData,
+void USL_Widget_ListEntry_Base::OnOwningListDataObjectModified(USL_ListDataObject_Base* OwningModifiedData,
 	ESL_OptionsListDataModifyReason ModifyReason)
 {
 }

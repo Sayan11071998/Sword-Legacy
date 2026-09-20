@@ -20,7 +20,7 @@ protected:
 	
 	// ~ Begin USL_Widget_ListEntry_Base Interface
 	virtual void OnOwningListDataObjectSet(TObjectPtr<USL_ListDataObject_Base> InOwningListDataObject) override;
-	virtual void OnOwningListDataObjectModified(TObjectPtr<USL_ListDataObject_Base> OwningModifiedData, ESL_OptionsListDataModifyReason ModifyReason) override;
+	virtual void OnOwningListDataObjectModified(USL_ListDataObject_Base* OwningModifiedData, ESL_OptionsListDataModifyReason ModifyReason) override;
 	// ~ End USL_Widget_ListEntry_Base Interface
 	
 private:

@@ -40,7 +40,7 @@ void USL_ListDataObject_String::BackToPreviousOption()
 	
 	if (bIsPreviousIndexValid)
 	{
-		CurrentStringValue = AvailableOptionsStringArray[bIsPreviousIndexValid];
+		CurrentStringValue = AvailableOptionsStringArray[PreviousIndexToDisplay];
 	}
 	else
 	{
