@@ -5,6 +5,7 @@
 #include "Blueprint/IUserObjectListEntry.h"
 #include "SL_Widget_ListEntry_Base.generated.h"
 
+class USL_ListDataObject_Base;
 class UCommonTextBlock;
 
 UCLASS(Abstract, BlueprintType, meta = (DisableNativeTick))
@@ -16,6 +17,9 @@ protected:
 	// ~ Begin IUserObjectListEntry Interface
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;
 	// ~ End IUserObjectListEntry Inter
+	
+	// The child class should override this function to handle the initialization needed. Super call is expected.
+	virtual void OnOwningListDataObjectSet(TObjectPtr<USL_ListDataObject_Base> InOwningListDataObject);
 	
 private:
 	// Bound Widgets
