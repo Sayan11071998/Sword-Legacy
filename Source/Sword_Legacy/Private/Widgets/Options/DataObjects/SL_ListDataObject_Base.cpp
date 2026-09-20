@@ -6,3 +6,9 @@ void USL_ListDataObject_Base::InitDataObject()
 }
 
 void USL_ListDataObject_Base::OnDataObjectInitialized() { }
+
+void USL_ListDataObject_Base::NotifyListDataModified(TObjectPtr<USL_ListDataObject_Base> ModifiedData,
+	ESL_OptionsListDataModifyReason ModifyReason)
+{
+	OnListDataModified.Broadcast(ModifiedData, ModifyReason);
+}

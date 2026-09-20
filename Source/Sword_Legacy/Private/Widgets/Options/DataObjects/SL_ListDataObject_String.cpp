@@ -25,6 +25,8 @@ void USL_ListDataObject_String::AdvanceToNextOption()
 	}
 	
 	TrySetDisplayTextFromStringValue(CurrentStringValue);
+	
+	NotifyListDataModified(this);
 }
 
 void USL_ListDataObject_String::BackToPreviousOption()
@@ -46,6 +48,8 @@ void USL_ListDataObject_String::BackToPreviousOption()
 	}
 	
 	TrySetDisplayTextFromStringValue(CurrentStringValue);
+	
+	NotifyListDataModified(this);
 }
 
 void USL_ListDataObject_String::OnDataObjectInitialized()

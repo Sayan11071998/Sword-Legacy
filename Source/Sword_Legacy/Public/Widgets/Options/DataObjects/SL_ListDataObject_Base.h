@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PawnTypes/SL_PawnEnumTypes.h"
 #include "UObject/NoExportTypes.h"
 #include "SL_ListDataObject_Base.generated.h"
 
@@ -14,6 +15,8 @@ class SWORD_LEGACY_API USL_ListDataObject_Base : public UObject
 	GENERATED_BODY()
 	
 public:
+	DECLARE_MULTICAST_DELEGATE_TwoParams(FOnListDataModifiedDelegate, USL_ListDataObject_Base*, ESL_OptionsListDataModifyReason);
+	
 	LIST_DATA_ACCESSOR(FName, DataID);
 	LIST_DATA_ACCESSOR(FText, DataDisplayName);
 	LIST_DATA_ACCESSOR(FText, DescriptionRichText);
@@ -27,9 +30,14 @@ public:
 	virtual TArray<TObjectPtr<USL_ListDataObject_Base>> GetAllChildListData() const { return TArray<TObjectPtr<USL_ListDataObject_Base>>(); }
 	virtual bool HasAnyChildListData() const { return false; }
 	
+	// Delegate Variable
+	FOnListDataModifiedDelegate OnListDataModified;
+	
 protected:
 	// Empty in the base class. The child classes should override it to handle the initialization needed accordingly.
 	virtual void OnDataObjectInitialized();
+	
+	virtual void NotifyListDataModified(TObjectPtr<USL_ListDataObject_Base> ModifiedData, ESL_OptionsListDataModifyReason ModifyReason = ESL_OptionsListDataModifyReason::DirectlyModified);
 	
 private:
 	UPROPERTY()

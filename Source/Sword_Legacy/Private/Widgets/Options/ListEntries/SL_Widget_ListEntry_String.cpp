@@ -21,6 +21,15 @@ void USL_Widget_ListEntry_String::OnOwningListDataObjectSet(TObjectPtr<USL_ListD
 	CommonRotator_AvailableOptions->SetSelectedOptionByText(CachedOwningStringDataObject->GetCurrentDisplayText());
 }
 
+void USL_Widget_ListEntry_String::OnOwningListDataObjectModified(TObjectPtr<USL_ListDataObject_Base> OwningModifiedData,
+	ESL_OptionsListDataModifyReason ModifyReason)
+{
+	if (CachedOwningStringDataObject)
+	{
+		CommonRotator_AvailableOptions->SetSelectedOptionByText(CachedOwningStringDataObject->GetCurrentDisplayText());
+	}
+}
+
 void USL_Widget_ListEntry_String::OnPreviousOptionButtonClicked()
 {
 	if (CachedOwningStringDataObject)
