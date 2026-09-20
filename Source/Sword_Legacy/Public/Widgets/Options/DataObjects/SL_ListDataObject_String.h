@@ -13,6 +13,12 @@ public:
 	void AddDynamicOption(const FString& InStringValue, const FText& InDisplayText);
 	
 protected:
+	// ~ Begin USL_ListDataObject_Base Interface
+	virtual void OnDataObjectInitialized() override;
+	// ~ End USL_ListDataObject_Base Interface
+	
+	bool TrySetDisplayTextFromStringValue(const FString& InStringValue);
+	
 	UPROPERTY()
 	FString CurrentStringValue;
 	
