@@ -15,11 +15,11 @@ class SWORD_LEGACY_API USL_Widget_ListEntry_String : public USL_Widget_ListEntry
 private:
 	// Bound Widgets
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget, AllowPrivateAccess = "true"))
-	TObjectPtr<USL_CommonButtonBase> CommonButton_Decrease;
+	TObjectPtr<USL_CommonButtonBase> CommonButton_PreviousOption;
 	
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget, AllowPrivateAccess = "true"))
 	TObjectPtr<USL_CommonRotator> CommonRotator_AvailableOptions;
 	
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget, AllowPrivateAccess = "true"))
-	TObjectPtr<USL_CommonButtonBase> CommonButton_Increase;
+	TObjectPtr<USL_CommonButtonBase> CommonButton_NextOption;
 };
