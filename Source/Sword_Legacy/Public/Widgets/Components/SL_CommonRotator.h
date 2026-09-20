@@ -8,4 +8,7 @@ UCLASS(Abstract, BlueprintType, meta = (DisableNativeTick))
 class SWORD_LEGACY_API USL_CommonRotator : public UCommonRotator
 {
 	GENERATED_BODY()
+	
+public:
+	void SetSelectedOptionByText(const FText& InTextOption);
 };
