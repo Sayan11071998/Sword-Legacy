@@ -27,7 +27,8 @@ public class Sword_Legacy : ModuleRules
 			"CommonUI",
 			"DeveloperSettings",
 			"CommonInput",
-			"CoreUObject"
+			"CoreUObject",
+			"PropertyPath"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });
