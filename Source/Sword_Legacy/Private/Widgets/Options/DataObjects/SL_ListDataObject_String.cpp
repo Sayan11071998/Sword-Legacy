@@ -1,4 +1,5 @@
 #include "Widgets/Options/DataObjects/SL_ListDataObject_String.h"
+#include "Utilities/SL_OptionsDataInteractionHelper.h"
 
 void USL_ListDataObject_String::AddDynamicOption(const FString& InStringValue, const FText& InDisplayText)
 {
@@ -26,7 +27,11 @@ void USL_ListDataObject_String::AdvanceToNextOption()
 	
 	TrySetDisplayTextFromStringValue(CurrentStringValue);
 	
-	NotifyListDataModified(this);
+	if (DataDynamicSetter)
+	{
+		DataDynamicSetter->SetValueFromString(CurrentStringValue);
+		NotifyListDataModified(this);
+	}
 }
 
 void USL_ListDataObject_String::BackToPreviousOption()
@@ -49,7 +54,11 @@ void USL_ListDataObject_String::BackToPreviousOption()
 	
 	TrySetDisplayTextFromStringValue(CurrentStringValue);
 	
-	NotifyListDataModified(this);
+	if (DataDynamicSetter)
+	{
+		DataDynamicSetter->SetValueFromString(CurrentStringValue);
+		NotifyListDataModified(this);
+	}
 }
 
 void USL_ListDataObject_String::OnDataObjectInitialized()
@@ -59,7 +68,13 @@ void USL_ListDataObject_String::OnDataObjectInitialized()
 		CurrentStringValue = AvailableOptionsStringArray[0];
 	}
 	
-	// TODO: Read from the saved string value and use it to set the CurrentStringValue
+	if (DataDynamicGetter)
+	{
+		if (!DataDynamicGetter->GetValueAsString().IsEmpty())
+		{
+			CurrentStringValue = DataDynamicGetter->GetValueAsString();
+		}
+	}
 	
 	if (!TrySetDisplayTextFromStringValue(CurrentStringValue))
 	{
