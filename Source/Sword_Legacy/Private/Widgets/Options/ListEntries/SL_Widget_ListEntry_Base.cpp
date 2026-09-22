@@ -1,6 +1,7 @@
 #include "Widgets/Options/ListEntries/SL_Widget_ListEntry_Base.h"
 #include "Widgets/Options/DataObjects/SL_ListDataObject_Base.h"
 #include "CommonTextBlock.h"
+#include "Components/ListView.h"
 
 void USL_Widget_ListEntry_Base::NativeOnListEntryWidgetHovered(bool bWasHovered)
 {
@@ -31,3 +32,8 @@ void USL_Widget_ListEntry_Base::OnOwningListDataObjectSet(TObjectPtr<USL_ListDat
 
 void USL_Widget_ListEntry_Base::OnOwningListDataObjectModified(USL_ListDataObject_Base* OwningModifiedData,
 	ESL_OptionsListDataModifyReason ModifyReason) { }
+
+void USL_Widget_ListEntry_Base::SelectThisEntryWidget()
+{
+	CastChecked<UListView>(GetOwningListView())->SetSelectedItem(GetListItem());
+}
