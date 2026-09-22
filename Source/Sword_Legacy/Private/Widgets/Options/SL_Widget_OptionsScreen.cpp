@@ -5,6 +5,7 @@
 #include "Widgets/Options/DataObjects/SL_ListDataObject_Collection.h"
 #include "Widgets/Components/SL_TabListWidgetBase.h"
 #include "Widgets/Components/SL_CommonListView.h"
+#include "Utilities/SL_GameUserSettings.h"
 
 #include "SL_DebugHelper.h"
 
@@ -48,6 +49,13 @@ void USL_Widget_OptionsScreen::NativeOnActivated()
 		
 		TabListWidget_OptionsTabs->RequestRegisterTab(TabID, TabCollection->GetDataDisplayName());
 	}
+}
+
+void USL_Widget_OptionsScreen::NativeOnDeactivated()
+{
+	Super::NativeOnDeactivated();
+	
+	USL_GameUserSettings::Get()->ApplySettings(true);
 }
 
 TObjectPtr<USL_OptionsDataRegistry> USL_Widget_OptionsScreen::GetOrCreateDataRegistry()
