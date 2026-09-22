@@ -1,4 +1,5 @@
 #include "Widgets/Options/DataObjects/SL_ListDataObject_Base.h"
+#include "Utilities/SL_GameUserSettings.h"
 
 void USL_ListDataObject_Base::InitDataObject()
 {
@@ -11,4 +12,9 @@ void USL_ListDataObject_Base::NotifyListDataModified(TObjectPtr<USL_ListDataObje
 	ESL_OptionsListDataModifyReason ModifyReason)
 {
 	OnListDataModified.Broadcast(ModifiedData, ModifyReason);
+	
+	if (bShouldApplyChangeImmediately)
+	{
+		USL_GameUserSettings::Get()->ApplySettings(true);
+	}
 }

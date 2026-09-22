@@ -30,6 +30,8 @@ public:
 	virtual TArray<TObjectPtr<USL_ListDataObject_Base>> GetAllChildListData() const { return TArray<TObjectPtr<USL_ListDataObject_Base>>(); }
 	virtual bool HasAnyChildListData() const { return false; }
 	
+	void SetShouldApplySettingsImmediately(bool bShouldApplyRightAway) { bShouldApplyChangeImmediately = bShouldApplyRightAway; }
+	
 	// Delegate Variable
 	FOnListDataModifiedDelegate OnListDataModified;
 	
@@ -57,4 +59,7 @@ private:
 	
 	UPROPERTY(Transient)
 	TObjectPtr<USL_ListDataObject_Base> ParentData;
+	
+	UPROPERTY()
+	bool bShouldApplyChangeImmediately = false;
 };
