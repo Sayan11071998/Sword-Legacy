@@ -33,6 +33,9 @@ void USL_Widget_OptionsScreen::NativeOnInitialized()
 	);
 	
 	TabListWidget_OptionsTabs->OnTabSelected.AddUniqueDynamic(this, &USL_Widget_OptionsScreen::OnOptionsTabSelected);
+	
+	CommonListView_OptionsList->OnItemIsHoveredChanged().AddUObject(this, &USL_Widget_OptionsScreen::OnListViewItemHovered);
+	CommonListView_OptionsList->OnItemSelectionChanged().AddUObject(this, &USL_Widget_OptionsScreen::OnListViewItemSelected);
 }
 
 void USL_Widget_OptionsScreen::NativeOnActivated()
@@ -79,6 +82,25 @@ void USL_Widget_OptionsScreen::OnResetBoundActionTriggered()
 void USL_Widget_OptionsScreen::OnBackBoundActionTriggered()
 {
 	DeactivateWidget();
+}
+
+void USL_Widget_OptionsScreen::OnListViewItemHovered(UObject* InHoveredItem, bool bWasHovered)
+{
+	if (!InHoveredItem) return;
+	
+	const FString DebugString = CastChecked<USL_ListDataObject_Base>(InHoveredItem)->GetDataDisplayName().ToString() +
+		TEXT(" was") +
+			(bWasHovered ? TEXT(" hovered") : TEXT(" unhovered"));
+	Debug::Print(DebugString);
+}
+
+void USL_Widget_OptionsScreen::OnListViewItemSelected(UObject* InSelectedItem)
+{
+	if (!InSelectedItem) return;
+	
+	const FString DebugString = CastChecked<USL_ListDataObject_Base>(InSelectedItem)->GetDataDisplayName().ToString() +
+		TEXT(" was selected");
+	Debug::Print(DebugString);
 }
 
 void USL_Widget_OptionsScreen::OnOptionsTabSelected(FName TabID)

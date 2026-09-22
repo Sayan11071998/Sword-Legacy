@@ -6,6 +6,8 @@ void USL_Widget_ListEntry_Base::NativeOnListItemObjectSet(UObject* ListItemObjec
 {
 	IUserObjectListEntry::NativeOnListItemObjectSet(ListItemObject);
 	
+	SetVisibility(ESlateVisibility::Visible);
+	
 	OnOwningListDataObjectSet(CastChecked<USL_ListDataObject_Base>(ListItemObject));
 }
 

@@ -29,6 +29,9 @@ private:
 	void OnResetBoundActionTriggered();
 	void OnBackBoundActionTriggered();
 	
+	void OnListViewItemHovered(UObject* InHoveredItem, bool bWasHovered);
+	void OnListViewItemSelected(UObject* InSelectedItem);
+	
 	UFUNCTION()
 	void OnOptionsTabSelected(FName TabID);
 	
