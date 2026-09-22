@@ -6,6 +6,7 @@
 #include "Widgets/Components/SL_TabListWidgetBase.h"
 #include "Widgets/Components/SL_CommonListView.h"
 #include "Utilities/SL_GameUserSettings.h"
+#include "Widgets/Options/ListEntries/SL_Widget_ListEntry_Base.h"
 
 #include "SL_DebugHelper.h"
 
@@ -88,19 +89,16 @@ void USL_Widget_OptionsScreen::OnListViewItemHovered(UObject* InHoveredItem, boo
 {
 	if (!InHoveredItem) return;
 	
-	const FString DebugString = CastChecked<USL_ListDataObject_Base>(InHoveredItem)->GetDataDisplayName().ToString() +
-		TEXT(" was") +
-			(bWasHovered ? TEXT(" hovered") : TEXT(" unhovered"));
-	Debug::Print(DebugString);
+	USL_Widget_ListEntry_Base* HoveredEntryWidget = CommonListView_OptionsList->GetEntryWidgetFromItem<USL_Widget_ListEntry_Base>(InHoveredItem);
+	
+	check(HoveredEntryWidget);
+	
+	HoveredEntryWidget->NativeOnListEntryWidgetHovered(bWasHovered);
 }
 
 void USL_Widget_OptionsScreen::OnListViewItemSelected(UObject* InSelectedItem)
 {
 	if (!InSelectedItem) return;
-	
-	const FString DebugString = CastChecked<USL_ListDataObject_Base>(InSelectedItem)->GetDataDisplayName().ToString() +
-		TEXT(" was selected");
-	Debug::Print(DebugString);
 }
 
 void USL_Widget_OptionsScreen::OnOptionsTabSelected(FName TabID)

@@ -2,6 +2,11 @@
 #include "Widgets/Options/DataObjects/SL_ListDataObject_Base.h"
 #include "CommonTextBlock.h"
 
+void USL_Widget_ListEntry_Base::NativeOnListEntryWidgetHovered(bool bWasHovered)
+{
+	BP_OnListEntryWidgetHovered(bWasHovered, IsListItemSelected());
+}
+
 void USL_Widget_ListEntry_Base::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
 	IUserObjectListEntry::NativeOnListItemObjectSet(ListItemObject);
@@ -25,6 +30,4 @@ void USL_Widget_ListEntry_Base::OnOwningListDataObjectSet(TObjectPtr<USL_ListDat
 }
 
 void USL_Widget_ListEntry_Base::OnOwningListDataObjectModified(USL_ListDataObject_Base* OwningModifiedData,
-	ESL_OptionsListDataModifyReason ModifyReason)
-{
-}
+	ESL_OptionsListDataModifyReason ModifyReason) { }

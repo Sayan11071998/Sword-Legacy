@@ -14,6 +14,12 @@ class SWORD_LEGACY_API USL_Widget_ListEntry_Base : public UCommonUserWidget, pub
 {
 	GENERATED_BODY()
 	
+public:
+	void NativeOnListEntryWidgetHovered(bool bWasHovered);
+	
+	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "On List Entry Widget Hovered"))
+	void BP_OnListEntryWidgetHovered(bool bWasHovered, bool bIsEntryWidgetStillSelected);
+	
 protected:
 	// ~ Begin IUserObjectListEntry Interface
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;
