@@ -25,7 +25,7 @@ private:
 	TObjectPtr<UCommonRichTextBlock> CommonRichText_Description;
 	
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UCommonRichTextBlock> CommonRichText_DynamicDetailsCommonRichText_DynamicDetails;
+	TObjectPtr<UCommonRichTextBlock> CommonRichText_DynamicDetails;
 	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UCommonRichTextBlock> CommonRichText_DisabledReason;
