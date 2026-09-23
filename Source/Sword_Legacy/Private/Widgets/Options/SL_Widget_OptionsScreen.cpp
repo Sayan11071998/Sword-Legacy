@@ -7,6 +7,7 @@
 #include "Widgets/Components/SL_CommonListView.h"
 #include "Utilities/SL_GameUserSettings.h"
 #include "Widgets/Options/ListEntries/SL_Widget_ListEntry_Base.h"
+#include "Widgets/Options/SL_Widget_OptionsDetailsView.h"
 
 #include "SL_DebugHelper.h"
 
@@ -94,11 +95,41 @@ void USL_Widget_OptionsScreen::OnListViewItemHovered(UObject* InHoveredItem, boo
 	check(HoveredEntryWidget);
 	
 	HoveredEntryWidget->NativeOnListEntryWidgetHovered(bWasHovered);
+	
+	if (bWasHovered)
+	{
+		DetailsView_ListEntryInfo->UpdateDetailsViewInfo(
+			CastChecked<USL_ListDataObject_Base>(InHoveredItem),
+			TryGetEntryWidgetClassName(InHoveredItem)
+		);
+	}
+	else
+	{
+		if (USL_ListDataObject_Base* SelectedItem = CommonListView_OptionsList->GetSelectedItem<USL_ListDataObject_Base>())
+		{
+			DetailsView_ListEntryInfo->UpdateDetailsViewInfo(SelectedItem, TryGetEntryWidgetClassName(SelectedItem));
+		}
+	}
 }
 
 void USL_Widget_OptionsScreen::OnListViewItemSelected(UObject* InSelectedItem)
 {
 	if (!InSelectedItem) return;
+	
+	DetailsView_ListEntryInfo->UpdateDetailsViewInfo(
+		CastChecked<USL_ListDataObject_Base>(InSelectedItem),
+		TryGetEntryWidgetClassName(InSelectedItem)	
+	);
+}
+
+FString USL_Widget_OptionsScreen::TryGetEntryWidgetClassName(TObjectPtr<UObject> InOwningListItem) const
+{
+	if (UUserWidget* FoundEntryWidget = CommonListView_OptionsList->GetEntryWidgetFromItem(InOwningListItem))
+	{
+		return FoundEntryWidget->GetClass()->GetName();
+	}
+	
+	return TEXT("Entry Widget Not Valid");
 }
 
 void USL_Widget_OptionsScreen::OnOptionsTabSelected(FName TabID)

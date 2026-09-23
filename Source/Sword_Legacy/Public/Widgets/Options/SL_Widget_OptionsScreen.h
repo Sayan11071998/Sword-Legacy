@@ -4,6 +4,7 @@
 #include "Widgets/SL_Widget_Activatable_Base.h"
 #include "SL_Widget_OptionsScreen.generated.h"
 
+class USL_Widget_OptionsDetailsView;
 class USL_TabListWidgetBase;
 class USL_OptionsDataRegistry;
 class USL_CommonListView;
@@ -32,6 +33,8 @@ private:
 	void OnListViewItemHovered(UObject* InHoveredItem, bool bWasHovered);
 	void OnListViewItemSelected(UObject* InSelectedItem);
 	
+	FString TryGetEntryWidgetClassName(TObjectPtr<UObject> InOwningListItem) const;
+	
 	UFUNCTION()
 	void OnOptionsTabSelected(FName TabID);
 	
@@ -41,6 +44,9 @@ private:
 	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<USL_CommonListView> CommonListView_OptionsList;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<USL_Widget_OptionsDetailsView> DetailsView_ListEntryInfo;
 	
 	// Handle the creation of data registry in options screen. Direct access to this variable is forbidden.
 	UPROPERTY(Transient)
