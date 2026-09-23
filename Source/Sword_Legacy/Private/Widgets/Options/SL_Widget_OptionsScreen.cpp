@@ -134,6 +134,8 @@ FString USL_Widget_OptionsScreen::TryGetEntryWidgetClassName(TObjectPtr<UObject>
 
 void USL_Widget_OptionsScreen::OnOptionsTabSelected(FName TabID)
 {
+	DetailsView_ListEntryInfo->ClearDetailsViewInfo();
+	
 	TArray<USL_ListDataObject_Base*> FoundListSourceItems = GetOrCreateDataRegistry()->GetListSourceItemsBySelectedTabID(TabID);
 	
 	CommonListView_OptionsList->SetListItems(FoundListSourceItems);
