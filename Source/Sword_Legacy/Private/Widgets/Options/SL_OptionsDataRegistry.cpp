@@ -43,6 +43,9 @@ void USL_OptionsDataRegistry::InitGameplayCollectionTab()
 		USL_ListDataObject_String* GameDifficulty = NewObject<USL_ListDataObject_String>();
 		GameDifficulty->SetDataID(FName(TEXT("GameDifficulty")));
 		GameDifficulty->SetDataDisplayName(FText::FromString(TEXT("Difficulty")));
+		GameDifficulty->SetDescriptionRichText(FText::FromString(TEXT("Adjusts the difficulty of the game experience.\n\n<Bold>Easy:</> Focuses on the story experience. "
+			"Provides the most relaxing combat.\n\n<Bold>Normal:</> Offers slightly harder combat experience\n\n<Bold>Hard:</>"
+			"Offers a much more challenging combat experience\n\n<Bold>Vert Hard:</> Provides the most challenging combat experience. Not recommended for first play through.")));
 		GameDifficulty->AddDynamicOption(TEXT("Easy"), FText::FromString(TEXT("Easy")));
 		GameDifficulty->AddDynamicOption(TEXT("Normal"), FText::FromString(TEXT("Normal")));
 		GameDifficulty->AddDynamicOption(TEXT("Hard"), FText::FromString(TEXT("Hard")));
