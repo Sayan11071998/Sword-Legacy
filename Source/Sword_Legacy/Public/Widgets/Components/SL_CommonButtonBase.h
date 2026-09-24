@@ -13,6 +13,9 @@ class SWORD_LEGACY_API USL_CommonButtonBase : public UCommonButtonBase
 	
 public:
 	UFUNCTION(BlueprintCallable)
+	FText GetButtonDisplayText() const;
+	
+	UFUNCTION(BlueprintCallable)
 	void SetButtonText(FText InText);
 	
 private:

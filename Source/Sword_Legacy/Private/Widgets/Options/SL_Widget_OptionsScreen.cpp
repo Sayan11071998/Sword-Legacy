@@ -8,8 +8,8 @@
 #include "Utilities/SL_GameUserSettings.h"
 #include "Widgets/Options/ListEntries/SL_Widget_ListEntry_Base.h"
 #include "Widgets/Options/SL_Widget_OptionsDetailsView.h"
-
-#include "SL_DebugHelper.h"
+#include "Subsystems/SL_UISubsystem.h"
+#include "Widgets/Components/SL_CommonButtonBase.h"
 
 void USL_Widget_OptionsScreen::NativeOnInitialized()
 {
@@ -78,7 +78,20 @@ TObjectPtr<USL_OptionsDataRegistry> USL_Widget_OptionsScreen::GetOrCreateDataReg
 
 void USL_Widget_OptionsScreen::OnResetBoundActionTriggered()
 {
-	Debug::Print(TEXT("Reset Bound Action Triggered"));
+	if (ResettableDataArray.IsEmpty()) return;
+	
+	UCommonButtonBase* SelectedTabButton = TabListWidget_OptionsTabs->GetTabButtonBaseByID(TabListWidget_OptionsTabs->GetActiveTab());
+	const FString SelectedTabButtonName = CastChecked<USL_CommonButtonBase>(SelectedTabButton)->GetButtonDisplayText().ToString();
+	
+	USL_UISubsystem::Get(this)->PushConfirmScreenToModalStackAsync(
+		ESL_ConfirmScreenType::YesNo,
+		FText::FromString(TEXT("Reset")),
+		FText::FromString(TEXT("Are you sure you want to reset all the setting under the ") + SelectedTabButtonName + TEXT(" tab.")),
+		[](ESL_ConfirmScreenButtonType ClickedButtonType)
+		{
+			
+		}
+	);
 }
 
 void USL_Widget_OptionsScreen::OnBackBoundActionTriggered()
