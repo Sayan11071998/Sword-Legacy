@@ -8,6 +8,11 @@ void USL_ListDataObject_String::OnDataObjectInitialized()
 		CurrentStringValue = AvailableOptionsStringArray[0];
 	}
 	
+	if (HasDefaultValue())
+	{
+		CurrentStringValue = GetDefaultValueAsString();
+	}
+	
 	if (DataDynamicGetter)
 	{
 		if (!DataDynamicGetter->GetValueAsString().IsEmpty())
