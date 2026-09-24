@@ -15,7 +15,18 @@ public:
 	void SetDataDynamicGetter(const TSharedPtr<FSL_OptionsDataInteractionHelper>& InDynamicGetter);
 	void SetDataDynamicSetter(const TSharedPtr<FSL_OptionsDataInteractionHelper>& InDynamicSetter);
 	
+	void SetDefaultValueFromString(const FString& InDefaultValue) { DefaultStringValue = InDefaultValue; }
+	
+	// ~ Begin USL_ListDataObject_Base Interface
+	virtual bool HasDefaultValue() const override { return DefaultStringValue.IsSet(); }
+	// ~ End USL_ListDataObject_Base Interface
+	
 protected:
+	FString GetDefaultValueAsString() const { return DefaultStringValue.GetValue(); }
+	
 	TSharedPtr<FSL_OptionsDataInteractionHelper> DataDynamicGetter;
 	TSharedPtr<FSL_OptionsDataInteractionHelper> DataDynamicSetter;
+	
+private:
+	TOptional<FString> DefaultStringValue;
 };
