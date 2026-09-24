@@ -122,6 +122,34 @@ void USL_Widget_OptionsScreen::OnListViewItemSelected(UObject* InSelectedItem)
 	);
 }
 
+void USL_Widget_OptionsScreen::OnListViewListDataModified(USL_ListDataObject_Base* ModifiedData,
+	ESL_OptionsListDataModifyReason ModifyReason)
+{
+	if (!ModifiedData) return;
+	
+	if (ModifiedData->CanResetBackToDefaultValue())
+	{
+		ResettableDataArray.AddUnique(ModifiedData);
+		
+		if (!GetActionBindings().Contains(ResetActionHandle))
+		{
+			AddActionBinding(ResetActionHandle);
+		}
+	}
+	else
+	{
+		if (ResettableDataArray.Contains(ModifiedData))
+		{
+			ResettableDataArray.Remove(ModifiedData);
+		}
+	}
+	
+	if (ResettableDataArray.IsEmpty())
+	{
+		RemoveActionBinding(ResetActionHandle);
+	}
+}
+
 FString USL_Widget_OptionsScreen::TryGetEntryWidgetClassName(TObjectPtr<UObject> InOwningListItem) const
 {
 	if (UUserWidget* FoundEntryWidget = CommonListView_OptionsList->GetEntryWidgetFromItem(InOwningListItem))
@@ -145,5 +173,34 @@ void USL_Widget_OptionsScreen::OnOptionsTabSelected(FName TabID)
 	{
 		CommonListView_OptionsList->NavigateToIndex(0);
 		CommonListView_OptionsList->SetSelectedIndex(0);
+	}
+	
+	ResettableDataArray.Empty();
+	
+	for (USL_ListDataObject_Base* FoundListSourceItem : FoundListSourceItems)
+	{
+		if (!FoundListSourceItem) continue;
+		
+		if (!FoundListSourceItem->OnListDataModified.IsBoundToObject(this))
+		{
+			FoundListSourceItem->OnListDataModified.AddUObject(this, &USL_Widget_OptionsScreen::OnListViewListDataModified);
+		}
+		
+		if (FoundListSourceItem->CanResetBackToDefaultValue())
+		{
+			ResettableDataArray.AddUnique(FoundListSourceItem);
+		}
+	}
+	
+	if (ResettableDataArray.IsEmpty())
+	{
+		RemoveActionBinding(ResetActionHandle);
+	}
+	else
+	{
+		if (!GetActionBindings().Contains(ResetActionHandle))
+		{
+			AddActionBinding(ResetActionHandle);
+		}
 	}
 }

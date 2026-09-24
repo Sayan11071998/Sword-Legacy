@@ -1,9 +1,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PawnTypes/SL_PawnEnumTypes.h"
 #include "Widgets/SL_Widget_Activatable_Base.h"
 #include "SL_Widget_OptionsScreen.generated.h"
 
+class USL_ListDataObject_Base;
 class USL_Widget_OptionsDetailsView;
 class USL_TabListWidgetBase;
 class USL_OptionsDataRegistry;
@@ -33,6 +35,8 @@ private:
 	void OnListViewItemHovered(UObject* InHoveredItem, bool bWasHovered);
 	void OnListViewItemSelected(UObject* InSelectedItem);
 	
+	void OnListViewListDataModified(USL_ListDataObject_Base* ModifiedData, ESL_OptionsListDataModifyReason ModifyReason);
+	
 	FString TryGetEntryWidgetClassName(TObjectPtr<UObject> InOwningListItem) const;
 	
 	UFUNCTION()
@@ -57,4 +61,7 @@ private:
 	
 	UPROPERTY()
 	FUIActionBindingHandle ResetActionHandle;
+	
+	UPROPERTY(Transient)
+	TArray<TObjectPtr<USL_ListDataObject_Base>> ResettableDataArray;
 };
