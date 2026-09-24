@@ -93,6 +93,7 @@ void USL_Widget_OptionsScreen::OnResetBoundActionTriggered()
 		{
 			if (ClickedButtonType != ESL_ConfirmScreenButtonType::Confirmed) return;
 			
+			bIsResettingData = true;
 			bool bHasDataFailedToReset = false;
 			
 			for (USL_ListDataObject_Base* DataToReset : ResettableDataArray)
@@ -116,6 +117,8 @@ void USL_Widget_OptionsScreen::OnResetBoundActionTriggered()
 			
 				RemoveActionBinding(ResetActionHandle);
 			}
+			
+			bIsResettingData = false;
 		}
 	);
 }
@@ -164,7 +167,7 @@ void USL_Widget_OptionsScreen::OnListViewItemSelected(UObject* InSelectedItem)
 void USL_Widget_OptionsScreen::OnListViewListDataModified(USL_ListDataObject_Base* ModifiedData,
 	ESL_OptionsListDataModifyReason ModifyReason)
 {
-	if (!ModifiedData) return;
+	if (!ModifiedData || bIsResettingData) return;
 	
 	if (ModifiedData->CanResetBackToDefaultValue())
 	{
