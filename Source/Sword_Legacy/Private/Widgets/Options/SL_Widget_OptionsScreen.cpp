@@ -11,6 +11,8 @@
 #include "Subsystems/SL_UISubsystem.h"
 #include "Widgets/Components/SL_CommonButtonBase.h"
 
+#include "SL_DebugHelper.h"
+
 void USL_Widget_OptionsScreen::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
@@ -87,9 +89,33 @@ void USL_Widget_OptionsScreen::OnResetBoundActionTriggered()
 		ESL_ConfirmScreenType::YesNo,
 		FText::FromString(TEXT("Reset")),
 		FText::FromString(TEXT("Are you sure you want to reset all the setting under the ") + SelectedTabButtonName + TEXT(" tab.")),
-		[](ESL_ConfirmScreenButtonType ClickedButtonType)
+		[this](ESL_ConfirmScreenButtonType ClickedButtonType)
 		{
+			if (ClickedButtonType != ESL_ConfirmScreenButtonType::Confirmed) return;
 			
+			bool bHasDataFailedToReset = false;
+			
+			for (USL_ListDataObject_Base* DataToReset : ResettableDataArray)
+			{
+				if (!DataToReset) continue;
+				
+				if (DataToReset->TryResetBackToDefaultValue())
+				{
+					Debug::Print(DataToReset->GetDataDisplayName().ToString() + TEXT(" was reset."));
+				}
+				else
+				{
+					bHasDataFailedToReset = true;
+					Debug::Print(DataToReset->GetDataDisplayName().ToString() + TEXT(" failed to reset."));
+				}
+			}
+			
+			if (!bHasDataFailedToReset)
+			{
+				ResettableDataArray.Empty();
+			
+				RemoveActionBinding(ResetActionHandle);
+			}
 		}
 	);
 }
