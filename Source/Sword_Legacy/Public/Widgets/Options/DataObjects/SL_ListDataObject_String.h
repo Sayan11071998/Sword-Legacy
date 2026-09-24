@@ -21,6 +21,11 @@ protected:
 	
 	bool TrySetDisplayTextFromStringValue(const FString& InStringValue);
 	
+	// ~ Begin USL_ListDataObject_Base Interface
+	virtual bool CanResetBackToDefaultValue() const override;
+	virtual bool TryResetBackToDefaultValue() override;
+	// ~ End USL_ListDataObject_Base Interface
+	
 	UPROPERTY()
 	FString CurrentStringValue;
 	
