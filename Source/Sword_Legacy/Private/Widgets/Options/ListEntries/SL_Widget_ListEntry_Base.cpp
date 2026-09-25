@@ -2,6 +2,7 @@
 #include "Widgets/Options/DataObjects/SL_ListDataObject_Base.h"
 #include "CommonTextBlock.h"
 #include "Components/ListView.h"
+#include "CommonInputSubsystem.h"
 
 void USL_Widget_ListEntry_Base::NativeOnListEntryWidgetHovered(bool bWasHovered)
 {
@@ -15,6 +16,24 @@ void USL_Widget_ListEntry_Base::NativeOnListItemObjectSet(UObject* ListItemObjec
 	SetVisibility(ESlateVisibility::Visible);
 	
 	OnOwningListDataObjectSet(CastChecked<USL_ListDataObject_Base>(ListItemObject));
+}
+
+FReply USL_Widget_ListEntry_Base::NativeOnFocusReceived(const FGeometry& InGeometry, const FFocusEvent& InFocusEvent)
+{
+	UCommonInputSubsystem* CommonInputSubsystem = GetInputSubsystem();
+	
+	if (CommonInputSubsystem && CommonInputSubsystem->GetCurrentInputType() != ECommonInputType::Gamepad)
+	{
+		if (UWidget* WidgetToFocus = BP_GetWidgetToFocusForGamepad())
+		{
+			if (TSharedPtr<SWidget> SlayWidgetToFocus = WidgetToFocus->GetCachedWidget())
+			{
+				return FReply::Handled().SetUserFocus(SlayWidgetToFocus.ToSharedRef());
+			}
+		}
+	}
+	
+	return Super::NativeOnFocusReceived(InGeometry, InFocusEvent);
 }
 
 void USL_Widget_ListEntry_Base::OnOwningListDataObjectSet(TObjectPtr<USL_ListDataObject_Base> InOwningListDataObject)

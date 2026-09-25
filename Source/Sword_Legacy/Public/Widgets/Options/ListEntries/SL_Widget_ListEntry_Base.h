@@ -25,6 +25,10 @@ protected:
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;
 	// ~ End IUserObjectListEntry Inter
 	
+	// ~ Begin UUserWidget Interface
+	virtual FReply NativeOnFocusReceived(const FGeometry& InGeometry, const FFocusEvent& InFocusEvent) override;
+	// ~ End UUserWidget Interface
+	
 	// The child class should override this function to handle the initialization needed. Super call is expected.
 	virtual void OnOwningListDataObjectSet(TObjectPtr<USL_ListDataObject_Base> InOwningListDataObject);
 	
@@ -32,6 +36,10 @@ protected:
 	virtual void OnOwningListDataObjectModified(USL_ListDataObject_Base* OwningModifiedData, ESL_OptionsListDataModifyReason ModifyReason);
 
 	void SelectThisEntryWidget();
+	
+	// The child widget blueprint should override this function for the gamepad interaction to function properly
+	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "Get Widget To Focus For Gamepad"))
+	UWidget* BP_GetWidgetToFocusForGamepad() const;
 	
 private:
 	// Bound Widgets
