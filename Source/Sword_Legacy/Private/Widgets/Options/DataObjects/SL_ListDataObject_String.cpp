@@ -89,6 +89,29 @@ void USL_ListDataObject_String::BackToPreviousOption()
 	}
 }
 
+void USL_ListDataObject_String::OnRotatorInitiatedValueChanged(const FText& InNewSelectedText)
+{
+	const int32 FoundIndex = AvailableOptionsTextArray.IndexOfByPredicate(
+		[InNewSelectedText](const FText& AvailableText)->bool
+		{
+			return AvailableText.EqualTo(InNewSelectedText);
+		}
+	);
+	
+	if (FoundIndex != INDEX_NONE && AvailableOptionsStringArray.IsValidIndex(FoundIndex))
+	{
+		CurrentDisplayText = InNewSelectedText;
+		CurrentStringValue = AvailableOptionsStringArray[FoundIndex];
+		
+		if (DataDynamicSetter)
+		{
+			DataDynamicSetter->SetValueFromString(CurrentStringValue);
+			
+			NotifyListDataModified(this);
+		}
+	}
+}
+
 bool USL_ListDataObject_String::TrySetDisplayTextFromStringValue(const FString& InStringValue)
 {
 	const int32 CurrentFoundIndex = AvailableOptionsStringArray.IndexOfByKey(InStringValue);

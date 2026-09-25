@@ -27,6 +27,8 @@ private:
 	void OnPreviousOptionButtonClicked();
 	void OnNextOptionButtonClicked();
 	
+	void OnRotatorValueChanged(int32 Value, bool bUserInitiated);
+	
 	// Begin Bound Widgets
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget, AllowPrivateAccess = "true"))
 	TObjectPtr<USL_CommonButtonBase> CommonButton_PreviousOption;

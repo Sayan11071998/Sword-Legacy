@@ -13,6 +13,7 @@ public:
 	void AddDynamicOption(const FString& InStringValue, const FText& InDisplayText);
 	void AdvanceToNextOption();
 	void BackToPreviousOption();
+	void OnRotatorInitiatedValueChanged(const FText& InNewSelectedText);
 	
 protected:
 	// ~ Begin USL_ListDataObject_Base Interface
