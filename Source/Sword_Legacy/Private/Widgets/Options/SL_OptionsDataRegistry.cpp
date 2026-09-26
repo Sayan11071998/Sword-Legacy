@@ -80,6 +80,15 @@ void USL_OptionsDataRegistry::InitAudioCollectionTab()
 	AudioTabCollection->SetDataID(FName(TEXT("AudioTabCollection")));
 	AudioTabCollection->SetDataDisplayName(FText::FromString(TEXT("Audio")));
 	
+	// Volume Category
+	{
+		USL_ListDataObject_Collection* VolumeCategoryCollection = NewObject<USL_ListDataObject_Collection>();
+		VolumeCategoryCollection->SetDataID(FName(TEXT("VolumeCategoryCollection")));
+		VolumeCategoryCollection->SetDataDisplayName(FText::FromString(TEXT("Volume")));
+		
+		AudioTabCollection->AddChildListData(VolumeCategoryCollection);
+	}
+	
 	RegisteredOptionsTabCollections.Add(AudioTabCollection);
 }
 
