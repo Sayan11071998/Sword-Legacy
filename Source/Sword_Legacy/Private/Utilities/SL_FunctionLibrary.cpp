@@ -7,6 +7,7 @@
 #include "Utilities/SL_GameplayTags.h"
 #include "Utilities/SL_CountdownAction.h"
 #include "Utilities/SL_DeveloperSettings.h"
+#include "Utilities/SL_GameUserSettings.h"
 
 TObjectPtr<USL_AbilitySystemComponent> USL_FunctionLibrary::NativeGetASCFromActor(TObjectPtr<AActor> InActor)
 {
@@ -31,6 +32,16 @@ TObjectPtr<USL_PawnCombatComponent> USL_FunctionLibrary::NativeGetPawnCombatComp
 	}
 	
 	return nullptr;
+}
+
+int32 USL_FunctionLibrary::GetCurrentGameDifficultyAbilityLevel()
+{
+	if (const USL_GameUserSettings* GameUserSettings = USL_GameUserSettings::Get())
+	{
+		return GameUserSettings->GetCurrentGameDifficultyAsAbilityLevel();
+	}
+
+	return 2;
 }
 
 void USL_FunctionLibrary::AddGameplayTagToActorIfNone(AActor* InActor, FGameplayTag TagToAdd)

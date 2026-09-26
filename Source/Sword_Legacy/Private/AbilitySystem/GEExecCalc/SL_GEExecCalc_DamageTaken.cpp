@@ -89,7 +89,7 @@ void USL_GEExecCalc_DamageTaken::Execute_Implementation(const FGameplayEffectCus
 	
 	const float SafeDefensePower = FMath::Max(TargetDefensePower, MinDefensePower);
 	const float FinalDamageDone = BaseDamage * FMath::Max(SourceAttackPower, 0.f) / SafeDefensePower;
-	
+
 	if (FinalDamageDone > 0.f)
 	{
 		OutExecutionOutput.AddOutputModifier(
