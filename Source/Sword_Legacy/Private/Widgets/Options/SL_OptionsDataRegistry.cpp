@@ -17,7 +17,7 @@ void USL_OptionsDataRegistry::InitOptionsDataRegistry(TObjectPtr<ULocalPlayer> I
 	InitControlCollectionTab();
 }
 
-const TArray<TObjectPtr<USL_ListDataObject_Base>> USL_OptionsDataRegistry::GetListSourceItemsBySelectedTabID(
+const TArray<USL_ListDataObject_Base*> USL_OptionsDataRegistry::GetListSourceItemsBySelectedTabID(
 	const FName& InSelectedTabID)
 {
 	const TObjectPtr<USL_ListDataObject_Collection>* FoundTabCollectionPtr = RegisteredOptionsTabCollections.FindByPredicate(
@@ -31,7 +31,39 @@ const TArray<TObjectPtr<USL_ListDataObject_Base>> USL_OptionsDataRegistry::GetLi
 	
 	USL_ListDataObject_Collection* FoundTabCollection = FoundTabCollectionPtr->Get();
 	
-	return FoundTabCollection->GetAllChildListData();
+	TArray<USL_ListDataObject_Base*> AllChildListItems;
+	
+	for (USL_ListDataObject_Base* ChildListData : FoundTabCollection->GetAllChildListData())
+	{
+		if (!ChildListData) continue;
+		
+		AllChildListItems.Add(ChildListData);
+		
+		if (ChildListData->HasAnyChildListData())
+		{
+			FindChildListDataRecursively(ChildListData, AllChildListItems);
+		}
+	}
+	
+	return AllChildListItems;
+}
+
+void USL_OptionsDataRegistry::FindChildListDataRecursively(USL_ListDataObject_Base* InParentData,
+	TArray<USL_ListDataObject_Base*>& OutFoundChildListData) const
+{
+	if (!InParentData || !InParentData->HasAnyChildListData()) return;
+	
+	for (USL_ListDataObject_Base* SubChildListData : InParentData->GetAllChildListData())
+	{
+		if (!SubChildListData) continue;
+		
+		OutFoundChildListData.Add(SubChildListData);
+		
+		if (SubChildListData->HasAnyChildListData())
+		{
+			FindChildListDataRecursively(SubChildListData, OutFoundChildListData);
+		}
+	}
 }
 
 void USL_OptionsDataRegistry::InitGameplayCollectionTab()

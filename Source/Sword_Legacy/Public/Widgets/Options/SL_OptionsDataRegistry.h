@@ -18,9 +18,14 @@ public:
 	
 	const TArray<TObjectPtr<USL_ListDataObject_Collection>>& GetRegisteredOptionsTabCollections() const { return RegisteredOptionsTabCollections; }
 	
-	const TArray<TObjectPtr<USL_ListDataObject_Base>> GetListSourceItemsBySelectedTabID(const FName& InSelectedTabID);
+	const TArray<USL_ListDataObject_Base*> GetListSourceItemsBySelectedTabID(const FName& InSelectedTabID);
 	
 private:
+	void FindChildListDataRecursively(
+		USL_ListDataObject_Base* InParentData,
+		TArray<USL_ListDataObject_Base*>& OutFoundChildListData
+	) const;
+	
 	void InitGameplayCollectionTab();
 	void InitAudioCollectionTab();
 	void InitVideoCollectionTab();
