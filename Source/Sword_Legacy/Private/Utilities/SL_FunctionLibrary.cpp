@@ -200,3 +200,12 @@ TSoftClassPtr<USL_Widget_Activatable_Base> USL_FunctionLibrary::GetGameSoftWidge
 	
 	return GameDeveloperSettings->GameWidgetMap.FindRef(InWidgetTag);
 }
+
+TSoftObjectPtr<UTexture2D> USL_FunctionLibrary::GetOptionsSoftImageByTag(FGameplayTag InImageTag)
+{
+	const USL_DeveloperSettings* GameDeveloperSettings = GetDefault<USL_DeveloperSettings>();
+	
+	checkf(GameDeveloperSettings->OptionsScreenSoftImageMap.Contains(InImageTag), TEXT("Could not find an image associated with the tag %s"), *InImageTag.ToString());
+	
+	return GameDeveloperSettings->OptionsScreenSoftImageMap.FindRef(InImageTag);
+}

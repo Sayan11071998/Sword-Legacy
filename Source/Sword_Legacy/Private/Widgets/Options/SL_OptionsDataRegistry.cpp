@@ -3,6 +3,8 @@
 #include "Widgets/Options/DataObjects/SL_ListDataObject_String.h"
 #include "Utilities/SL_OptionsDataInteractionHelper.h"
 #include "Utilities/SL_GameUserSettings.h"
+#include "Utilities/SL_FunctionLibrary.h"
+#include "Utilities/SL_GameplayTags.h"
 
 #define MAKE_OPTIONS_DATA_CONTROL(SetterOrGetterFuncName) \
 	MakeShared<FSL_OptionsDataInteractionHelper>(GET_FUNCTION_NAME_STRING_CHECKED(USL_GameUserSettings, SetterOrGetterFuncName))
@@ -62,7 +64,9 @@ void USL_OptionsDataRegistry::InitGameplayCollectionTab()
 	{
 		USL_ListDataObject_String* TestItem = NewObject<USL_ListDataObject_String>();
 		TestItem->SetDataID(FName(TEXT("TestItem")));
-		TestItem->SetDataDisplayName(FText::FromString(TEXT("Test Item")));
+		TestItem->SetDataDisplayName(FText::FromString(TEXT("Test Image Item")));
+		TestItem->SetSoftDescriptionImage(USL_FunctionLibrary::GetOptionsSoftImageByTag(SL_GameplayTags::UI_Image_TestImage));
+		TestItem->SetDescriptionRichText(FText::FromString(TEXT("The image to display can be specified in the project settings.")));
 		
 		GameplayTabCollection->AddChildListData(TestItem);
 	}
