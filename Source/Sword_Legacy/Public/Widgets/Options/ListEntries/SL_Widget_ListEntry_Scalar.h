@@ -15,7 +15,7 @@ class SWORD_LEGACY_API USL_Widget_ListEntry_Scalar : public USL_Widget_ListEntry
 protected:
 	// ~ Begin UUserWidget Interface
 	virtual void NativeOnInitialized() override;
-	// ~ End UUserWidget Interfac
+	// ~ End UUserWidget Interface
 	// ~ Begin USL_Widget_ListEntry_Base Interface
 	virtual void OnOwningListDataObjectSet(TObjectPtr<USL_ListDataObject_Base> InOwningListDataObject) override;
 	virtual void OnOwningListDataObjectModified(USL_ListDataObject_Base* OwningModifiedData, ESL_OptionsListDataModifyReason ModifyReason) override;
