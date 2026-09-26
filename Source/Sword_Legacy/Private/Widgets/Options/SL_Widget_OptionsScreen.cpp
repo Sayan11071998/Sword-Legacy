@@ -65,6 +65,19 @@ void USL_Widget_OptionsScreen::NativeOnDeactivated()
 	USL_GameUserSettings::Get()->ApplySettings(true);
 }
 
+UWidget* USL_Widget_OptionsScreen::NativeGetDesiredFocusTarget() const
+{
+	if (UObject* SelectedObject = CommonListView_OptionsList->GetSelectedItem())
+	{
+		if (UUserWidget* SelectedEntryWidget = CommonListView_OptionsList->GetEntryWidgetFromItem(SelectedObject))
+		{
+			return SelectedEntryWidget;
+		}
+	}
+	
+	return Super::NativeGetDesiredFocusTarget();
+}
+
 TObjectPtr<USL_OptionsDataRegistry> USL_Widget_OptionsScreen::GetOrCreateDataRegistry()
 {
 	if (!CreatedOwningDataRegistry)
