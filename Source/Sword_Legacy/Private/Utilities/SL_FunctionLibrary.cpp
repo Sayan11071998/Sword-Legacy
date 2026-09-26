@@ -7,6 +7,7 @@
 #include "Utilities/SL_GameplayTags.h"
 #include "Utilities/SL_CountdownAction.h"
 #include "Utilities/SL_DeveloperSettings.h"
+#include "Utilities/SL_GameUserSettings.h"
 
 TObjectPtr<USL_AbilitySystemComponent> USL_FunctionLibrary::NativeGetASCFromActor(TObjectPtr<AActor> InActor)
 {
@@ -31,6 +32,16 @@ TObjectPtr<USL_PawnCombatComponent> USL_FunctionLibrary::NativeGetPawnCombatComp
 	}
 	
 	return nullptr;
+}
+
+int32 USL_FunctionLibrary::GetCurrentGameDifficultyAbilityLevel()
+{
+	if (const USL_GameUserSettings* GameUserSettings = USL_GameUserSettings::Get())
+	{
+		return GameUserSettings->GetCurrentGameDifficultyAsAbilityLevel();
+	}
+
+	return 2;
 }
 
 void USL_FunctionLibrary::AddGameplayTagToActorIfNone(AActor* InActor, FGameplayTag TagToAdd)
@@ -199,4 +210,13 @@ TSoftClassPtr<USL_Widget_Activatable_Base> USL_FunctionLibrary::GetGameSoftWidge
 	checkf(GameDeveloperSettings->GameWidgetMap.Contains(InWidgetTag), TEXT("Could not find the corresponding widget under the tag %s"), *InWidgetTag.ToString());
 	
 	return GameDeveloperSettings->GameWidgetMap.FindRef(InWidgetTag);
+}
+
+TSoftObjectPtr<UTexture2D> USL_FunctionLibrary::GetOptionsSoftImageByTag(FGameplayTag InImageTag)
+{
+	const USL_DeveloperSettings* GameDeveloperSettings = GetDefault<USL_DeveloperSettings>();
+	
+	checkf(GameDeveloperSettings->OptionsScreenSoftImageMap.Contains(InImageTag), TEXT("Could not find an image associated with the tag %s"), *InImageTag.ToString());
+	
+	return GameDeveloperSettings->OptionsScreenSoftImageMap.FindRef(InImageTag);
 }

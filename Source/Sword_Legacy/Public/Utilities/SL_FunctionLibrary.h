@@ -22,6 +22,9 @@ public:
 	static bool NativeDoesActorHaveTag(TObjectPtr<AActor> InActor, FGameplayTag TagToCheck);
 	static TObjectPtr<USL_PawnCombatComponent> NativeGetPawnCombatComponentFromActor(TObjectPtr<AActor> InActor);
 	
+	// Maps Options difficulty (Easy/Normal/Hard/Very Hard) to GAS ability level 1-4.
+	static int32 GetCurrentGameDifficultyAbilityLevel();
+	
 	UFUNCTION(BlueprintCallable, Category = "Pawn|Function Library")
 	static void AddGameplayTagToActorIfNone(AActor* InActor, FGameplayTag TagToAdd);
 	
@@ -60,4 +63,7 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Pawn|Function Library")
 	static TSoftClassPtr<USL_Widget_Activatable_Base> GetGameSoftWidgetClassByTag(UPARAM(meta = (Categories = "UI.Widget")) FGameplayTag InWidgetTag);
+	
+	UFUNCTION(BlueprintPure, Category = "Pawn|Function Library")
+	static TSoftObjectPtr<UTexture2D> GetOptionsSoftImageByTag(UPARAM(meta = (Categories = "UI.Image")) FGameplayTag InImageTag);
 };

@@ -14,6 +14,8 @@ public:
 	void OnAbilityInputPressed(const FGameplayTag& InInputTag);
 	void OnAbilityInputReleased(const FGameplayTag& InInputTag);
 	
+	void SetGrantedAbilityLevels(int32 NewLevel);
+	
 	UFUNCTION(BlueprintCallable, Category = "Pawn|Ability", meta = (ApplyLevel = "1"))
 	void GrantPlayerWeaponAbilities(
 		const TArray<FSL_PlayerAbilitySet>& InDefaultWeaponAbilities,

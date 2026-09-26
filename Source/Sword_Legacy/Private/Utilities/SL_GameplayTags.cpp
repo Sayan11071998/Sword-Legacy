@@ -121,4 +121,8 @@ namespace SL_GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_MainMenu, "UI.Widget.MainMenu");
 	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_ConfirmScreen, "UI.Widget.ConfirmScreen");
 	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_StoryScreen, "UI.Widget.StoryScreen");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_OptionsScreen, "UI.Widget.OptionsScreen");
+	
+	/** UI Options Image **/
+	UE_DEFINE_GAMEPLAY_TAG(UI_Image_TestImage, "UI.Image.TestImage");
 }

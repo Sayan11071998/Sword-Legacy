@@ -264,7 +264,10 @@ void ASL_EnemyCharacter::InitEnemyStartupData()
 
 				if (USL_DataAsset_StartupData_Base* LoadedData = SoftStartupData.Get())
 				{
-					LoadedData->GiveToAbilitySystemComponent(StrongThis->CharacterAbilitySystemComponent);
+					LoadedData->GiveToAbilitySystemComponent(
+						StrongThis->CharacterAbilitySystemComponent,
+						USL_FunctionLibrary::GetCurrentGameDifficultyAbilityLevel()
+					);
 				}
 			}
 		)

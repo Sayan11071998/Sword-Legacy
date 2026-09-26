@@ -15,4 +15,7 @@ class SWORD_LEGACY_API USL_DeveloperSettings : public UDeveloperSettings
 public:
 	UPROPERTY(Config, EditAnywhere, Category = "Widget Reference", meta = (ForceInLineRow, Categories = "UI.Widget"))
 	TMap<FGameplayTag, TSoftClassPtr<USL_Widget_Activatable_Base>> GameWidgetMap;
+	
+	UPROPERTY(Config, EditAnywhere, Category = "Widget Image Reference", meta = (ForceInLineRow, Categories = "UI.Image"))
+	TMap<FGameplayTag, TSoftObjectPtr<UTexture2D>> OptionsScreenSoftImageMap;
 };
