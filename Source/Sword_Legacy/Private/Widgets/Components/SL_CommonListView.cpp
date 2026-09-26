@@ -3,6 +3,7 @@
 #include "DataAssets/UI/SL_DataAsset_DataListEntryMapping.h"
 #include "Widgets/Options/DataObjects/SL_ListDataObject_Base.h"
 #include "Widgets/Options/ListEntries/SL_Widget_ListEntry_Base.h"
+#include "Widgets/Options/DataObjects/SL_ListDataObject_Collection.h"
 
 UUserWidget& USL_CommonListView::OnGenerateEntryWidgetInternal(UObject* Item,
 	TSubclassOf<UUserWidget> DesiredEntryClass, const TSharedRef<STableViewBase>& OwnerTable)
@@ -22,7 +23,12 @@ UUserWidget& USL_CommonListView::OnGenerateEntryWidgetInternal(UObject* Item,
 	}
 }
 
-#if WITH_EDITOR	
+bool USL_CommonListView::OnIsSelectableOrNavigableInternal(UObject* FirstSelectedItem)
+{
+	return !FirstSelectedItem->IsA<USL_ListDataObject_Collection>();
+}
+
+#if WITH_EDITOR
 void USL_CommonListView::ValidateCompiledDefaults(class IWidgetCompilerLog& CompileLog) const
 {
 	Super::ValidateCompiledDefaults(CompileLog);

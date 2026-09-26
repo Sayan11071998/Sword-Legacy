@@ -18,6 +18,8 @@ protected:
 		TSubclassOf<UUserWidget> DesiredEntryClass,
 		const TSharedRef<STableViewBase>& OwnerTable	
 	) override;
+	
+	virtual bool OnIsSelectableOrNavigableInternal(UObject* FirstSelectedItem) override;
 	// ~ End UCommonListView Interface
 	
 private:
