@@ -90,7 +90,11 @@ void USL_OptionsDataRegistry::InitAudioCollectionTab()
 		
 		// Test Item
 		{
+			USL_ListDataObject_String* TestItem = NewObject<USL_ListDataObject_String>();
+			TestItem->SetDataID(FName(TEXT("TestItem")));
+			TestItem->SetDataDisplayName(FText::FromString(TEXT("Test Item")));
 			
+			VolumeCategoryCollection->AddChildListData(TestItem);
 		}
 	}
 	
