@@ -4,6 +4,7 @@
 #include "Widgets/Options/ListEntries/SL_Widget_ListEntry_Base.h"
 #include "SL_Widget_ListEntry_Scalar.generated.h"
 
+class USL_ListDataObject_Scalar;
 class UAnalogSlider;
 class UCommonNumericTextBlock;
 
@@ -16,6 +17,7 @@ protected:
 	// ~ Begin UUserWidget Interface
 	virtual void NativeOnInitialized() override;
 	// ~ End UUserWidget Interface
+	
 	// ~ Begin USL_Widget_ListEntry_Base Interface
 	virtual void OnOwningListDataObjectSet(TObjectPtr<USL_ListDataObject_Base> InOwningListDataObject) override;
 	virtual void OnOwningListDataObjectModified(USL_ListDataObject_Base* OwningModifiedData, ESL_OptionsListDataModifyReason ModifyReason) override;
@@ -28,4 +30,8 @@ private:
 	
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget, AllowPrivateAccess = "true"))
 	TObjectPtr<UAnalogSlider> AnalogSlider_SettingSlider;
+	
+	// Member Variables
+	UPROPERTY(Transient)
+	TObjectPtr<USL_ListDataObject_Scalar> CachedOwningScalarDataObject;
 };

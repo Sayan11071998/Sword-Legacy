@@ -1,4 +1,5 @@
 #include "Widgets/Options/DataObjects/SL_ListDataObject_Scalar.h"
+#include "Utilities/SL_OptionsDataInteractionHelper.h"
 
 FCommonNumberFormattingOptions USL_ListDataObject_Scalar::NoDecimal()
 {
@@ -16,4 +17,27 @@ FCommonNumberFormattingOptions USL_ListDataObject_Scalar::WithDecimal(int32 NumF
 	Options.MaximumFractionalDigits = NumFracDigit;
 	
 	return Options;
+}
+
+float USL_ListDataObject_Scalar::GetCurrentValue() const
+{
+	if (DataDynamicGetter)
+	{
+		return FMath::GetMappedRangeValueClamped(
+			OutputValueRange,
+			DisplayValueRange,
+			StringToFloat(DataDynamicGetter->GetValueAsString())
+		);
+	}
+	
+	return 0.f;
+}
+
+float USL_ListDataObject_Scalar::StringToFloat(const FString& InString) const
+{
+	float OutConvertedValue = 0.f;
+	
+	LexFromString(OutConvertedValue, *InString);
+	
+	return OutConvertedValue;
 }
