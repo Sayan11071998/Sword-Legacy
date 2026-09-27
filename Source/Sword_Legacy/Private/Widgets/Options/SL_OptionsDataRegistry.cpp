@@ -139,6 +139,17 @@ void USL_OptionsDataRegistry::InitAudioCollectionTab()
 			
 			VolumeCategoryCollection->AddChildListData(OverallVolume);
 		}
+		
+		// Test Item
+		{
+			USL_ListDataObject_String* TestItem = NewObject<USL_ListDataObject_String>();
+			TestItem->SetDataID(FName(TEXT("TestItem")));
+			TestItem->SetDataDisplayName(FText::FromString(TEXT("Test Image Item")));
+			TestItem->SetSoftDescriptionImage(USL_FunctionLibrary::GetOptionsSoftImageByTag(SL_GameplayTags::UI_Image_TestImage));
+			TestItem->SetDescriptionRichText(FText::FromString(TEXT("The image to display can be specified in the project settings.")));
+		
+			VolumeCategoryCollection->AddChildListData(TestItem);
+		}
 	}
 	
 	RegisteredOptionsTabCollections.Add(AudioTabCollection);
