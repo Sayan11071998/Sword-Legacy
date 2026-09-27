@@ -24,6 +24,9 @@ protected:
 	// ~ End USL_Widget_ListEntry_Base Interface
 	
 private:
+	UFUNCTION()
+	void OnSliderValueChanged(float Value);
+	
 	// Bound Widgets
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget, AllowPrivateAccess = "true"))
 	TObjectPtr<UCommonNumericTextBlock> CommonNumeric_SettingValue;

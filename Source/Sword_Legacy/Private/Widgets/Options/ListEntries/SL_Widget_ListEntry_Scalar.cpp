@@ -5,6 +5,8 @@
 void USL_Widget_ListEntry_Scalar::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
+	
+	AnalogSlider_SettingSlider->OnValueChanged.AddUniqueDynamic(this, &USL_Widget_ListEntry_Scalar::OnSliderValueChanged);
 }
 
 void USL_Widget_ListEntry_Scalar::OnOwningListDataObjectSet(TObjectPtr<USL_ListDataObject_Base> InOwningListDataObject)
@@ -30,5 +32,13 @@ void USL_Widget_ListEntry_Scalar::OnOwningListDataObjectModified(USL_ListDataObj
 	{
 		CommonNumeric_SettingValue->SetCurrentValue(CachedOwningScalarDataObject->GetCurrentValue());
 		AnalogSlider_SettingSlider->SetValue(CachedOwningScalarDataObject->GetCurrentValue());
+	}
+}
+
+void USL_Widget_ListEntry_Scalar::OnSliderValueChanged(float Value)
+{
+	if (CachedOwningScalarDataObject)
+	{
+		CachedOwningScalarDataObject->SetCurrentValueFromSlider(Value);
 	}
 }
