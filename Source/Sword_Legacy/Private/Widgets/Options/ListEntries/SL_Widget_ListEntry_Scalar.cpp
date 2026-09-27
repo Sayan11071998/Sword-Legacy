@@ -24,4 +24,11 @@ void USL_Widget_ListEntry_Scalar::OnOwningListDataObjectSet(TObjectPtr<USL_ListD
 }
 
 void USL_Widget_ListEntry_Scalar::OnOwningListDataObjectModified(USL_ListDataObject_Base* OwningModifiedData,
-	ESL_OptionsListDataModifyReason ModifyReason) { }
+	ESL_OptionsListDataModifyReason ModifyReason)
+{
+	if (CachedOwningScalarDataObject)
+	{
+		CommonNumeric_SettingValue->SetCurrentValue(CachedOwningScalarDataObject->GetCurrentValue());
+		AnalogSlider_SettingSlider->SetValue(CachedOwningScalarDataObject->GetCurrentValue());
+	}
+}
