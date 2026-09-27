@@ -140,15 +140,23 @@ void USL_OptionsDataRegistry::InitAudioCollectionTab()
 			VolumeCategoryCollection->AddChildListData(OverallVolume);
 		}
 		
-		// Test Item
+		// Music Volume
 		{
-			USL_ListDataObject_String* TestItem = NewObject<USL_ListDataObject_String>();
-			TestItem->SetDataID(FName(TEXT("TestItem")));
-			TestItem->SetDataDisplayName(FText::FromString(TEXT("Test Image Item")));
-			TestItem->SetSoftDescriptionImage(USL_FunctionLibrary::GetOptionsSoftImageByTag(SL_GameplayTags::UI_Image_TestImage));
-			TestItem->SetDescriptionRichText(FText::FromString(TEXT("The image to display can be specified in the project settings.")));
-		
-			VolumeCategoryCollection->AddChildListData(TestItem);
+			USL_ListDataObject_Scalar* MusicVolume = NewObject<USL_ListDataObject_Scalar>();
+			MusicVolume->SetDataID(FName(TEXT("MusicVolume")));
+			MusicVolume->SetDataDisplayName(FText::FromString(TEXT("Music Volume")));
+			MusicVolume->SetDescriptionRichText(FText::FromString(TEXT("This is description for music volume")));
+			MusicVolume->SetDisplayValueRange(TRange<float>(0.f, 1.f));
+			MusicVolume->SetOutputValueRange(TRange<float>(0.f, 2.f));
+			MusicVolume->SetSliderStepSize(0.01f);
+			MusicVolume->SetDefaultValueFromString(LexToString(1.f));
+			MusicVolume->SetDisplayNumericType(ECommonNumericType::Percentage);
+			MusicVolume->SetNumberFormattingOptions(USL_ListDataObject_Scalar::NoDecimal());
+			MusicVolume->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetMusicVolume));
+			MusicVolume->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetMusicVolume));
+			MusicVolume->SetShouldApplySettingsImmediately(true);
+			
+			VolumeCategoryCollection->AddChildListData(MusicVolume);
 		}
 	}
 	
