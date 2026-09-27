@@ -18,14 +18,11 @@ public:
 protected:
 	// ~ Begin USL_ListDataObject_Base Interface
 	virtual void OnDataObjectInitialized() override;
-	// ~ End USL_ListDataObject_Base Interface
-	
-	bool TrySetDisplayTextFromStringValue(const FString& InStringValue);
-	
-	// ~ Begin USL_ListDataObject_Base Interface
 	virtual bool CanResetBackToDefaultValue() const override;
 	virtual bool TryResetBackToDefaultValue() override;
 	// ~ End USL_ListDataObject_Base Interface
+	
+	bool TrySetDisplayTextFromStringValue(const FString& InStringValue);
 	
 	UPROPERTY()
 	FString CurrentStringValue;

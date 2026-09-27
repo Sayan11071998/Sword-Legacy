@@ -112,20 +112,6 @@ void USL_ListDataObject_String::OnRotatorInitiatedValueChanged(const FText& InNe
 	}
 }
 
-bool USL_ListDataObject_String::TrySetDisplayTextFromStringValue(const FString& InStringValue)
-{
-	const int32 CurrentFoundIndex = AvailableOptionsStringArray.IndexOfByKey(InStringValue);
-	
-	if (AvailableOptionsTextArray.IsValidIndex(CurrentFoundIndex))
-	{
-		CurrentDisplayText = AvailableOptionsTextArray[CurrentFoundIndex];
-		
-		return true;
-	}
-	
-	return false;
-}
-
 bool USL_ListDataObject_String::CanResetBackToDefaultValue() const
 {
 	return HasDefaultValue() && CurrentStringValue != GetDefaultValueAsString();
@@ -145,6 +131,20 @@ bool USL_ListDataObject_String::TryResetBackToDefaultValue()
 		DataDynamicSetter->SetValueFromString(CurrentStringValue);
 		
 		NotifyListDataModified(this, ESL_OptionsListDataModifyReason::ResetToDefault);
+		
+		return true;
+	}
+	
+	return false;
+}
+
+bool USL_ListDataObject_String::TrySetDisplayTextFromStringValue(const FString& InStringValue)
+{
+	const int32 CurrentFoundIndex = AvailableOptionsStringArray.IndexOfByKey(InStringValue);
+	
+	if (AvailableOptionsTextArray.IsValidIndex(CurrentFoundIndex))
+	{
+		CurrentDisplayText = AvailableOptionsTextArray[CurrentFoundIndex];
 		
 		return true;
 	}
