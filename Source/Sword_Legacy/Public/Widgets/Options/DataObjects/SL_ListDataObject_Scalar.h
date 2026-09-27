@@ -24,6 +24,11 @@ public:
 	void SetCurrentValueFromSlider(float InNewValue);
 
 private:
+	// ~ Begin USL_ListDataObject_Base Interface
+	virtual bool CanResetBackToDefaultValue() const override;
+	virtual bool TryResetBackToDefaultValue() override;
+	// ~ End USL_ListDataObject_Base Interface
+	
 	float StringToFloat(const FString& InString) const;
 	
 	TRange<float> DisplayValueRange = TRange<float>(0.f, 1.f);
