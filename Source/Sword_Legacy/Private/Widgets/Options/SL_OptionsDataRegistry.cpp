@@ -193,6 +193,8 @@ void USL_OptionsDataRegistry::InitAudioCollectionTab()
 			USL_ListDataObject_StringBool* AllowBackgroundAudio = NewObject<USL_ListDataObject_StringBool>();
 			AllowBackgroundAudio->SetDataID(FName(TEXT("AllowBackgroundAudio")));
 			AllowBackgroundAudio->SetDataDisplayName(FText::FromString(TEXT("Allow Background Audio")));
+			AllowBackgroundAudio->OverrideTrueDisplayText(FText::FromString(TEXT("Enabled")));
+			AllowBackgroundAudio->OverrideFalseDisplayText(FText::FromString(TEXT("Disabled")));
 			AllowBackgroundAudio->SetFalseAsDefaultValue();
 			AllowBackgroundAudio->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetAllowBackgroundAudio));
 			AllowBackgroundAudio->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetAllowBackgroundAudio));
