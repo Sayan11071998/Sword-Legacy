@@ -179,6 +179,15 @@ void USL_OptionsDataRegistry::InitAudioCollectionTab()
 		}
 	}
 	
+	// Sound Category
+	{
+		USL_ListDataObject_Collection* SoundCategoryCollection = NewObject<USL_ListDataObject_Collection>();
+		SoundCategoryCollection->SetDataID(FName(TEXT("SoundCategoryCollection")));
+		SoundCategoryCollection->SetDataDisplayName(FText::FromString(TEXT("Sound")));
+		
+		AudioTabCollection->AddChildListData(SoundCategoryCollection);
+	}
+	
 	RegisteredOptionsTabCollections.Add(AudioTabCollection);
 }
 
