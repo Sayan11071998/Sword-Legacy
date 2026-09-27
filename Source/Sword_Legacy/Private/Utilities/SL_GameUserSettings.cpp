@@ -4,6 +4,9 @@
 #include "Engine/World.h"
 #include "UObject/UObjectIterator.h"
 
+USL_GameUserSettings::USL_GameUserSettings()
+	: OverallVolume(1.f) { }
+
 TObjectPtr<USL_GameUserSettings> USL_GameUserSettings::Get()
 {
 	if (GEngine)
@@ -66,4 +69,11 @@ void USL_GameUserSettings::SetCurrentGameDifficulty(const FString& InNewDifficul
 {
 	CurrentGameDifficulty = InNewDifficulty;
 	ApplyCurrentGameDifficultyToAbilitySystems();
+}
+
+void USL_GameUserSettings::SetOverallVolume(float InVolume)
+{
+	OverallVolume = InVolume;
+	
+	// The logic for controlling the volume goes here.
 }

@@ -10,6 +10,8 @@ class SWORD_LEGACY_API USL_GameUserSettings : public UGameUserSettings
 	GENERATED_BODY()
 	
 public:
+	USL_GameUserSettings();
+	
 	static TObjectPtr<USL_GameUserSettings> Get();
 
 	// ~ Begin UGameUserSettings Interface
@@ -27,8 +29,20 @@ public:
 	
 	UFUNCTION()
 	void SetCurrentGameDifficulty(const FString& InNewDifficulty);
+	
+	// Audio Collection Tab
+	UFUNCTION()
+	float GetOverallVolume() const { return OverallVolume; }
+	
+	UFUNCTION()
+	void SetOverallVolume(float InVolume);
 
 private:
+	// Gameplay Collection Tab
 	UPROPERTY(Config)
 	FString CurrentGameDifficulty = TEXT("Normal");
+	
+	// Audio Collection Tab
+	UPROPERTY(Config)
+	float OverallVolume;
 };
