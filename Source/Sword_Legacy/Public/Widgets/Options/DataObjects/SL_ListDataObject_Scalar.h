@@ -16,6 +16,9 @@ public:
 	LIST_DATA_ACCESSOR(float, SliderStepSize);
 	LIST_DATA_ACCESSOR(ECommonNumericType, DisplayNumericType);
 	LIST_DATA_ACCESSOR(FCommonNumberFormattingOptions, NumberFormattingOptions);
+	
+	static FCommonNumberFormattingOptions NoDecimal();
+	static FCommonNumberFormattingOptions WithDecimal(int32 NumFracDigit);
 
 private:
 	TRange<float> DisplayValueRange = TRange<float>(0.f, 1.f);

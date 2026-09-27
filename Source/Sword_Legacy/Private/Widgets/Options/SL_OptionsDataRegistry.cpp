@@ -5,6 +5,7 @@
 #include "Utilities/SL_GameUserSettings.h"
 #include "Utilities/SL_FunctionLibrary.h"
 #include "Utilities/SL_GameplayTags.h"
+#include "Widgets/Options/DataObjects/SL_ListDataObject_Scalar.h"
 
 #define MAKE_OPTIONS_DATA_CONTROL(SetterOrGetterFuncName) \
 	MakeShared<FSL_OptionsDataInteractionHelper>(GET_FUNCTION_NAME_STRING_CHECKED(USL_GameUserSettings, SetterOrGetterFuncName))
@@ -120,13 +121,22 @@ void USL_OptionsDataRegistry::InitAudioCollectionTab()
 		
 		AudioTabCollection->AddChildListData(VolumeCategoryCollection);
 		
-		// Test Item
+		// Overall Volume
 		{
-			USL_ListDataObject_String* TestItem = NewObject<USL_ListDataObject_String>();
-			TestItem->SetDataID(FName(TEXT("TestItem")));
-			TestItem->SetDataDisplayName(FText::FromString(TEXT("Test Item")));
+			USL_ListDataObject_Scalar* OverallVolume = NewObject<USL_ListDataObject_Scalar>();
+			OverallVolume->SetDataID(FName(TEXT("OverallVolume")));
+			OverallVolume->SetDataDisplayName(FText::FromString(TEXT("Overall Volume")));
+			OverallVolume->SetDescriptionRichText(FText::FromString(TEXT("This is description for overall volume")));
+			OverallVolume->SetDisplayValueRange(TRange<float>(0.f, 1.f));
+			OverallVolume->SetOutputValueRange(TRange<float>(0.f, 2.f));
+			OverallVolume->SetSliderStepSize(0.01f);
+			OverallVolume->SetDefaultValueFromString(LexToString(1.f));
+			OverallVolume->SetDisplayNumericType(ECommonNumericType::Percentage);
+			OverallVolume->SetNumberFormattingOptions(USL_ListDataObject_Scalar::NoDecimal());
+			// OverallVolume->SetDataDynamicGetter();
+			// OverallVolume->SetDataDynamicSetter();
 			
-			VolumeCategoryCollection->AddChildListData(TestItem);
+			VolumeCategoryCollection->AddChildListData(OverallVolume);
 		}
 	}
 	
