@@ -5,7 +5,7 @@
 #include "UObject/UObjectIterator.h"
 
 USL_GameUserSettings::USL_GameUserSettings()
-	: OverallVolume(1.f), MusicVolume(1.f) { }
+	: OverallVolume(1.f), MusicVolume(1.f), SoundFXVolume(1.f) { }
 
 TObjectPtr<USL_GameUserSettings> USL_GameUserSettings::Get()
 {
@@ -81,4 +81,9 @@ void USL_GameUserSettings::SetOverallVolume(float InVolume)
 void USL_GameUserSettings::SetMusicVolume(float InVolume)
 {
 	MusicVolume = InVolume;
+}
+
+void USL_GameUserSettings::SetSoundFXVolume(float InVolume)
+{
+	SoundFXVolume = InVolume;
 }
