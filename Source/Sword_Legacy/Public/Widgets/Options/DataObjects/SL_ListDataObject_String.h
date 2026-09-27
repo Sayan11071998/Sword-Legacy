@@ -4,7 +4,6 @@
 #include "Widgets/Options/DataObjects/SL_ListDataObject_Value.h"
 #include "SL_ListDataObject_String.generated.h"
 
-// USL_ListDataObject_String-> String Data Object Class (It can hold multiple values)
 UCLASS()
 class SWORD_LEGACY_API USL_ListDataObject_String : public USL_ListDataObject_Value
 {
@@ -40,28 +39,4 @@ protected:
 public:
 	FORCEINLINE const TArray<FText>& GetAvailableOptionsTextArray() const { return AvailableOptionsTextArray; }
 	FORCEINLINE FText GetCurrentDisplayText() const { return CurrentDisplayText; }
-};
-
-// USL_ListDataObject_StringBool -> String Bool Data Object Class (It can hold only two values)
-UCLASS()
-class SWORD_LEGACY_API USL_ListDataObject_StringBool : public USL_ListDataObject_String
-{
-	GENERATED_BODY()
-	
-public:
-	void OverrideTrueDisplayText(const FText& InNewTrueDisplayText);
-	void OverrideFalseDisplayText(const FText& InNewFalseDisplayText);
-	void SetTrueAsDefaultValue();
-	void SetFalseAsDefaultValue();
-	
-protected:
-	// ~ Begin USL_ListDataObject_String Interface
-	virtual void OnDataObjectInitialized() override;
-	// ~ End USL_ListDataObject_String Interface
-	
-private:
-	void TryInitBoolValues();
-	
-	const FString TrueString = TEXT("true");
-	const FString FalseString = TEXT("false");
 };
