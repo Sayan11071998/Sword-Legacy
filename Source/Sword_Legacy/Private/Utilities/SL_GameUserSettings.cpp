@@ -4,8 +4,12 @@
 #include "Engine/World.h"
 #include "UObject/UObjectIterator.h"
 
-USL_GameUserSettings::USL_GameUserSettings()
-	: OverallVolume(1.f), MusicVolume(1.f), SoundFXVolume(1.f) { }
+USL_GameUserSettings::USL_GameUserSettings() :
+	OverallVolume(1.f),
+	MusicVolume(1.f),
+	SoundFXVolume(1.f),
+	bAllowBackgroundAudio(false)
+{ }
 
 TObjectPtr<USL_GameUserSettings> USL_GameUserSettings::Get()
 {
@@ -86,4 +90,9 @@ void USL_GameUserSettings::SetMusicVolume(float InVolume)
 void USL_GameUserSettings::SetSoundFXVolume(float InVolume)
 {
 	SoundFXVolume = InVolume;
+}
+
+void USL_GameUserSettings::SetAllowBackgroundAudio(bool bIsAllowed)
+{
+	bAllowBackgroundAudio = bIsAllowed;
 }

@@ -6,6 +6,7 @@
 #include "Utilities/SL_FunctionLibrary.h"
 #include "Utilities/SL_GameplayTags.h"
 #include "Widgets/Options/DataObjects/SL_ListDataObject_Scalar.h"
+#include "Widgets/Options/DataObjects/SL_ListDataObject_StringBool.h"
 
 #define MAKE_OPTIONS_DATA_CONTROL(SetterOrGetterFuncName) \
 	MakeShared<FSL_OptionsDataInteractionHelper>(GET_FUNCTION_NAME_STRING_CHECKED(USL_GameUserSettings, SetterOrGetterFuncName))
@@ -186,6 +187,19 @@ void USL_OptionsDataRegistry::InitAudioCollectionTab()
 		SoundCategoryCollection->SetDataDisplayName(FText::FromString(TEXT("Sound")));
 		
 		AudioTabCollection->AddChildListData(SoundCategoryCollection);
+		
+		// Allow Background Audio
+		{
+			USL_ListDataObject_StringBool* AllowBackgroundAudio = NewObject<USL_ListDataObject_StringBool>();
+			AllowBackgroundAudio->SetDataID(FName(TEXT("AllowBackgroundAudio")));
+			AllowBackgroundAudio->SetDataDisplayName(FText::FromString(TEXT("Allow Background Audio")));
+			AllowBackgroundAudio->SetFalseAsDefaultValue();
+			AllowBackgroundAudio->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetAllowBackgroundAudio));
+			AllowBackgroundAudio->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetAllowBackgroundAudio));
+			AllowBackgroundAudio->SetShouldApplySettingsImmediately(true);
+			
+			SoundCategoryCollection->AddChildListData(AllowBackgroundAudio);
+		}
 	}
 	
 	RegisteredOptionsTabCollections.Add(AudioTabCollection);
