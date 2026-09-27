@@ -202,6 +202,21 @@ void USL_OptionsDataRegistry::InitAudioCollectionTab()
 			
 			SoundCategoryCollection->AddChildListData(AllowBackgroundAudio);
 		}
+		
+		// Use HDR Audio
+		{
+			USL_ListDataObject_StringBool* UseHDRAudioMode = NewObject<USL_ListDataObject_StringBool>();
+			UseHDRAudioMode->SetDataID(FName(TEXT("UseHDRAudioMode")));
+			UseHDRAudioMode->SetDataDisplayName(FText::FromString(TEXT("Use HDR Audio Mode")));
+			UseHDRAudioMode->OverrideTrueDisplayText(FText::FromString(TEXT("Enabled")));
+			UseHDRAudioMode->OverrideFalseDisplayText(FText::FromString(TEXT("Disabled")));
+			UseHDRAudioMode->SetFalseAsDefaultValue();
+			UseHDRAudioMode->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetUseHDRAudioMode));
+			UseHDRAudioMode->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetUseHDRAudioMode));
+			UseHDRAudioMode->SetShouldApplySettingsImmediately(true);
+			
+			SoundCategoryCollection->AddChildListData(UseHDRAudioMode);
+		}
 	}
 	
 	RegisteredOptionsTabCollections.Add(AudioTabCollection);

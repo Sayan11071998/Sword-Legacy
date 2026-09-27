@@ -8,7 +8,8 @@ USL_GameUserSettings::USL_GameUserSettings() :
 	OverallVolume(1.f),
 	MusicVolume(1.f),
 	SoundFXVolume(1.f),
-	bAllowBackgroundAudio(false)
+	bAllowBackgroundAudio(false),
+	bUseHDRAudioMode(false)
 { }
 
 TObjectPtr<USL_GameUserSettings> USL_GameUserSettings::Get()
@@ -95,4 +96,9 @@ void USL_GameUserSettings::SetSoundFXVolume(float InVolume)
 void USL_GameUserSettings::SetAllowBackgroundAudio(bool bIsAllowed)
 {
 	bAllowBackgroundAudio = bIsAllowed;
+}
+
+void USL_GameUserSettings::SetUseHDRAudioMode(bool bIsAllowed)
+{
+	bUseHDRAudioMode = bIsAllowed;
 }
