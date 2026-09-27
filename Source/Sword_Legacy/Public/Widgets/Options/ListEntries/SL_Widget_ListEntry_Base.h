@@ -27,7 +27,6 @@ protected:
 	// ~ End IUserObjectListEntry Inter
 	
 	// ~ Begin UUserWidget Interface
-	virtual void NativeOnInitialized() override;
 	virtual FReply NativeOnFocusReceived(const FGeometry& InGeometry, const FFocusEvent& InFocusEvent) override;
 	// ~ End UUserWidget Interface
 	

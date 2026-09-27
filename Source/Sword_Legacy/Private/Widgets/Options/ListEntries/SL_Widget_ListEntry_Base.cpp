@@ -9,17 +9,6 @@ void USL_Widget_ListEntry_Base::NativeOnListEntryWidgetHovered(bool bWasHovered)
 	BP_OnListEntryWidgetHovered(bWasHovered, IsListItemSelected());
 }
 
-void USL_Widget_ListEntry_Base::NativeOnInitialized()
-{
-	Super::NativeOnInitialized();
-
-	// Text is not a hit target, so the cursor passes through the name and value unless the row itself is Visible.
-	if (UWidget* RootWidget = GetRootWidget())
-	{
-		RootWidget->SetVisibility(ESlateVisibility::Visible);
-	}
-}
-
 void USL_Widget_ListEntry_Base::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
 	IUserObjectListEntry::NativeOnListItemObjectSet(ListItemObject);
