@@ -2,6 +2,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameUserSettings.h"
+
+class USoundClass;
+class USoundMix;
+class UWorld;
+
 #include "SL_GameUserSettings.generated.h"
 
 UCLASS()
@@ -22,6 +27,8 @@ public:
 	int32 GetCurrentGameDifficultyAsAbilityLevel() const;
 
 	void ApplyCurrentGameDifficultyToAbilitySystems() const;
+	
+	void ApplySoundMixVolumes() const;
 	
 	// Gameplay Collection Tab
 	UFUNCTION()
@@ -62,6 +69,16 @@ public:
 	void SetUseHDRAudioMode(bool bIsAllowed);
 
 private:
+	UWorld* FindGameAudioWorld() const;
+	
+	void SetSoundClassVolume(
+		UWorld* AudioWorld,
+		USoundMix* SoundMix,
+		USoundClass* SoundClass,
+		float Volume,
+		bool bApplyToChildren	
+	) const;
+
 	// Gameplay Collection Tab
 	UPROPERTY(Config)
 	FString CurrentGameDifficulty = TEXT("Normal");

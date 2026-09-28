@@ -75,38 +75,84 @@ void USL_GameUserSettings::ApplyCurrentGameDifficultyToAbilitySystems() const
 	}
 }
 
+void USL_GameUserSettings::ApplySoundMixVolumes() const
+{
+	UWorld* AudioWorld = FindGameAudioWorld();
+	const USL_SoundDeveloperSettings* SoundSettings = GetDefault<USL_SoundDeveloperSettings>();
+	
+	if (!AudioWorld || !SoundSettings) return;
+
+	USoundClass* MasterSoundClass = Cast<USoundClass>(SoundSettings->MasterSoundClass.TryLoad());
+	USoundClass* MusicSoundClass = Cast<USoundClass>(SoundSettings->MusicSoundClass.TryLoad());
+	USoundClass* SoundFXSoundClass = Cast<USoundClass>(SoundSettings->SoundFXSoundClass.TryLoad());
+	USoundMix* DefaultSoundMix = Cast<USoundMix>(SoundSettings->DefaultSoundMix.TryLoad());
+	
+	if (!DefaultSoundMix) return;
+
+	const bool bMasterDrivesMusic = MasterSoundClass && MusicSoundClass && MasterSoundClass->ChildClasses.Contains(MusicSoundClass);
+	const bool bMasterDrivesSoundFX = MasterSoundClass && SoundFXSoundClass && MasterSoundClass->ChildClasses.Contains(SoundFXSoundClass);
+
+	if (bMasterDrivesMusic && bMasterDrivesSoundFX)
+	{
+		SetSoundClassVolume(AudioWorld, DefaultSoundMix, MasterSoundClass, OverallVolume, true);
+		SetSoundClassVolume(AudioWorld, DefaultSoundMix, MusicSoundClass, MusicVolume, true);
+		SetSoundClassVolume(AudioWorld, DefaultSoundMix, SoundFXSoundClass, SoundFXVolume, true);
+	}
+	else
+	{
+		SetSoundClassVolume(AudioWorld, DefaultSoundMix, MasterSoundClass, OverallVolume, false);
+		SetSoundClassVolume(AudioWorld, DefaultSoundMix, MusicSoundClass, OverallVolume * MusicVolume, true);
+		SetSoundClassVolume(AudioWorld, DefaultSoundMix, SoundFXSoundClass, OverallVolume * SoundFXVolume, true);
+	}
+
+	UGameplayStatics::PushSoundMixModifier(AudioWorld, DefaultSoundMix);
+}
+
 void USL_GameUserSettings::SetCurrentGameDifficulty(const FString& InNewDifficulty)
 {
 	CurrentGameDifficulty = InNewDifficulty;
 	ApplyCurrentGameDifficultyToAbilitySystems();
 }
 
+UWorld* USL_GameUserSettings::FindGameAudioWorld() const
+{
+	if (!GEngine) return nullptr;
+
+	if (UWorld* PlayWorld = GEngine->GetCurrentPlayWorld()) return PlayWorld;
+
+	for (const FWorldContext& WorldContext : GEngine->GetWorldContexts())
+	{
+		UWorld* World = WorldContext.World();
+		if (World && World->IsGameWorld() && World->bAllowAudioPlayback) return World;
+	}
+
+	return nullptr;
+}
+
+void USL_GameUserSettings::SetSoundClassVolume(UWorld* AudioWorld, USoundMix* SoundMix, USoundClass* SoundClass,
+	float Volume, bool bApplyToChildren) const
+{
+	if (!AudioWorld || !SoundMix || !SoundClass) return;
+
+	UGameplayStatics::SetSoundMixClassOverride(AudioWorld, SoundMix, SoundClass, Volume, 1.f, 0.2f, bApplyToChildren);
+}
+
 void USL_GameUserSettings::SetOverallVolume(float InVolume)
 {
 	OverallVolume = InVolume;
-
-	UWorld* InAudioWorld = GEngine ? GEngine->GetCurrentPlayWorld() : nullptr;
-	const USL_SoundDeveloperSettings* SoundSettings = GetDefault<USL_SoundDeveloperSettings>();
-
-	if (!InAudioWorld || !SoundSettings) return;
-
-	USoundClass* LoadedMasterSoundClass = Cast<USoundClass>(SoundSettings->MasterSoundClass.TryLoad());
-	USoundMix* LoadedDefaultSoundMix = Cast<USoundMix>(SoundSettings->DefaultSoundMix.TryLoad());
-
-	if (!LoadedMasterSoundClass || !LoadedDefaultSoundMix) return;
-
-	UGameplayStatics::SetSoundMixClassOverride(InAudioWorld, LoadedDefaultSoundMix, LoadedMasterSoundClass, OverallVolume, 1.f, 0.2f);
-	UGameplayStatics::PushSoundMixModifier(InAudioWorld, LoadedDefaultSoundMix);
+	ApplySoundMixVolumes();
 }
 
 void USL_GameUserSettings::SetMusicVolume(float InVolume)
 {
 	MusicVolume = InVolume;
+	ApplySoundMixVolumes();
 }
 
 void USL_GameUserSettings::SetSoundFXVolume(float InVolume)
 {
 	SoundFXVolume = InVolume;
+	ApplySoundMixVolumes();
 }
 
 void USL_GameUserSettings::SetAllowBackgroundAudio(bool bIsAllowed)
