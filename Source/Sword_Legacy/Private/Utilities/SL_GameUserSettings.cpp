@@ -2,7 +2,11 @@
 #include "AbilitySystem/SL_AbilitySystemComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/World.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundClass.h"
+#include "Sound/SoundMix.h"
 #include "UObject/UObjectIterator.h"
+#include "Utilities/SL_DeveloperSettings.h"
 
 USL_GameUserSettings::USL_GameUserSettings() :
 	OverallVolume(1.f),
@@ -26,6 +30,7 @@ void USL_GameUserSettings::ApplySettings(bool bCheckForCommandLineOverrides)
 {
 	Super::ApplySettings(bCheckForCommandLineOverrides);
 	ApplyCurrentGameDifficultyToAbilitySystems();
+	SetOverallVolume(OverallVolume);
 }
 
 int32 USL_GameUserSettings::GetCurrentGameDifficultyAsAbilityLevel() const
@@ -79,8 +84,19 @@ void USL_GameUserSettings::SetCurrentGameDifficulty(const FString& InNewDifficul
 void USL_GameUserSettings::SetOverallVolume(float InVolume)
 {
 	OverallVolume = InVolume;
-	
-	// The logic for controlling the volume goes here.
+
+	UWorld* InAudioWorld = GEngine ? GEngine->GetCurrentPlayWorld() : nullptr;
+	const USL_DeveloperSettings* DeveloperSettings = GetDefault<USL_DeveloperSettings>();
+
+	if (!InAudioWorld || !DeveloperSettings) return;
+
+	USoundClass* LoadedMasterSoundClass = Cast<USoundClass>(DeveloperSettings->MasterSoundClass.TryLoad());
+	USoundMix* LoadedDefaultSoundMix = Cast<USoundMix>(DeveloperSettings->DefaultSoundMix.TryLoad());
+
+	if (!LoadedMasterSoundClass || !LoadedDefaultSoundMix) return;
+
+	UGameplayStatics::SetSoundMixClassOverride(InAudioWorld, LoadedDefaultSoundMix, LoadedMasterSoundClass, OverallVolume, 1.f, 0.2f);
+	UGameplayStatics::PushSoundMixModifier(InAudioWorld, LoadedDefaultSoundMix);
 }
 
 void USL_GameUserSettings::SetMusicVolume(float InVolume)
