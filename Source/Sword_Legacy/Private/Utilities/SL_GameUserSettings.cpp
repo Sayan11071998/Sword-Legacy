@@ -6,7 +6,7 @@
 #include "Sound/SoundClass.h"
 #include "Sound/SoundMix.h"
 #include "UObject/UObjectIterator.h"
-#include "Utilities/SL_DeveloperSettings.h"
+#include "Utilities/SL_SoundDeveloperSettings.h"
 
 USL_GameUserSettings::USL_GameUserSettings() :
 	OverallVolume(1.f),
@@ -86,12 +86,12 @@ void USL_GameUserSettings::SetOverallVolume(float InVolume)
 	OverallVolume = InVolume;
 
 	UWorld* InAudioWorld = GEngine ? GEngine->GetCurrentPlayWorld() : nullptr;
-	const USL_DeveloperSettings* DeveloperSettings = GetDefault<USL_DeveloperSettings>();
+	const USL_SoundDeveloperSettings* SoundSettings = GetDefault<USL_SoundDeveloperSettings>();
 
-	if (!InAudioWorld || !DeveloperSettings) return;
+	if (!InAudioWorld || !SoundSettings) return;
 
-	USoundClass* LoadedMasterSoundClass = Cast<USoundClass>(DeveloperSettings->MasterSoundClass.TryLoad());
-	USoundMix* LoadedDefaultSoundMix = Cast<USoundMix>(DeveloperSettings->DefaultSoundMix.TryLoad());
+	USoundClass* LoadedMasterSoundClass = Cast<USoundClass>(SoundSettings->MasterSoundClass.TryLoad());
+	USoundMix* LoadedDefaultSoundMix = Cast<USoundMix>(SoundSettings->DefaultSoundMix.TryLoad());
 
 	if (!LoadedMasterSoundClass || !LoadedDefaultSoundMix) return;
 
