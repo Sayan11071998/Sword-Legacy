@@ -2,9 +2,12 @@
 #include "AbilitySystem/SL_AbilitySystemComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/World.h"
+#include "AudioMixerBlueprintLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include "Misc/App.h"
 #include "Sound/SoundClass.h"
 #include "Sound/SoundMix.h"
+#include "SubmixEffects/AudioMixerSubmixEffectDynamicsProcessor.h"
 #include "UObject/UObjectIterator.h"
 #include "Utilities/SL_SoundDeveloperSettings.h"
 
@@ -29,8 +32,12 @@ TObjectPtr<USL_GameUserSettings> USL_GameUserSettings::Get()
 void USL_GameUserSettings::ApplySettings(bool bCheckForCommandLineOverrides)
 {
 	Super::ApplySettings(bCheckForCommandLineOverrides);
+	
 	ApplyCurrentGameDifficultyToAbilitySystems();
+	
 	SetOverallVolume(OverallVolume);
+	ApplyAllowBackgroundAudio();
+	ApplyHDRAudioMode();
 }
 
 int32 USL_GameUserSettings::GetCurrentGameDifficultyAsAbilityLevel() const
@@ -108,6 +115,49 @@ void USL_GameUserSettings::ApplySoundMixVolumes() const
 	UGameplayStatics::PushSoundMixModifier(AudioWorld, DefaultSoundMix);
 }
 
+void USL_GameUserSettings::ApplyAllowBackgroundAudio() const
+{
+	FApp::SetUnfocusedVolumeMultiplier(bAllowBackgroundAudio ? 1.f : 0.f);
+}
+
+void USL_GameUserSettings::ApplyHDRAudioMode()
+{
+	UWorld* AudioWorld = FindGameAudioWorld();
+	if (!AudioWorld) return;
+
+	if (!bUseHDRAudioMode)
+	{
+		if (bHDRAudioLimiterActive && HDRAudioLimiter)
+		{
+			UAudioMixerBlueprintLibrary::RemoveMasterSubmixEffect(AudioWorld, HDRAudioLimiter);
+			bHDRAudioLimiterActive = false;
+		}
+		return;
+	}
+
+	if (!HDRAudioLimiter)
+	{
+		HDRAudioLimiter = NewObject<USubmixEffectDynamicsProcessorPreset>(this);
+
+		FSubmixEffectDynamicsProcessorSettings Settings;
+		Settings.DynamicsProcessorType = ESubmixEffectDynamicsProcessorType::Compressor;
+		Settings.ThresholdDb = -18.f;
+		Settings.Ratio = 8.f;
+		Settings.AttackTimeMsec = 5.f;
+		Settings.ReleaseTimeMsec = 150.f;
+		Settings.KneeBandwidthDb = 6.f;
+		Settings.OutputGainDb = 3.f;
+		Settings.bAnalogMode = true;
+		HDRAudioLimiter->SetSettings(Settings);
+	}
+
+	if (!bHDRAudioLimiterActive)
+	{
+		UAudioMixerBlueprintLibrary::AddMasterSubmixEffect(AudioWorld, HDRAudioLimiter);
+		bHDRAudioLimiterActive = true;
+	}
+}
+
 void USL_GameUserSettings::SetCurrentGameDifficulty(const FString& InNewDifficulty)
 {
 	CurrentGameDifficulty = InNewDifficulty;
@@ -158,9 +208,11 @@ void USL_GameUserSettings::SetSoundFXVolume(float InVolume)
 void USL_GameUserSettings::SetAllowBackgroundAudio(bool bIsAllowed)
 {
 	bAllowBackgroundAudio = bIsAllowed;
+	ApplyAllowBackgroundAudio();
 }
 
 void USL_GameUserSettings::SetUseHDRAudioMode(bool bIsAllowed)
 {
 	bUseHDRAudioMode = bIsAllowed;
+	ApplyHDRAudioMode();
 }

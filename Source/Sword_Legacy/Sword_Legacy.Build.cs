@@ -28,7 +28,8 @@ public class Sword_Legacy : ModuleRules
 			"DeveloperSettings",
 			"CommonInput",
 			"CoreUObject",
-			"PropertyPath"
+			"PropertyPath",
+			"AudioMixer"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });

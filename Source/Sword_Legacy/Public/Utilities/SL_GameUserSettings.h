@@ -5,6 +5,7 @@
 
 class USoundClass;
 class USoundMix;
+class USubmixEffectDynamicsProcessorPreset;
 class UWorld;
 
 #include "SL_GameUserSettings.generated.h"
@@ -23,12 +24,14 @@ public:
 	virtual void ApplySettings(bool bCheckForCommandLineOverrides) override;
 	// ~ End UGameUserSettings Interface
 	
-	// Easy = 1, Normal = 2, Hard = 3, Very Hard = 4. Passed as GAS ApplyLevel for player and enemy startup data.
+	// Apply Game Difficulty - Easy = 1, Normal = 2, Hard = 3, Very Hard = 4. Passed as GAS ApplyLevel for player and enemy startup data.
 	int32 GetCurrentGameDifficultyAsAbilityLevel() const;
-
 	void ApplyCurrentGameDifficultyToAbilitySystems() const;
 	
+	// Apply Game Sound Settings
 	void ApplySoundMixVolumes() const;
+	void ApplyAllowBackgroundAudio() const;
+	void ApplyHDRAudioMode();
 	
 	// Gameplay Collection Tab
 	UFUNCTION()
@@ -98,4 +101,10 @@ private:
 	
 	UPROPERTY(Config)
 	bool bUseHDRAudioMode;
+
+	UPROPERTY(Transient)
+	TObjectPtr<USubmixEffectDynamicsProcessorPreset> HDRAudioLimiter;
+
+	UPROPERTY()
+	bool bHDRAudioLimiterActive = false;
 };
