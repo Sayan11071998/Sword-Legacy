@@ -7,7 +7,6 @@
 #include "Utilities/SL_GameplayTags.h"
 #include "Widgets/SL_Widget_Activatable_Base.h"
 #include "Widgets/SL_Widget_PrimaryLayout.h"
-#include "Utilities/SL_GameUserSettings.h"
 
 ASL_PlayerController::ASL_PlayerController()
 {
@@ -67,14 +66,6 @@ void ASL_PlayerController::OnPossess(APawn* aPawn)
 	if (!aPawn)
 	{
 		SetViewTargetToDefaultCamera();
-	}
-	
-	USL_GameUserSettings* GameUserSettings = USL_GameUserSettings::Get();
-	
-	if (GameUserSettings->GetLastCPUBenchmarkResult() == -1.f || GameUserSettings->GetLastGPUBenchmarkResult() == -1.f)
-	{
-		GameUserSettings->RunHardwareBenchmark();
-		GameUserSettings->ApplyHardwareBenchmarkResults();
 	}
 }
 

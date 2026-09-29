@@ -11,6 +11,17 @@
 #include "UObject/UObjectIterator.h"
 #include "Utilities/SL_SoundDeveloperSettings.h"
 
+void USL_GameUserSettings::LoadSettings(bool bForceReload)
+{
+	Super::LoadSettings(bForceReload);
+
+	if (!FApp::CanEverRender() || IsRunningDedicatedServer() || IsRunningCommandlet()) return;
+	if (GetLastCPUBenchmarkResult() != -1.f && GetLastGPUBenchmarkResult() != -1.f) return;
+
+	RunHardwareBenchmark();
+	ApplyHardwareBenchmarkResults();
+}
+
 USL_GameUserSettings::USL_GameUserSettings() :
 	OverallVolume(1.f),
 	MusicVolume(1.f),

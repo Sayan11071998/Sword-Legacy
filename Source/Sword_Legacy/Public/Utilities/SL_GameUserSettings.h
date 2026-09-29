@@ -21,6 +21,7 @@ public:
 	static TObjectPtr<USL_GameUserSettings> Get();
 
 	// ~ Begin UGameUserSettings Interface
+	virtual void LoadSettings(bool bForceReload = false) override;
 	virtual void ApplySettings(bool bCheckForCommandLineOverrides) override;
 	// ~ End UGameUserSettings Interface
 	
