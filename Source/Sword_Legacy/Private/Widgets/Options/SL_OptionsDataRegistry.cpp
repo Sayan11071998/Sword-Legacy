@@ -7,6 +7,7 @@
 #include "Utilities/SL_GameplayTags.h"
 #include "Widgets/Options/DataObjects/SL_ListDataObject_Scalar.h"
 #include "Widgets/Options/DataObjects/SL_ListDataObject_StringBool.h"
+#include "Widgets/Options/DataObjects/SL_ListDataObject_StringEnum.h"
 
 #define MAKE_OPTIONS_DATA_CONTROL(SetterOrGetterFuncName) \
 	MakeShared<FSL_OptionsDataInteractionHelper>(GET_FUNCTION_NAME_STRING_CHECKED(USL_GameUserSettings, SetterOrGetterFuncName))
@@ -227,6 +228,32 @@ void USL_OptionsDataRegistry::InitVideoCollectionTab()
 	USL_ListDataObject_Collection* VideoTabCollection = NewObject<USL_ListDataObject_Collection>();
 	VideoTabCollection->SetDataID(FName(TEXT("VideoTabCollection")));
 	VideoTabCollection->SetDataDisplayName(FText::FromString(TEXT("Video")));
+	
+	// Display Category
+	{
+		USL_ListDataObject_Collection* DisplayCategoryCollection = NewObject<USL_ListDataObject_Collection>();
+		DisplayCategoryCollection->SetDataID(FName(TEXT("DisplayCategoryCollection")));
+		DisplayCategoryCollection->SetDataDisplayName(FText::FromString(TEXT("Display")));
+		
+		VideoTabCollection->AddChildListData(DisplayCategoryCollection);
+		
+		// Window Mode
+		{
+			USL_ListDataObject_StringEnum* WindowMode = NewObject<USL_ListDataObject_StringEnum>();
+			WindowMode->SetDataID(FName(TEXT("WindowMode")));
+			WindowMode->SetDataDisplayName(FText::FromString(TEXT("Window Mode")));
+			WindowMode->SetDescriptionRichText(FText::FromString(TEXT("This is description for Window Mode")));
+			WindowMode->AddEnumOption(EWindowMode::Fullscreen, FText::FromString(TEXT("Fullscreen Mode")));
+			WindowMode->AddEnumOption(EWindowMode::WindowedFullscreen, FText::FromString(TEXT("Borderless Window")));
+			WindowMode->AddEnumOption(EWindowMode::Windowed, FText::FromString(TEXT("Windowed")));
+			WindowMode->SetDefaultValueFromEnumOption(EWindowMode::WindowedFullscreen);
+			WindowMode->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetFullscreenMode));
+			WindowMode->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetFullscreenMode));
+			WindowMode->SetShouldApplySettingsImmediately(true);
+			
+			DisplayCategoryCollection->AddChildListData(WindowMode);
+		}
+	}
 	
 	RegisteredOptionsTabCollections.Add(VideoTabCollection);
 }
