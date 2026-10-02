@@ -16,4 +16,11 @@ protected:
 	// ~ Begin USL_ListDataObject_String Interface
 	virtual void OnDataObjectInitialized() override;
 	// ~ End USL_ListDataObject_String Interface
+	
+private:
+	FString ResToValueString(const FIntPoint& InResolution) const;
+	FText ResToDisplayText(const FIntPoint& InResolution) const;
+	
+	UPROPERTY()
+	FString MaximumAllowedResolution;
 };
