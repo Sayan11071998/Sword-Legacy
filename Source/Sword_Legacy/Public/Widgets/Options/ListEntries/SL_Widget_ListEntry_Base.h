@@ -36,6 +36,9 @@ protected:
 	// The child class should override this function to update the UI values after the data object has been modified. Super call is not needed.
 	virtual void OnOwningListDataObjectModified(USL_ListDataObject_Base* OwningModifiedData, ESL_OptionsListDataModifyReason ModifyReason);
 
+	// The child class should override this to change the editable state of the widget it owns. The super call is expected
+	virtual void OnToggleEditableState(bool bIsEditable);
+	
 	void SelectThisEntryWidget();
 	
 	// The child widget blueprint should override this function for the gamepad interaction to function properly

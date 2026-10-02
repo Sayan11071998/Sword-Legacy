@@ -52,10 +52,20 @@ void USL_Widget_ListEntry_Base::OnOwningListDataObjectSet(TObjectPtr<USL_ListDat
 	{
 		InOwningListDataObject->OnListDataModified.AddUObject(this, &USL_Widget_ListEntry_Base::OnOwningListDataObjectModified);
 	}
+	
+	OnToggleEditableState(InOwningListDataObject->IsDataCurrentlyEditable());
 }
 
 void USL_Widget_ListEntry_Base::OnOwningListDataObjectModified(USL_ListDataObject_Base* OwningModifiedData,
 	ESL_OptionsListDataModifyReason ModifyReason) { }
+
+void USL_Widget_ListEntry_Base::OnToggleEditableState(bool bIsEditable)
+{
+	if (CommonText_SettingsDisplayName)
+	{
+		CommonText_SettingsDisplayName->SetIsEnabled(bIsEditable);
+	}
+}
 
 void USL_Widget_ListEntry_Base::SelectThisEntryWidget()
 {
