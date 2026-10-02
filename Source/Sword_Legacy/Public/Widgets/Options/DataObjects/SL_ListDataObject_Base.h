@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "PawnTypes/SL_PawnEnumTypes.h"
-#include "UObject/NoExportTypes.h"
+#include "PawnTypes/SL_PawnStructTypes.h"
 #include "SL_ListDataObject_Base.generated.h"
 
 #define LIST_DATA_ACCESSOR(DataType, PropertyName) \
