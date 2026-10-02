@@ -11,4 +11,9 @@ class SWORD_LEGACY_API USL_ListDataObject_Resolution : public USL_ListDataObject
 	
 public:
 	void InitResolutionValues();
+	
+protected:
+	// ~ Begin USL_ListDataObject_String Interface
+	virtual void OnDataObjectInitialized() override;
+	// ~ End USL_ListDataObject_String Interface
 };
