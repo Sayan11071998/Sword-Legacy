@@ -37,6 +37,11 @@ public:
 	
 	void SetShouldApplySettingsImmediately(bool bShouldApplyRightAway) { bShouldApplyChangeImmediately = bShouldApplyRightAway; }
 	
+	// Gets called from SL_OptionsDataRegistry for adding in edit conditions for constructed list data objects
+	void AddEditCondition(const FSL_OptionsDataEditConditionDescriptor& InEditCondition);
+	
+	bool IsDataCurrentlyEditable();
+	
 	// Delegate Variable
 	FOnListDataModifiedDelegate OnListDataModified;
 	
@@ -45,6 +50,12 @@ protected:
 	virtual void OnDataObjectInitialized();
 	
 	virtual void NotifyListDataModified(TObjectPtr<USL_ListDataObject_Base> ModifiedData, ESL_OptionsListDataModifyReason ModifyReason = ESL_OptionsListDataModifyReason::DirectlyModified);
+	
+	// The child class should override this to allow the value to be set to the forced string value
+	virtual bool CanSetToForcedStringValue(const FString& InForcedValue) const { return false; }
+	
+	// The child class should override this to specify how to set the current value to the forced value
+	virtual void OnSetToForcedStringValue(const FString& InForcedValue) const { }
 	
 private:
 	UPROPERTY()
@@ -67,4 +78,7 @@ private:
 	
 	UPROPERTY()
 	bool bShouldApplyChangeImmediately = false;
+	
+	UPROPERTY(Transient)
+	TArray<FSL_OptionsDataEditConditionDescriptor> EditConditionDescArray;
 };
