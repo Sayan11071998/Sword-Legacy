@@ -341,7 +341,7 @@ void USL_OptionsDataRegistry::InitVideoCollectionTab()
 			OverallQuality->SetDataDisplayName(FText::FromString(TEXT("Overall Quality")));
 			OverallQuality->SetDescriptionRichText(FText::FromString(TEXT("This is description for overall quality")));
 			OverallQuality->AddIntegerOption(0, FText::FromString(TEXT("Low")));
-			OverallQuality->AddIntegerOption(1, FText::FromString(TEXT("Normal")));
+			OverallQuality->AddIntegerOption(1, FText::FromString(TEXT("Medium")));
 			OverallQuality->AddIntegerOption(2, FText::FromString(TEXT("High")));
 			OverallQuality->AddIntegerOption(3, FText::FromString(TEXT("Epic")));
 			OverallQuality->AddIntegerOption(4, FText::FromString(TEXT("Cinematic")));
@@ -379,7 +379,7 @@ void USL_OptionsDataRegistry::InitVideoCollectionTab()
 			GlobalIlluminationQuality->SetDataDisplayName(FText::FromString(TEXT("Global Illumination")));
 			GlobalIlluminationQuality->SetDescriptionRichText(FText::FromString(TEXT("This is description for global illumination quality")));
 			GlobalIlluminationQuality->AddIntegerOption(0, FText::FromString(TEXT("Low")));
-			GlobalIlluminationQuality->AddIntegerOption(1, FText::FromString(TEXT("Normal")));
+			GlobalIlluminationQuality->AddIntegerOption(1, FText::FromString(TEXT("Medium")));
 			GlobalIlluminationQuality->AddIntegerOption(2, FText::FromString(TEXT("High")));
 			GlobalIlluminationQuality->AddIntegerOption(3, FText::FromString(TEXT("Epic")));
 			GlobalIlluminationQuality->AddIntegerOption(4, FText::FromString(TEXT("Cinematic")));
@@ -400,7 +400,7 @@ void USL_OptionsDataRegistry::InitVideoCollectionTab()
 			ShadowQuality->SetDataDisplayName(FText::FromString(TEXT("Shadow Quality")));
 			ShadowQuality->SetDescriptionRichText(FText::FromString(TEXT("This is description for shadow quality")));
 			ShadowQuality->AddIntegerOption(0, FText::FromString(TEXT("Low")));
-			ShadowQuality->AddIntegerOption(1, FText::FromString(TEXT("Normal")));
+			ShadowQuality->AddIntegerOption(1, FText::FromString(TEXT("Medium")));
 			ShadowQuality->AddIntegerOption(2, FText::FromString(TEXT("High")));
 			ShadowQuality->AddIntegerOption(3, FText::FromString(TEXT("Epic")));
 			ShadowQuality->AddIntegerOption(4, FText::FromString(TEXT("Cinematic")));
@@ -421,7 +421,7 @@ void USL_OptionsDataRegistry::InitVideoCollectionTab()
 			AntiAliasingQuality->SetDataDisplayName(FText::FromString(TEXT("Anti Aliasing")));
 			AntiAliasingQuality->SetDescriptionRichText(FText::FromString(TEXT("This is description for shadow quality")));
 			AntiAliasingQuality->AddIntegerOption(0, FText::FromString(TEXT("Low")));
-			AntiAliasingQuality->AddIntegerOption(1, FText::FromString(TEXT("Normal")));
+			AntiAliasingQuality->AddIntegerOption(1, FText::FromString(TEXT("Medium")));
 			AntiAliasingQuality->AddIntegerOption(2, FText::FromString(TEXT("High")));
 			AntiAliasingQuality->AddIntegerOption(3, FText::FromString(TEXT("Epic")));
 			AntiAliasingQuality->AddIntegerOption(4, FText::FromString(TEXT("Cinematic")));
