@@ -71,6 +71,13 @@ public:
 	
 	UFUNCTION()
 	void SetUseHDRAudioMode(bool bIsAllowed);
+	
+	// Video Collection Tab
+	UFUNCTION()
+	float GetCurrentDisplayGamma() const;
+	
+	UFUNCTION()
+	void SetCurrentDisplayGamma(float InNewGamma);
 
 private:
 	UWorld* FindGameAudioWorld() const;

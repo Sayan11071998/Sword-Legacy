@@ -227,3 +227,21 @@ void USL_GameUserSettings::SetUseHDRAudioMode(bool bIsAllowed)
 	bUseHDRAudioMode = bIsAllowed;
 	ApplyHDRAudioMode();
 }
+
+float USL_GameUserSettings::GetCurrentDisplayGamma() const
+{
+	if (GEngine)
+	{
+		return GEngine->GetDisplayGamma();
+	}
+	
+	return 0.f;
+}
+
+void USL_GameUserSettings::SetCurrentDisplayGamma(float InNewGamma)
+{
+	if (GEngine)
+	{
+		GEngine->DisplayGamma = InNewGamma;
+	}
+}
