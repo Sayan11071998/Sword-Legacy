@@ -541,6 +541,17 @@ void USL_OptionsDataRegistry::InitVideoCollectionTab()
 		}
 	}
 	
+	// Advanced Graphics Category
+	{
+		USL_ListDataObject_Collection* AdvancedGraphicsCategoryCollection = NewObject<USL_ListDataObject_Collection>();
+		AdvancedGraphicsCategoryCollection->SetDataID(FName(TEXT("AdvancedGraphicsCategoryCollection")));
+		VideoTabCollection->SetDataDisplayName(FText::FromString(TEXT("Advanced Graphics")));
+		
+		VideoTabCollection->AddChildListData(AdvancedGraphicsCategoryCollection);
+		
+		// 
+	}
+	
 	RegisteredOptionsTabCollections.Add(VideoTabCollection);
 }
 
