@@ -332,6 +332,8 @@ void USL_OptionsDataRegistry::InitVideoCollectionTab()
 			GraphicsCategoryCollection->AddChildListData(DisplayGamma);
 		}
 		
+		USL_ListDataObject_StringInteger* CreatedOverallQuality = nullptr;
+		
 		// Overall Quality
 		{
 			USL_ListDataObject_StringInteger* OverallQuality = NewObject<USL_ListDataObject_StringInteger>();
@@ -348,6 +350,26 @@ void USL_OptionsDataRegistry::InitVideoCollectionTab()
 			OverallQuality->SetShouldApplySettingsImmediately(true);
 			
 			GraphicsCategoryCollection->AddChildListData(OverallQuality);
+			
+			CreatedOverallQuality = OverallQuality;
+		}
+		
+		// Resolution Scale
+		{
+			USL_ListDataObject_Scalar* ResolutionScale = NewObject<USL_ListDataObject_Scalar>();
+			ResolutionScale->SetDataID(FName(TEXT("ResolutionScale")));
+			ResolutionScale->SetDataDisplayName(FText::FromString(TEXT("3D Resolution")));
+			ResolutionScale->SetDescriptionRichText(FText::FromString(TEXT("This is description for resolution scale")));
+			ResolutionScale->SetDisplayValueRange(TRange<float>(0.f, 1.f));
+			ResolutionScale->SetOutputValueRange(TRange<float>(0.f, 1.f));
+			ResolutionScale->SetDisplayNumericType(ECommonNumericType::Percentage);
+			ResolutionScale->SetNumberFormattingOptions(USL_ListDataObject_Scalar::NoDecimal());
+			ResolutionScale->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetResolutionScaleNormalized));
+			ResolutionScale->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetResolutionScaleNormalized));
+			ResolutionScale->SetShouldApplySettingsImmediately(true);
+			ResolutionScale->AddEditDependencyData(CreatedOverallQuality);
+			
+			GraphicsCategoryCollection->AddChildListData(ResolutionScale);
 		}
 	}
 	
