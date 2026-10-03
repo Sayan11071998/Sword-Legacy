@@ -27,6 +27,7 @@ private:
 	// ~ Begin USL_ListDataObject_Base Interface
 	virtual bool CanResetBackToDefaultValue() const override;
 	virtual bool TryResetBackToDefaultValue() override;
+	virtual  void OnEditDependencyDataModified(USL_ListDataObject_Base* ModifiedDependencyData, ESL_OptionsListDataModifyReason ModifyReason = ESL_OptionsListDataModifyReason::DirectlyModified) override;
 	// ~ End USL_ListDataObject_Base Interface
 	
 	float StringToFloat(const FString& InString) const;

@@ -79,6 +79,14 @@ bool USL_ListDataObject_Scalar::TryResetBackToDefaultValue()
 	return false;
 }
 
+void USL_ListDataObject_Scalar::OnEditDependencyDataModified(USL_ListDataObject_Base* ModifiedDependencyData,
+	ESL_OptionsListDataModifyReason ModifyReason)
+{
+	NotifyListDataModified(this, ESL_OptionsListDataModifyReason::DependencyModified);
+	
+	Super::OnEditDependencyDataModified(ModifiedDependencyData, ModifyReason);
+}
+
 float USL_ListDataObject_Scalar::StringToFloat(const FString& InString) const
 {
 	float OutConvertedValue = 0.f;
