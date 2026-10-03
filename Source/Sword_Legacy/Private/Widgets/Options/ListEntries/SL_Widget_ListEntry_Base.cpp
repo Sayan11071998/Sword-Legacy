@@ -53,11 +53,27 @@ void USL_Widget_ListEntry_Base::OnOwningListDataObjectSet(TObjectPtr<USL_ListDat
 		InOwningListDataObject->OnListDataModified.AddUObject(this, &USL_Widget_ListEntry_Base::OnOwningListDataObjectModified);
 	}
 	
+	if (!InOwningListDataObject->OnDependencyDataModified.IsBoundToObject(this))
+	{
+		InOwningListDataObject->OnDependencyDataModified.AddUObject(this, &USL_Widget_ListEntry_Base::OnOwningDependencyDataObjectModified);
+	}
+	
 	OnToggleEditableState(InOwningListDataObject->IsDataCurrentlyEditable());
+	
+	CachedOwningDataObject = InOwningListDataObject;
 }
 
 void USL_Widget_ListEntry_Base::OnOwningListDataObjectModified(USL_ListDataObject_Base* OwningModifiedData,
 	ESL_OptionsListDataModifyReason ModifyReason) { }
+
+void USL_Widget_ListEntry_Base::OnOwningDependencyDataObjectModified(
+	USL_ListDataObject_Base* OwningModifiedDependencyData, ESL_OptionsListDataModifyReason ModifyReason)
+{
+	if (CachedOwningDataObject)
+	{
+		OnToggleEditableState(CachedOwningDataObject->IsDataCurrentlyEditable());
+	}
+}
 
 void USL_Widget_ListEntry_Base::OnToggleEditableState(bool bIsEditable)
 {
