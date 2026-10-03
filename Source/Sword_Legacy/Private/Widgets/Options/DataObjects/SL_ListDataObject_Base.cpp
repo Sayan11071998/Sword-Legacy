@@ -11,6 +11,14 @@ void USL_ListDataObject_Base::AddEditCondition(const FSL_OptionsDataEditConditio
 	EditConditionDescArray.Add(InEditCondition);
 }
 
+void USL_ListDataObject_Base::AddEditDependencyData(TObjectPtr<USL_ListDataObject_Base> InDependencyData)
+{
+	if (!InDependencyData->OnListDataModified.IsBoundToObject(this))
+	{
+		InDependencyData->OnListDataModified.AddUObject(this, &USL_ListDataObject_Base::OnEditDependencyDataModified);
+	}
+}
+
 bool USL_ListDataObject_Base::IsDataCurrentlyEditable()
 {
 	bool bIsEditable = true;
@@ -58,4 +66,10 @@ void USL_ListDataObject_Base::NotifyListDataModified(TObjectPtr<USL_ListDataObje
 	{
 		USL_GameUserSettings::Get()->ApplySettings(true);
 	}
+}
+
+void USL_ListDataObject_Base::OnEditDependencyDataModified(USL_ListDataObject_Base* ModifiedDependencyData,
+	ESL_OptionsListDataModifyReason ModifyReason)
+{
+	OnDependencyDataModified.Broadcast(ModifiedDependencyData, ModifyReason);
 }

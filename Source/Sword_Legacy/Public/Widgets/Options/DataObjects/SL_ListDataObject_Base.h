@@ -40,10 +40,14 @@ public:
 	// Gets called from SL_OptionsDataRegistry for adding in edit conditions for constructed list data objects
 	void AddEditCondition(const FSL_OptionsDataEditConditionDescriptor& InEditCondition);
 	
+	// Gets called from SL_OptionsDataRegistry to add in dependency data
+	void AddEditDependencyData(TObjectPtr<USL_ListDataObject_Base> InDependencyData);
+	
 	bool IsDataCurrentlyEditable();
 	
 	// Delegate Variable
 	FOnListDataModifiedDelegate OnListDataModified;
+	FOnListDataModifiedDelegate OnDependencyDataModified;
 	
 protected:
 	// Empty in the base class. The child classes should override it to handle the initialization needed accordingly.
@@ -56,6 +60,8 @@ protected:
 	
 	// The child class should override this to specify how to set the current value to the forced value
 	virtual void OnSetToForcedStringValue(const FString& InForcedValue) { }
+	
+	virtual  void OnEditDependencyDataModified(USL_ListDataObject_Base* ModifiedDependencyData, ESL_OptionsListDataModifyReason ModifyReason = ESL_OptionsListDataModifyReason::DirectlyModified);
 	
 private:
 	UPROPERTY()
