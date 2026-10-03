@@ -455,6 +455,27 @@ void USL_OptionsDataRegistry::InitVideoCollectionTab()
 			
 			GraphicsCategoryCollection->AddChildListData(ViewDistanceQuality);
 		}
+		
+		// Texture Quality
+		{
+			USL_ListDataObject_StringInteger* TextureQuality = NewObject<USL_ListDataObject_StringInteger>();
+			TextureQuality->SetDataID(FName(TEXT("TextureQuality")));
+			TextureQuality->SetDataDisplayName(FText::FromString(TEXT("Texture Quality")));
+			TextureQuality->SetDescriptionRichText(FText::FromString(TEXT("This is description for texture quality")));
+			TextureQuality->AddIntegerOption(0, FText::FromString(TEXT("Low")));
+			TextureQuality->AddIntegerOption(1, FText::FromString(TEXT("Medium")));
+			TextureQuality->AddIntegerOption(2, FText::FromString(TEXT("High")));
+			TextureQuality->AddIntegerOption(3, FText::FromString(TEXT("Epic")));
+			TextureQuality->AddIntegerOption(4, FText::FromString(TEXT("Cinematic")));
+			TextureQuality->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetTextureQuality));
+			TextureQuality->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetTextureQuality));
+			TextureQuality->SetShouldApplySettingsImmediately(true);
+			TextureQuality->AddEditDependencyData(CreatedOverallQuality);
+			
+			CreatedOverallQuality->AddEditDependencyData(TextureQuality);
+			
+			GraphicsCategoryCollection->AddChildListData(TextureQuality);
+		}
 	}
 	
 	RegisteredOptionsTabCollections.Add(VideoTabCollection);
