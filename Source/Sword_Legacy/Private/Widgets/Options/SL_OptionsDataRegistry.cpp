@@ -419,7 +419,7 @@ void USL_OptionsDataRegistry::InitVideoCollectionTab()
 			USL_ListDataObject_StringInteger* AntiAliasingQuality = NewObject<USL_ListDataObject_StringInteger>();
 			AntiAliasingQuality->SetDataID(FName(TEXT("AntiAliasingQuality")));
 			AntiAliasingQuality->SetDataDisplayName(FText::FromString(TEXT("Anti Aliasing")));
-			AntiAliasingQuality->SetDescriptionRichText(FText::FromString(TEXT("This is description for shadow quality")));
+			AntiAliasingQuality->SetDescriptionRichText(FText::FromString(TEXT("This is description for anti aliasing quality")));
 			AntiAliasingQuality->AddIntegerOption(0, FText::FromString(TEXT("Low")));
 			AntiAliasingQuality->AddIntegerOption(1, FText::FromString(TEXT("Medium")));
 			AntiAliasingQuality->AddIntegerOption(2, FText::FromString(TEXT("High")));
@@ -433,6 +433,27 @@ void USL_OptionsDataRegistry::InitVideoCollectionTab()
 			CreatedOverallQuality->AddEditDependencyData(AntiAliasingQuality);
 			
 			GraphicsCategoryCollection->AddChildListData(AntiAliasingQuality);
+		}
+		
+		// View Distance Quality
+		{
+			USL_ListDataObject_StringInteger* ViewDistanceQuality = NewObject<USL_ListDataObject_StringInteger>();
+			ViewDistanceQuality->SetDataID(FName(TEXT("ViewDistanceQuality")));
+			ViewDistanceQuality->SetDataDisplayName(FText::FromString(TEXT("View Distance")));
+			ViewDistanceQuality->SetDescriptionRichText(FText::FromString(TEXT("This is description for view distance quality")));
+			ViewDistanceQuality->AddIntegerOption(0, FText::FromString(TEXT("Near")));
+			ViewDistanceQuality->AddIntegerOption(1, FText::FromString(TEXT("Medium")));
+			ViewDistanceQuality->AddIntegerOption(2, FText::FromString(TEXT("Far")));
+			ViewDistanceQuality->AddIntegerOption(3, FText::FromString(TEXT("Very Far")));
+			ViewDistanceQuality->AddIntegerOption(4, FText::FromString(TEXT("Cinematic")));
+			ViewDistanceQuality->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetViewDistanceQuality));
+			ViewDistanceQuality->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetViewDistanceQuality));
+			ViewDistanceQuality->SetShouldApplySettingsImmediately(true);
+			ViewDistanceQuality->AddEditDependencyData(CreatedOverallQuality);
+			
+			CreatedOverallQuality->AddEditDependencyData(ViewDistanceQuality);
+			
+			GraphicsCategoryCollection->AddChildListData(ViewDistanceQuality);
 		}
 	}
 	
