@@ -497,6 +497,27 @@ void USL_OptionsDataRegistry::InitVideoCollectionTab()
 			
 			GraphicsCategoryCollection->AddChildListData(VisualEffectsQuality);
 		}
+		
+		// Reflection Quality
+		{
+			USL_ListDataObject_StringInteger* ReflectionQuality = NewObject<USL_ListDataObject_StringInteger>();
+			ReflectionQuality->SetDataID(FName(TEXT("ReflectionQuality")));
+			ReflectionQuality->SetDataDisplayName(FText::FromString(TEXT("Reflection Quality")));
+			ReflectionQuality->SetDescriptionRichText(FText::FromString(TEXT("This is description for visual reflection quality")));
+			ReflectionQuality->AddIntegerOption(0, FText::FromString(TEXT("Low")));
+			ReflectionQuality->AddIntegerOption(1, FText::FromString(TEXT("Medium")));
+			ReflectionQuality->AddIntegerOption(2, FText::FromString(TEXT("High")));
+			ReflectionQuality->AddIntegerOption(3, FText::FromString(TEXT("Epic")));
+			ReflectionQuality->AddIntegerOption(4, FText::FromString(TEXT("Cinematic")));
+			ReflectionQuality->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetReflectionQuality));
+			ReflectionQuality->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetReflectionQuality));
+			ReflectionQuality->SetShouldApplySettingsImmediately(true);
+			ReflectionQuality->AddEditDependencyData(CreatedOverallQuality);
+			
+			CreatedOverallQuality->AddEditDependencyData(ReflectionQuality);
+			
+			GraphicsCategoryCollection->AddChildListData(ReflectionQuality);
+		}
 	}
 	
 	RegisteredOptionsTabCollections.Add(VideoTabCollection);
