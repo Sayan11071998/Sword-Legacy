@@ -518,6 +518,27 @@ void USL_OptionsDataRegistry::InitVideoCollectionTab()
 			
 			GraphicsCategoryCollection->AddChildListData(ReflectionQuality);
 		}
+		
+		// Post Processing Quality
+		{
+			USL_ListDataObject_StringInteger* PostProcessingQuality = NewObject<USL_ListDataObject_StringInteger>();
+			PostProcessingQuality->SetDataID(FName(TEXT("PostProcessingQuality")));
+			PostProcessingQuality->SetDataDisplayName(FText::FromString(TEXT("Post Processing Quality")));
+			PostProcessingQuality->SetDescriptionRichText(FText::FromString(TEXT("This is description for post processing quality")));
+			PostProcessingQuality->AddIntegerOption(0, FText::FromString(TEXT("Low")));
+			PostProcessingQuality->AddIntegerOption(1, FText::FromString(TEXT("Medium")));
+			PostProcessingQuality->AddIntegerOption(2, FText::FromString(TEXT("High")));
+			PostProcessingQuality->AddIntegerOption(3, FText::FromString(TEXT("Epic")));
+			PostProcessingQuality->AddIntegerOption(4, FText::FromString(TEXT("Cinematic")));
+			PostProcessingQuality->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetPostProcessingQuality));
+			PostProcessingQuality->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetPostProcessingQuality));
+			PostProcessingQuality->SetShouldApplySettingsImmediately(true);
+			PostProcessingQuality->AddEditDependencyData(CreatedOverallQuality);
+			
+			CreatedOverallQuality->AddEditDependencyData(PostProcessingQuality);
+			
+			GraphicsCategoryCollection->AddChildListData(PostProcessingQuality);
+		}
 	}
 	
 	RegisteredOptionsTabCollections.Add(VideoTabCollection);
