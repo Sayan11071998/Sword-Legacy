@@ -10,9 +10,12 @@
 #include "Widgets/Options/DataObjects/SL_ListDataObject_StringEnum.h"
 #include "Widgets/Options/DataObjects/SL_ListDataObject_Resolution.h"
 #include "Widgets/Options/DataObjects/SL_ListDataObject_StringInteger.h"
+#include "Internationalization/StringTableRegistry.h"
 
 #define MAKE_OPTIONS_DATA_CONTROL(SetterOrGetterFuncName) \
 	MakeShared<FSL_OptionsDataInteractionHelper>(GET_FUNCTION_NAME_STRING_CHECKED(USL_GameUserSettings, SetterOrGetterFuncName))
+
+#define GET_DESCRIPTION(InKey) LOCTABLE("/Game/Game/UI/StringTable/ST_OptionsScreenDescription.ST_OptionsScreenDescription", InKey)
 
 void USL_OptionsDataRegistry::InitOptionsDataRegistry(TObjectPtr<ULocalPlayer> InOwningLocalPlayer)
 {
@@ -259,7 +262,7 @@ void USL_OptionsDataRegistry::InitVideoCollectionTab()
 			USL_ListDataObject_StringEnum* WindowMode = NewObject<USL_ListDataObject_StringEnum>();
 			WindowMode->SetDataID(FName(TEXT("WindowMode")));
 			WindowMode->SetDataDisplayName(FText::FromString(TEXT("Window Mode")));
-			WindowMode->SetDescriptionRichText(FText::FromString(TEXT("This is description for Window Mode")));
+			WindowMode->SetDescriptionRichText(GET_DESCRIPTION("WindowModeDescKey"));
 			WindowMode->AddEnumOption(EWindowMode::Fullscreen, FText::FromString(TEXT("Fullscreen Mode")));
 			WindowMode->AddEnumOption(EWindowMode::WindowedFullscreen, FText::FromString(TEXT("Borderless Window")));
 			WindowMode->AddEnumOption(EWindowMode::Windowed, FText::FromString(TEXT("Windowed")));
@@ -279,7 +282,7 @@ void USL_OptionsDataRegistry::InitVideoCollectionTab()
 			USL_ListDataObject_Resolution* ScreenResolution = NewObject<USL_ListDataObject_Resolution>();
 			ScreenResolution->SetDataID(FName(TEXT("ScreenResolution")));
 			ScreenResolution->SetDataDisplayName(FText::FromString(TEXT("Screen Resolution")));
-			ScreenResolution->SetDescriptionRichText(FText::FromString(TEXT("This is description for Screen Resolution")));
+			ScreenResolution->SetDescriptionRichText(GET_DESCRIPTION("ScreenResolutionsDescKey"));
 			ScreenResolution->InitResolutionValues();
 			ScreenResolution->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetScreenResolution));
 			ScreenResolution->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetScreenResolution));
@@ -320,7 +323,7 @@ void USL_OptionsDataRegistry::InitVideoCollectionTab()
 			USL_ListDataObject_Scalar* DisplayGamma = NewObject<USL_ListDataObject_Scalar>();
 			DisplayGamma->SetDataID(FName(TEXT("DisplayGamma")));
 			DisplayGamma->SetDataDisplayName(FText::FromString(TEXT("Brightness")));
-			DisplayGamma->SetDescriptionRichText(FText::FromString(TEXT("This is description for brightness")));
+			DisplayGamma->SetDescriptionRichText(GET_DESCRIPTION("DisplayGammaDescKey"));
 			DisplayGamma->SetDisplayValueRange(TRange<float>(0.f, 1.f));
 			DisplayGamma->SetOutputValueRange(TRange<float>(1.7f, 2.7f));
 			DisplayGamma->SetDisplayNumericType(ECommonNumericType::Percentage);
@@ -339,7 +342,7 @@ void USL_OptionsDataRegistry::InitVideoCollectionTab()
 			USL_ListDataObject_StringInteger* OverallQuality = NewObject<USL_ListDataObject_StringInteger>();
 			OverallQuality->SetDataID(FName(TEXT("OverallQuality")));
 			OverallQuality->SetDataDisplayName(FText::FromString(TEXT("Overall Quality")));
-			OverallQuality->SetDescriptionRichText(FText::FromString(TEXT("This is description for overall quality")));
+			OverallQuality->SetDescriptionRichText(GET_DESCRIPTION("OverallQualityDescKey"));
 			OverallQuality->AddIntegerOption(0, FText::FromString(TEXT("Low")));
 			OverallQuality->AddIntegerOption(1, FText::FromString(TEXT("Medium")));
 			OverallQuality->AddIntegerOption(2, FText::FromString(TEXT("High")));
@@ -359,7 +362,7 @@ void USL_OptionsDataRegistry::InitVideoCollectionTab()
 			USL_ListDataObject_Scalar* ResolutionScale = NewObject<USL_ListDataObject_Scalar>();
 			ResolutionScale->SetDataID(FName(TEXT("ResolutionScale")));
 			ResolutionScale->SetDataDisplayName(FText::FromString(TEXT("3D Resolution")));
-			ResolutionScale->SetDescriptionRichText(FText::FromString(TEXT("This is description for resolution scale")));
+			ResolutionScale->SetDescriptionRichText(GET_DESCRIPTION("ResolutionScaleDescKey"));
 			ResolutionScale->SetDisplayValueRange(TRange<float>(0.f, 1.f));
 			ResolutionScale->SetOutputValueRange(TRange<float>(0.f, 1.f));
 			ResolutionScale->SetDisplayNumericType(ECommonNumericType::Percentage);
@@ -377,7 +380,7 @@ void USL_OptionsDataRegistry::InitVideoCollectionTab()
 			USL_ListDataObject_StringInteger* GlobalIlluminationQuality = NewObject<USL_ListDataObject_StringInteger>();
 			GlobalIlluminationQuality->SetDataID(FName(TEXT("GlobalIlluminationQuality")));
 			GlobalIlluminationQuality->SetDataDisplayName(FText::FromString(TEXT("Global Illumination")));
-			GlobalIlluminationQuality->SetDescriptionRichText(FText::FromString(TEXT("This is description for global illumination quality")));
+			GlobalIlluminationQuality->SetDescriptionRichText(GET_DESCRIPTION("GlobalIlluminationQualityDescKey"));
 			GlobalIlluminationQuality->AddIntegerOption(0, FText::FromString(TEXT("Low")));
 			GlobalIlluminationQuality->AddIntegerOption(1, FText::FromString(TEXT("Medium")));
 			GlobalIlluminationQuality->AddIntegerOption(2, FText::FromString(TEXT("High")));
@@ -398,7 +401,7 @@ void USL_OptionsDataRegistry::InitVideoCollectionTab()
 			USL_ListDataObject_StringInteger* ShadowQuality = NewObject<USL_ListDataObject_StringInteger>();
 			ShadowQuality->SetDataID(FName(TEXT("ShadowQuality")));
 			ShadowQuality->SetDataDisplayName(FText::FromString(TEXT("Shadow Quality")));
-			ShadowQuality->SetDescriptionRichText(FText::FromString(TEXT("This is description for shadow quality")));
+			ShadowQuality->SetDescriptionRichText(GET_DESCRIPTION("ShadowQualityDescKey"));
 			ShadowQuality->AddIntegerOption(0, FText::FromString(TEXT("Low")));
 			ShadowQuality->AddIntegerOption(1, FText::FromString(TEXT("Medium")));
 			ShadowQuality->AddIntegerOption(2, FText::FromString(TEXT("High")));
@@ -419,7 +422,7 @@ void USL_OptionsDataRegistry::InitVideoCollectionTab()
 			USL_ListDataObject_StringInteger* AntiAliasingQuality = NewObject<USL_ListDataObject_StringInteger>();
 			AntiAliasingQuality->SetDataID(FName(TEXT("AntiAliasingQuality")));
 			AntiAliasingQuality->SetDataDisplayName(FText::FromString(TEXT("Anti Aliasing")));
-			AntiAliasingQuality->SetDescriptionRichText(FText::FromString(TEXT("This is description for anti aliasing quality")));
+			AntiAliasingQuality->SetDescriptionRichText(GET_DESCRIPTION("AntiAliasingDescKey"));
 			AntiAliasingQuality->AddIntegerOption(0, FText::FromString(TEXT("Low")));
 			AntiAliasingQuality->AddIntegerOption(1, FText::FromString(TEXT("Medium")));
 			AntiAliasingQuality->AddIntegerOption(2, FText::FromString(TEXT("High")));
@@ -440,7 +443,7 @@ void USL_OptionsDataRegistry::InitVideoCollectionTab()
 			USL_ListDataObject_StringInteger* ViewDistanceQuality = NewObject<USL_ListDataObject_StringInteger>();
 			ViewDistanceQuality->SetDataID(FName(TEXT("ViewDistanceQuality")));
 			ViewDistanceQuality->SetDataDisplayName(FText::FromString(TEXT("View Distance")));
-			ViewDistanceQuality->SetDescriptionRichText(FText::FromString(TEXT("This is description for view distance quality")));
+			ViewDistanceQuality->SetDescriptionRichText(GET_DESCRIPTION("ViewDistanceDescKey"));
 			ViewDistanceQuality->AddIntegerOption(0, FText::FromString(TEXT("Near")));
 			ViewDistanceQuality->AddIntegerOption(1, FText::FromString(TEXT("Medium")));
 			ViewDistanceQuality->AddIntegerOption(2, FText::FromString(TEXT("Far")));
@@ -461,7 +464,7 @@ void USL_OptionsDataRegistry::InitVideoCollectionTab()
 			USL_ListDataObject_StringInteger* TextureQuality = NewObject<USL_ListDataObject_StringInteger>();
 			TextureQuality->SetDataID(FName(TEXT("TextureQuality")));
 			TextureQuality->SetDataDisplayName(FText::FromString(TEXT("Texture Quality")));
-			TextureQuality->SetDescriptionRichText(FText::FromString(TEXT("This is description for texture quality")));
+			TextureQuality->SetDescriptionRichText(GET_DESCRIPTION("TextureQualityDescKey"));
 			TextureQuality->AddIntegerOption(0, FText::FromString(TEXT("Low")));
 			TextureQuality->AddIntegerOption(1, FText::FromString(TEXT("Medium")));
 			TextureQuality->AddIntegerOption(2, FText::FromString(TEXT("High")));
@@ -482,7 +485,7 @@ void USL_OptionsDataRegistry::InitVideoCollectionTab()
 			USL_ListDataObject_StringInteger* VisualEffectsQuality = NewObject<USL_ListDataObject_StringInteger>();
 			VisualEffectsQuality->SetDataID(FName(TEXT("VisualEffectsQuality")));
 			VisualEffectsQuality->SetDataDisplayName(FText::FromString(TEXT("Visual Effects Quality")));
-			VisualEffectsQuality->SetDescriptionRichText(FText::FromString(TEXT("This is description for visual effects quality")));
+			VisualEffectsQuality->SetDescriptionRichText(GET_DESCRIPTION("VisualEffectQualityDescKey"));
 			VisualEffectsQuality->AddIntegerOption(0, FText::FromString(TEXT("Low")));
 			VisualEffectsQuality->AddIntegerOption(1, FText::FromString(TEXT("Medium")));
 			VisualEffectsQuality->AddIntegerOption(2, FText::FromString(TEXT("High")));
@@ -503,7 +506,7 @@ void USL_OptionsDataRegistry::InitVideoCollectionTab()
 			USL_ListDataObject_StringInteger* ReflectionQuality = NewObject<USL_ListDataObject_StringInteger>();
 			ReflectionQuality->SetDataID(FName(TEXT("ReflectionQuality")));
 			ReflectionQuality->SetDataDisplayName(FText::FromString(TEXT("Reflection Quality")));
-			ReflectionQuality->SetDescriptionRichText(FText::FromString(TEXT("This is description for visual reflection quality")));
+			ReflectionQuality->SetDescriptionRichText(GET_DESCRIPTION("ReflectionQualityDescKey"));
 			ReflectionQuality->AddIntegerOption(0, FText::FromString(TEXT("Low")));
 			ReflectionQuality->AddIntegerOption(1, FText::FromString(TEXT("Medium")));
 			ReflectionQuality->AddIntegerOption(2, FText::FromString(TEXT("High")));
@@ -524,7 +527,7 @@ void USL_OptionsDataRegistry::InitVideoCollectionTab()
 			USL_ListDataObject_StringInteger* PostProcessingQuality = NewObject<USL_ListDataObject_StringInteger>();
 			PostProcessingQuality->SetDataID(FName(TEXT("PostProcessingQuality")));
 			PostProcessingQuality->SetDataDisplayName(FText::FromString(TEXT("Post Processing Quality")));
-			PostProcessingQuality->SetDescriptionRichText(FText::FromString(TEXT("This is description for post processing quality")));
+			PostProcessingQuality->SetDescriptionRichText(GET_DESCRIPTION("PostProcessingQualityDescKey"));
 			PostProcessingQuality->AddIntegerOption(0, FText::FromString(TEXT("Low")));
 			PostProcessingQuality->AddIntegerOption(1, FText::FromString(TEXT("Medium")));
 			PostProcessingQuality->AddIntegerOption(2, FText::FromString(TEXT("High")));
@@ -554,7 +557,7 @@ void USL_OptionsDataRegistry::InitVideoCollectionTab()
 			USL_ListDataObject_StringBool* VerticalSync = NewObject<USL_ListDataObject_StringBool>();
 			VerticalSync->SetDataID(FName(TEXT("VerticalSync")));
 			VerticalSync->SetDataDisplayName(FText::FromString(TEXT("V-Sync")));
-			VerticalSync->SetDescriptionRichText(FText::FromString(TEXT("This is description for V-Sync")));
+			VerticalSync->SetDescriptionRichText(GET_DESCRIPTION("VerticalSyncDescKey"));
 			VerticalSync->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(IsVSyncEnabled));
 			VerticalSync->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetVSyncEnabled));
 			VerticalSync->SetFalseAsDefaultValue();
@@ -580,7 +583,7 @@ void USL_OptionsDataRegistry::InitVideoCollectionTab()
 			USL_ListDataObject_String* FrameRateLimit = NewObject<USL_ListDataObject_String>();
 			FrameRateLimit->SetDataID(FName(TEXT("FrameRateLimit")));
 			FrameRateLimit->SetDataDisplayName(FText::FromString(TEXT("Frame Rate Limit")));
-			FrameRateLimit->SetDescriptionRichText(FText::FromString(TEXT("This is description for frame rate limit")));
+			FrameRateLimit->SetDescriptionRichText(GET_DESCRIPTION("FrameRateLimitDescKey"));
 			FrameRateLimit->AddDynamicOption(LexToString(30.f), FText::FromString(TEXT("30 FPS")));
 			FrameRateLimit->AddDynamicOption(LexToString(60.f), FText::FromString(TEXT("60 FPS")));
 			FrameRateLimit->AddDynamicOption(LexToString(90.f), FText::FromString(TEXT("90 FPS")));
