@@ -13,11 +13,11 @@
 #define MAKE_OPTIONS_DATA_CONTROL(SetterOrGetterFuncName) \
 	MakeShared<FSL_OptionsDataInteractionHelper>(GET_FUNCTION_NAME_STRING_CHECKED(USL_GameUserSettings, SetterOrGetterFuncName))
 
-#define GET_GAMEPLAY_TAB_DESCRIPTION(InKey) LOCTABLE("/Game/Game/UI/StringTable/ST_GameplayScreenDescription.ST_GameplayScreenDescription", InKey)
+#define GET_GAMEPLAY_TAB_DESCRIPTION(InKey) LOCTABLE("/Game/Game/UI/StringTables/ST_GameplayScreenDescription.ST_GameplayScreenDescription", InKey)
 
-#define GET_AUDIO_TAB_DESCRIPTION(InKey) LOCTABLE("/Game/Game/UI/StringTable/ST_AudioScreenDescription.ST_AudioScreenDescription", InKey)
+#define GET_AUDIO_TAB_DESCRIPTION(InKey) LOCTABLE("/Game/Game/UI/StringTables/ST_AudioScreenDescription.ST_AudioScreenDescription", InKey)
 
-#define GET_OPTIONS_TAB_DESCRIPTION(InKey) LOCTABLE("/Game/Game/UI/StringTable/ST_OptionsScreenDescription.ST_OptionsScreenDescription", InKey)
+#define GET_OPTIONS_TAB_DESCRIPTION(InKey) LOCTABLE("/Game/Game/UI/StringTables/ST_OptionsScreenDescription.ST_OptionsScreenDescription", InKey)
 
 void USL_OptionsDataRegistry::InitOptionsDataRegistry(TObjectPtr<ULocalPlayer> InOwningLocalPlayer)
 {
