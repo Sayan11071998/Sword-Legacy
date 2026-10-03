@@ -100,17 +100,6 @@ void USL_OptionsDataRegistry::InitGameplayCollectionTab()
 		GameplayTabCollection->AddChildListData(GameDifficulty);
 	}
 	
-	// Test Item
-	{
-		USL_ListDataObject_String* TestItem = NewObject<USL_ListDataObject_String>();
-		TestItem->SetDataID(FName(TEXT("TestItem")));
-		TestItem->SetDataDisplayName(FText::FromString(TEXT("Test Image Item")));
-		TestItem->SetSoftDescriptionImage(USL_FunctionLibrary::GetOptionsSoftImageByTag(SL_GameplayTags::UI_Image_TestImage));
-		TestItem->SetDescriptionRichText(FText::FromString(TEXT("The image to display can be specified in the project settings.")));
-		
-		GameplayTabCollection->AddChildListData(TestItem);
-	}
-	
 	RegisteredOptionsTabCollections.Add(GameplayTabCollection);
 }
 

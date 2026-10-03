@@ -11,8 +11,6 @@
 #include "Subsystems/SL_UISubsystem.h"
 #include "Widgets/Components/SL_CommonButtonBase.h"
 
-#include "SL_DebugHelper.h"
-
 void USL_Widget_OptionsScreen::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
@@ -113,14 +111,10 @@ void USL_Widget_OptionsScreen::OnResetBoundActionTriggered()
 			{
 				if (!DataToReset) continue;
 				
-				if (DataToReset->TryResetBackToDefaultValue())
-				{
-					Debug::Print(DataToReset->GetDataDisplayName().ToString() + TEXT(" was reset."));
-				}
+				if (DataToReset->TryResetBackToDefaultValue()) { }
 				else
 				{
 					bHasDataFailedToReset = true;
-					Debug::Print(DataToReset->GetDataDisplayName().ToString() + TEXT(" failed to reset."));
 				}
 			}
 			
