@@ -2,11 +2,6 @@
 #include "Components/Combat/SL_PawnCombatComponent.h"
 #include "Utilities/SL_FunctionLibrary.h"
 
-USL_ANS_ToggleWeaponCollision::USL_ANS_ToggleWeaponCollision()
-{
-	bShouldFireInEditor = false;
-}
-
 void USL_ANS_ToggleWeaponCollision::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
 	float TotalDuration, const FAnimNotifyEventReference& EventReference)
 {

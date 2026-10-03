@@ -2,6 +2,16 @@
 #include "CommonTextBlock.h"
 #include "Subsystems/SL_UISubsystem.h"
 
+FText USL_CommonButtonBase::GetButtonDisplayText() const
+{
+	if (CommonTextBlock_ButtonText)
+	{
+		return CommonTextBlock_ButtonText->GetText();
+	}
+	
+	return FText();
+}
+
 void USL_CommonButtonBase::SetButtonText(FText InText)
 {
 	if (CommonTextBlock_ButtonText && !InText.IsEmpty())
