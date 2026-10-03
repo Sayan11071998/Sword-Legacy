@@ -9,6 +9,7 @@
 #include "Widgets/Options/DataObjects/SL_ListDataObject_StringBool.h"
 #include "Widgets/Options/DataObjects/SL_ListDataObject_StringEnum.h"
 #include "Widgets/Options/DataObjects/SL_ListDataObject_Resolution.h"
+#include "Widgets/Options/DataObjects/SL_ListDataObject_StringInteger.h"
 
 #define MAKE_OPTIONS_DATA_CONTROL(SetterOrGetterFuncName) \
 	MakeShared<FSL_OptionsDataInteractionHelper>(GET_FUNCTION_NAME_STRING_CHECKED(USL_GameUserSettings, SetterOrGetterFuncName))
@@ -329,6 +330,24 @@ void USL_OptionsDataRegistry::InitVideoCollectionTab()
 			DisplayGamma->SetDefaultValueFromString(LexToString(2.2f));
 			
 			GraphicsCategoryCollection->AddChildListData(DisplayGamma);
+		}
+		
+		// Overall Quality
+		{
+			USL_ListDataObject_StringInteger* OverallQuality = NewObject<USL_ListDataObject_StringInteger>();
+			OverallQuality->SetDataID(FName(TEXT("OverallQuality")));
+			OverallQuality->SetDataDisplayName(FText::FromString(TEXT("Overall Quality")));
+			OverallQuality->SetDescriptionRichText(FText::FromString(TEXT("This is description for overall quality")));
+			OverallQuality->AddIntegerOption(0, FText::FromString(TEXT("Low")));
+			OverallQuality->AddIntegerOption(1, FText::FromString(TEXT("Normal")));
+			OverallQuality->AddIntegerOption(2, FText::FromString(TEXT("High")));
+			OverallQuality->AddIntegerOption(3, FText::FromString(TEXT("Epic")));
+			OverallQuality->AddIntegerOption(4, FText::FromString(TEXT("Cinematic")));
+			OverallQuality->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetOverallScalabilityLevel));
+			OverallQuality->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetOverallScalabilityLevel));
+			OverallQuality->SetShouldApplySettingsImmediately(true);
+			
+			GraphicsCategoryCollection->AddChildListData(OverallQuality);
 		}
 	}
 	
