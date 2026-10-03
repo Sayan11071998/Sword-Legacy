@@ -21,6 +21,8 @@ void USL_ListDataObject_StringInteger::OnEditDependencyDataModified(USL_ListData
 {
 	if (DataDynamicGetter)
 	{
+		if (CurrentStringValue == DataDynamicGetter->GetValueAsString()) return;
+		
 		CurrentStringValue = DataDynamicGetter->GetValueAsString();
 		
 		if (!TrySetDisplayTextFromStringValue(CurrentStringValue))
