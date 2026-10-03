@@ -23,4 +23,7 @@ private:
 	
 	UPROPERTY()
 	FString MaximumAllowedResolution;
+	
+public:
+	FORCEINLINE FString GetMaximumAllowedResolution() const { return MaximumAllowedResolution; }
 };
