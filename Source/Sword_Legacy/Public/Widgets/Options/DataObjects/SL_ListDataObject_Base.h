@@ -55,7 +55,7 @@ protected:
 	virtual bool CanSetToForcedStringValue(const FString& InForcedValue) const { return false; }
 	
 	// The child class should override this to specify how to set the current value to the forced value
-	virtual void OnSetToForcedStringValue(const FString& InForcedValue) const { }
+	virtual void OnSetToForcedStringValue(const FString& InForcedValue) { }
 	
 private:
 	UPROPERTY()

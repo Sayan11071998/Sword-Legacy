@@ -138,6 +138,24 @@ bool USL_ListDataObject_String::TryResetBackToDefaultValue()
 	return false;
 }
 
+bool USL_ListDataObject_String::CanSetToForcedStringValue(const FString& InForcedValue) const
+{
+	return CurrentStringValue != InForcedValue;
+}
+
+void USL_ListDataObject_String::OnSetToForcedStringValue(const FString& InForcedValue)
+{
+	CurrentStringValue = InForcedValue;
+	TrySetDisplayTextFromStringValue(CurrentStringValue);
+	
+	if (DataDynamicSetter)
+	{
+		DataDynamicSetter->SetValueFromString(CurrentStringValue);
+		
+		NotifyListDataModified(this, ESL_OptionsListDataModifyReason::DependencyModified);
+	}
+}
+
 bool USL_ListDataObject_String::TrySetDisplayTextFromStringValue(const FString& InStringValue)
 {
 	const int32 CurrentFoundIndex = AvailableOptionsStringArray.IndexOfByKey(InStringValue);
