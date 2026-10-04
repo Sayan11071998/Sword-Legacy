@@ -1,4 +1,5 @@
 #include "Widgets/Options/SL_OptionsDataRegistry.h"
+#include "EnhancedInputSubsystems.h"
 #include "Widgets/Options/DataObjects/SL_ListDataObject_Collection.h"
 #include "Widgets/Options/DataObjects/SL_ListDataObject_String.h"
 #include "Utilities/SL_OptionsDataInteractionHelper.h"
@@ -9,6 +10,9 @@
 #include "Widgets/Options/DataObjects/SL_ListDataObject_Resolution.h"
 #include "Widgets/Options/DataObjects/SL_ListDataObject_StringInteger.h"
 #include "Internationalization/StringTableRegistry.h"
+#include "UserSettings/EnhancedInputUserSettings.h"
+
+#include "SL_DebugHelper.h"
 
 #define MAKE_OPTIONS_DATA_CONTROL(SetterOrGetterFuncName) \
 	MakeShared<FSL_OptionsDataInteractionHelper>(GET_FUNCTION_NAME_STRING_CHECKED(USL_GameUserSettings, SetterOrGetterFuncName))
@@ -24,7 +28,7 @@ void USL_OptionsDataRegistry::InitOptionsDataRegistry(TObjectPtr<ULocalPlayer> I
 	InitGameplayCollectionTab();
 	InitAudioCollectionTab();
 	InitVideoCollectionTab();
-	InitControlCollectionTab();
+	InitControlCollectionTab(InOwningLocalPlayer);
 }
 
 const TArray<USL_ListDataObject_Base*> USL_OptionsDataRegistry::GetListSourceItemsBySelectedTabID(
@@ -594,11 +598,50 @@ void USL_OptionsDataRegistry::InitVideoCollectionTab()
 	RegisteredOptionsTabCollections.Add(VideoTabCollection);
 }
 
-void USL_OptionsDataRegistry::InitControlCollectionTab()
+void USL_OptionsDataRegistry::InitControlCollectionTab(TObjectPtr<ULocalPlayer> InOwningLocalPlayer)
 {
 	USL_ListDataObject_Collection* ControlTabCollection = NewObject<USL_ListDataObject_Collection>();
 	ControlTabCollection->SetDataID(FName(TEXT("ControlTabCollection")));
 	ControlTabCollection->SetDataDisplayName(FText::FromString(TEXT("Controls")));
+	
+	UEnhancedInputLocalPlayerSubsystem* EISubsystem = InOwningLocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
+	check(EISubsystem);
+	
+	UEnhancedInputUserSettings* EIUserSettings = EISubsystem->GetUserSettings();
+	check(EIUserSettings);
+	
+	// Keyboard Mouse Category
+	{
+		USL_ListDataObject_Collection* KeyboardMouseCategoryCollection = NewObject<USL_ListDataObject_Collection>();
+		KeyboardMouseCategoryCollection->SetDataID(FName(TEXT("KeyboardMouseCategoryCollection")));
+		KeyboardMouseCategoryCollection->SetDataDisplayName(FText::FromString(TEXT("Keyboard & Mouse")));
+		
+		ControlTabCollection->AddChildListData(KeyboardMouseCategoryCollection);
+		
+		// Keyboard Mouse Inputs
+		{
+			for (const TPair<FGameplayTag, UEnhancedPlayerMappableKeyProfile*>& ProfilePair : EIUserSettings->GetAllSavedKeyProfiles())
+			{
+				UEnhancedPlayerMappableKeyProfile* MappableKeyProfile = ProfilePair.Value;
+				check(MappableKeyProfile);
+				
+				for (const TPair<FName, FKeyMappingRow>& MappingRowPair : MappableKeyProfile->GetPlayerMappingRows())
+				{
+					for (const FPlayerKeyMapping& KeyMapping : MappingRowPair.Value.Mappings)
+					{
+						Debug::Print(
+							TEXT(" Mapping ID: ") +
+							KeyMapping.GetMappingName().ToString() +
+							TEXT(" Display Name: ") +
+							KeyMapping.GetDisplayName().ToString() +
+							TEXT(" Bound Key: ") +
+							KeyMapping.GetCurrentKey().GetDisplayName().ToString()
+						);
+					}
+				}
+			}
+		}
+	}
 	
 	RegisteredOptionsTabCollections.Add(ControlTabCollection);
 }

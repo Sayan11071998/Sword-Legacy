@@ -28,7 +28,7 @@ private:
 	void InitGameplayCollectionTab();
 	void InitAudioCollectionTab();
 	void InitVideoCollectionTab();
-	void InitControlCollectionTab();
+	void InitControlCollectionTab(TObjectPtr<ULocalPlayer> InOwningLocalPlayer);
 	
 	UPROPERTY(Transient)
 	TArray<TObjectPtr<USL_ListDataObject_Collection>> RegisteredOptionsTabCollections;
