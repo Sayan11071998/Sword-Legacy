@@ -1,9 +1,11 @@
 #include "Widgets/Options/SL_OptionsDataRegistry.h"
 #include "EnhancedInputSubsystems.h"
+#include "InputMappingContext.h"
 #include "Widgets/Options/DataObjects/SL_ListDataObject_Collection.h"
 #include "Widgets/Options/DataObjects/SL_ListDataObject_String.h"
 #include "Utilities/SL_OptionsDataInteractionHelper.h"
 #include "Utilities/SL_GameUserSettings.h"
+#include "Utilities/SL_InputDeveloperSettings.h"
 #include "Widgets/Options/DataObjects/SL_ListDataObject_Scalar.h"
 #include "Widgets/Options/DataObjects/SL_ListDataObject_StringBool.h"
 #include "Widgets/Options/DataObjects/SL_ListDataObject_StringEnum.h"
@@ -60,6 +62,22 @@ const TArray<USL_ListDataObject_Base*> USL_OptionsDataRegistry::GetListSourceIte
 	}
 	
 	return AllChildListItems;
+}
+
+void USL_OptionsDataRegistry::RegisterPlayerMappableMappingContexts(UEnhancedInputUserSettings* EIUserSettings) const
+{
+	if (!EIUserSettings) return;
+
+	const USL_InputDeveloperSettings* InputSettings = GetDefault<USL_InputDeveloperSettings>();
+	if (!InputSettings) return;
+
+	for (const FSoftObjectPath& MappingContextPath : InputSettings->PlayerMappableMappingContexts)
+	{
+		const UInputMappingContext* MappingContext = Cast<UInputMappingContext>(MappingContextPath.TryLoad());
+		if (!MappingContext) continue;
+
+		EIUserSettings->RegisterInputMappingContext(MappingContext);
+	}
 }
 
 void USL_OptionsDataRegistry::FindChildListDataRecursively(USL_ListDataObject_Base* InParentData,
@@ -609,6 +627,8 @@ void USL_OptionsDataRegistry::InitControlCollectionTab(TObjectPtr<ULocalPlayer> 
 	
 	UEnhancedInputUserSettings* EIUserSettings = EISubsystem->GetUserSettings();
 	check(EIUserSettings);
+
+	RegisterPlayerMappableMappingContexts(EIUserSettings);
 	
 	// Keyboard Mouse Category
 	{

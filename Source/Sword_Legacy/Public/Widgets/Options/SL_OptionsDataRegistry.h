@@ -5,6 +5,7 @@
 
 class USL_ListDataObject_Base;
 class USL_ListDataObject_Collection;
+class UEnhancedInputUserSettings;
 
 UCLASS()
 class SWORD_LEGACY_API USL_OptionsDataRegistry : public UObject
@@ -18,6 +19,8 @@ public:
 	const TArray<TObjectPtr<USL_ListDataObject_Collection>>& GetRegisteredOptionsTabCollections() const { return RegisteredOptionsTabCollections; }
 	
 	const TArray<USL_ListDataObject_Base*> GetListSourceItemsBySelectedTabID(const FName& InSelectedTabID);
+	
+	void RegisterPlayerMappableMappingContexts(UEnhancedInputUserSettings* EIUserSettings) const;
 	
 private:
 	void FindChildListDataRecursively(
