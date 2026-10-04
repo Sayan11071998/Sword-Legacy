@@ -13,6 +13,7 @@
 #include "Widgets/Options/DataObjects/SL_ListDataObject_StringInteger.h"
 #include "Internationalization/StringTableRegistry.h"
 #include "UserSettings/EnhancedInputUserSettings.h"
+#include "Widgets/Options/DataObjects/SL_ListDataObject_KeyRemap.h"
 
 #include "SL_DebugHelper.h"
 
@@ -661,14 +662,21 @@ void USL_OptionsDataRegistry::InitControlCollectionTab(TObjectPtr<ULocalPlayer> 
 					{
 						if (MappableKeyProfile->DoesMappingPassQueryOptions(KeyMapping, KeyboardMouseOnly))
 						{
-							Debug::Print(
-								TEXT(" Mapping ID: ") +
-								KeyMapping.GetMappingName().ToString() +
-								TEXT(" Display Name: ") +
-								KeyMapping.GetDisplayName().ToString() +
-								TEXT(" Bound Key: ") +
-								KeyMapping.GetCurrentKey().GetDisplayName().ToString()
-							);
+							USL_ListDataObject_KeyRemap* KeyRemapDataObject = NewObject<USL_ListDataObject_KeyRemap>();
+							KeyRemapDataObject->SetDataID(KeyMapping.GetMappingName());
+							KeyRemapDataObject->SetDataDisplayName(KeyMapping.GetDisplayName());
+							KeyRemapDataObject->InitKeyRemapData(EIUserSettings, MappableKeyProfile, ECommonInputType::MouseAndKeyboard, KeyMapping);
+							
+							KeyboardMouseCategoryCollection->AddChildListData(KeyRemapDataObject);
+							
+							// Debug::Print(
+							// 	TEXT(" Mapping ID: ") +
+							// 	KeyMapping.GetMappingName().ToString() +
+							// 	TEXT(" Display Name: ") +
+							// 	KeyMapping.GetDisplayName().ToString() +
+							// 	TEXT(" Bound Key: ") +
+							// 	KeyMapping.GetCurrentKey().GetDisplayName().ToString()
+							// );
 						}
 					}
 				}
