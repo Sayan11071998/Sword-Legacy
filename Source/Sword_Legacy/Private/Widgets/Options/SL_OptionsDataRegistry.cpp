@@ -15,8 +15,6 @@
 #include "UserSettings/EnhancedInputUserSettings.h"
 #include "Widgets/Options/DataObjects/SL_ListDataObject_KeyRemap.h"
 
-#include "SL_DebugHelper.h"
-
 #define MAKE_OPTIONS_DATA_CONTROL(SetterOrGetterFuncName) \
 	MakeShared<FSL_OptionsDataInteractionHelper>(GET_FUNCTION_NAME_STRING_CHECKED(USL_GameUserSettings, SetterOrGetterFuncName))
 
@@ -668,15 +666,6 @@ void USL_OptionsDataRegistry::InitControlCollectionTab(TObjectPtr<ULocalPlayer> 
 							KeyRemapDataObject->InitKeyRemapData(EIUserSettings, MappableKeyProfile, ECommonInputType::MouseAndKeyboard, KeyMapping);
 							
 							KeyboardMouseCategoryCollection->AddChildListData(KeyRemapDataObject);
-							
-							// Debug::Print(
-							// 	TEXT(" Mapping ID: ") +
-							// 	KeyMapping.GetMappingName().ToString() +
-							// 	TEXT(" Display Name: ") +
-							// 	KeyMapping.GetDisplayName().ToString() +
-							// 	TEXT(" Bound Key: ") +
-							// 	KeyMapping.GetCurrentKey().GetDisplayName().ToString()
-							// );
 						}
 					}
 				}
