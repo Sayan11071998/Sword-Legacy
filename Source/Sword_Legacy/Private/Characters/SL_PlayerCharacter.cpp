@@ -12,6 +12,7 @@
 #include "DataAssets/StartupData/SL_DataAsset_StartupData_Player.h"
 #include "Components/UI/SL_PlayerUIComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "Utilities/SL_FunctionLibrary.h"
 
 ASL_PlayerCharacter::ASL_PlayerCharacter()
 {
@@ -79,7 +80,10 @@ void ASL_PlayerCharacter::PossessedBy(AController* NewController)
 	{
 		if (USL_DataAsset_StartupData_Base* LoadedData = CharacterStartupData.LoadSynchronous())
 		{
-			LoadedData->GiveToAbilitySystemComponent(CharacterAbilitySystemComponent);
+			LoadedData->GiveToAbilitySystemComponent(
+				CharacterAbilitySystemComponent,
+				USL_FunctionLibrary::GetCurrentGameDifficultyAbilityLevel()
+			);
 		}
 	}
 }

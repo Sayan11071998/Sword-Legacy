@@ -34,6 +34,24 @@ void USL_AbilitySystemComponent::OnAbilityInputReleased(const FGameplayTag& InIn
 	}
 }
 
+void USL_AbilitySystemComponent::SetGrantedAbilityLevels(int32 NewLevel)
+{
+	TArray<FGameplayAbilitySpecHandle> AbilityHandles;
+	for (const FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+	{
+		AbilityHandles.Add(AbilitySpec.Handle);
+	}
+
+	for (const FGameplayAbilitySpecHandle& AbilityHandle : AbilityHandles)
+	{
+		if (FGameplayAbilitySpec* AbilitySpec = FindAbilitySpecFromHandle(AbilityHandle))
+		{
+			AbilitySpec->Level = NewLevel;
+			MarkAbilitySpecDirty(*AbilitySpec);
+		}
+	}
+}
+
 void USL_AbilitySystemComponent::GrantPlayerWeaponAbilities(
 	const TArray<FSL_PlayerAbilitySet>& InDefaultWeaponAbilities,
 	const TArray<FSL_PlayerSpecialAbilitySet>& InSpecialWeaponAbilities, int32 ApplyLevel,

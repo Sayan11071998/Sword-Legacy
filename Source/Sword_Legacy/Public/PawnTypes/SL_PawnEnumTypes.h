@@ -64,3 +64,11 @@ enum class ESL_ConfirmScreenButtonType : uint8
 	Closed,
 	Unknown UMETA(Hidden)
 };
+
+UENUM(BlueprintType)
+enum class ESL_OptionsListDataModifyReason : uint8
+{
+	DirectlyModified,
+	DependencyModified,
+	ResetToDefault
+};
