@@ -1,8 +1,9 @@
 #include "Widgets/Options/ListEntries/SL_Widget_ListEntry_KeyRemap.h"
 #include "Widgets/Options/DataObjects/SL_ListDataObject_KeyRemap.h"
 #include "Widgets/Components/SL_CommonButtonBase.h"
-
-#include "SL_DebugHelper.h"
+#include "Subsystems/SL_UISubsystem.h"
+#include "Utilities/SL_GameplayTags.h"
+#include "Utilities/SL_FunctionLibrary.h"
 
 void USL_Widget_ListEntry_KeyRemap::NativeOnInitialized()
 {
@@ -32,10 +33,16 @@ void USL_Widget_ListEntry_KeyRemap::OnOwningListDataObjectModified(USL_ListDataO
 
 void USL_Widget_ListEntry_KeyRemap::OnRemapKeyButtonClicked()
 {
-	Debug::Print(TEXT("Remap Key Button Clicked"));
+	USL_UISubsystem::Get(this)->PushSoftWidgetToStackAsync(
+		SL_GameplayTags::UI_WidgetStack_Modal,
+		USL_FunctionLibrary::GetGameSoftWidgetClassByTag(SL_GameplayTags::UI_Widget_KeyRemapScreen),
+		[](EAsyncPushWidgetState PushState, USL_Widget_Activatable_Base* PushedWidget)
+		{
+			
+		}
+	);
 }
 
 void USL_Widget_ListEntry_KeyRemap::OnResetKeyBindingButtonClicked()
 {
-	Debug::Print(TEXT("Reset Key Button Clicked"));
 }
