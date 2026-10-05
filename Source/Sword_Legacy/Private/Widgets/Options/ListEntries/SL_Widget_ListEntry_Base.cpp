@@ -7,6 +7,15 @@
 void USL_Widget_ListEntry_Base::NativeOnListEntryWidgetHovered(bool bWasHovered)
 {
 	BP_OnListEntryWidgetHovered(bWasHovered, GetListItem() ? IsListItemSelected() : false);
+	
+	if (bWasHovered)
+	{
+		BP_OnToggleEntryWidgetHighlightState(true);
+	}
+	else
+	{
+		BP_OnToggleEntryWidgetHighlightState(GetListItem() && IsListItemSelected());
+	}
 }
 
 void USL_Widget_ListEntry_Base::NativeOnListItemObjectSet(UObject* ListItemObject)
@@ -14,6 +23,13 @@ void USL_Widget_ListEntry_Base::NativeOnListItemObjectSet(UObject* ListItemObjec
 	IUserObjectListEntry::NativeOnListItemObjectSet(ListItemObject);
 	
 	OnOwningListDataObjectSet(CastChecked<USL_ListDataObject_Base>(ListItemObject));
+}
+
+void USL_Widget_ListEntry_Base::NativeOnItemSelectionChanged(bool bIsSelected)
+{
+	IUserObjectListEntry::NativeOnItemSelectionChanged(bIsSelected);
+	
+	BP_OnToggleEntryWidgetHighlightState(bIsSelected);
 }
 
 void USL_Widget_ListEntry_Base::NativeOnEntryReleased()
