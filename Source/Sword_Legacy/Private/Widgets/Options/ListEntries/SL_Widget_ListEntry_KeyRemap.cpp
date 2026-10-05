@@ -2,6 +2,16 @@
 #include "Widgets/Options/DataObjects/SL_ListDataObject_KeyRemap.h"
 #include "Widgets/Components/SL_CommonButtonBase.h"
 
+#include "SL_DebugHelper.h"
+
+void USL_Widget_ListEntry_KeyRemap::NativeOnInitialized()
+{
+	Super::NativeOnInitialized();
+	
+	CommonButton_RemapKey->OnClicked().AddUObject(this, &USL_Widget_ListEntry_KeyRemap::OnRemapKeyButtonClicked);
+	CommonButton_ResetKeyBinding->OnClicked().AddUObject(this, &USL_Widget_ListEntry_KeyRemap::OnResetKeyBindingButtonClicked);
+}
+
 void USL_Widget_ListEntry_KeyRemap::OnOwningListDataObjectSet(TObjectPtr<USL_ListDataObject_Base> InOwningListDataObject)
 {
 	Super::OnOwningListDataObjectSet(InOwningListDataObject);
@@ -18,4 +28,14 @@ void USL_Widget_ListEntry_KeyRemap::OnOwningListDataObjectModified(USL_ListDataO
 	{
 		CommonButton_RemapKey->SetButtonDisplayImage(CachedOwningKeyRemapDataObject->GetIconFromCurrentKey());
 	}
+}
+
+void USL_Widget_ListEntry_KeyRemap::OnRemapKeyButtonClicked()
+{
+	Debug::Print(TEXT("Remap Key Button Clicked"));
+}
+
+void USL_Widget_ListEntry_KeyRemap::OnResetKeyBindingButtonClicked()
+{
+	Debug::Print(TEXT("Reset Key Button Clicked"));
 }
