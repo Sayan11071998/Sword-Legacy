@@ -5,6 +5,7 @@
 #include "SL_Widget_KeyRemapScreen.generated.h"
 
 class UCommonRichTextBlock;
+class FSL_KeyRemapScreenInputProcessor;
 
 UCLASS(Abstract, BlueprintType, meta = (DisableNativeTick))
 class SWORD_LEGACY_API USL_Widget_KeyRemapScreen : public USL_Widget_Activatable_Base
@@ -21,4 +22,7 @@ private:
 	// Bound Widgets
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UCommonRichTextBlock> CommonRichText_RemapMessage;
+
+	// Cached Key Remap Input Processor
+	TSharedPtr<FSL_KeyRemapScreenInputProcessor> CachedInputPreprocessor;
 };
