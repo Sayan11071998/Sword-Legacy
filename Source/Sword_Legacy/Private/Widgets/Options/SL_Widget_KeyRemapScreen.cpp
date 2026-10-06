@@ -2,6 +2,8 @@
 #include "CommonRichTextBlock.h"
 #include "Framework/Application/IInputProcessor.h"
 
+#include "SL_DebugHelper.h"
+
 // *** FSL_KeyRemapScreenInputProcessor ***//
 class FSL_KeyRemapScreenInputProcessor : public IInputProcessor
 {
@@ -119,9 +121,27 @@ void USL_Widget_KeyRemapScreen::NativeOnDeactivated()
 	}
 }
 
-void USL_Widget_KeyRemapScreen::OnValidKeyPressedDetected(const FKey& PressedKey) { }
+void USL_Widget_KeyRemapScreen::OnValidKeyPressedDetected(const FKey& PressedKey)
+{
+	RequestDeactivateWidget(
+		[this, PressedKey]()
+		{
+			Debug::Print(TEXT("Pressed Key: ") + PressedKey.GetDisplayName().ToString());
+			OnKeyRemapScreenKeyPressed.ExecuteIfBound(PressedKey);
+		}
+	);
+}
 
-void USL_Widget_KeyRemapScreen::OnKeySelectCanceled(const FString& CanceledReason) { }
+void USL_Widget_KeyRemapScreen::OnKeySelectCanceled(const FString& CanceledReason)
+{
+	RequestDeactivateWidget(
+		[this, CanceledReason]()
+		{
+			Debug::Print(CanceledReason);
+			OnKeyRemapScreenKeySelectCanceled.ExecuteIfBound(CanceledReason);
+		}
+	);
+}
 
 void USL_Widget_KeyRemapScreen::RequestDeactivateWidget(TFunction<void()> PreDeactivateCallback)
 {
