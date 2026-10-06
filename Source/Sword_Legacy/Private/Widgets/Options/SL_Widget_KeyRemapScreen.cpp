@@ -1,8 +1,5 @@
 #include "Widgets/Options/SL_Widget_KeyRemapScreen.h"
 #include "Framework/Application/IInputProcessor.h"
-#include "CommonRichTextBlock.h"
-
-#include "SL_DebugHelper.h"
 
 // *** FSL_KeyRemapScreenInputProcessor ***//
 class FSL_KeyRemapScreenInputProcessor : public IInputProcessor
@@ -12,32 +9,62 @@ public:
 	FSL_KeyRemapScreenInputProcessor(ECommonInputType InInputTypeToListenTo)
 		: CachedInputTypeToListenTo(InInputTypeToListenTo) { }
 	
+	DECLARE_DELEGATE_OneParam(FOnInputPreprocessorKeyPressedDelegate, const FKey& /*PressedKey*/);
+	DECLARE_DELEGATE_OneParam(FOnInputPreprocessorKeySelectCanceledDelegate, const FString& /*CanceledReason*/);
+	
+	FOnInputPreprocessorKeyPressedDelegate OnInputPreprocessorKeyPressed;
+	FOnInputPreprocessorKeySelectCanceledDelegate OnInputPreprocessorKeySelectCanceled;
+	
 protected:
 	// ~ Begin IInputProcessor Interface
 	virtual void Tick(const float DeltaTime, FSlateApplication& SlateApp, TSharedRef<ICursor> Cursor) override { }
 	
 	virtual bool HandleKeyDownEvent(FSlateApplication& SlateApp, const FKeyEvent& InKeyEvent) override
 	{
-		Debug::Print(TEXT("Pressed Key ") + InKeyEvent.GetKey().GetDisplayName().ToString());
-		
-		UEnum* StaticCommonInputType = StaticEnum<ECommonInputType>();
-		
-		Debug::Print(TEXT("Desired Input Key Type: ") + StaticCommonInputType->GetValueAsString(CachedInputTypeToListenTo));
+		ProcessPressedKey(InKeyEvent.GetKey());
 		
 		return true;
 	}
 	
 	virtual bool HandleMouseButtonDownEvent( FSlateApplication& SlateApp, const FPointerEvent& MouseEvent) override
 	{
-		Debug::Print(TEXT("Pressed Key ") + MouseEvent.GetEffectingButton().GetDisplayName().ToString());
-		
-		UEnum* StaticCommonInputType = StaticEnum<ECommonInputType>();
-		
-		Debug::Print(TEXT("Desired Input Key Type: ") + StaticCommonInputType->GetValueAsString(CachedInputTypeToListenTo));
+		ProcessPressedKey(MouseEvent.GetEffectingButton());
 		
 		return true;
 	}
 	// ~ End IInputProcessor Interface
+	
+	void ProcessPressedKey(const FKey& InPressedKey)
+	{
+		if (InPressedKey == EKeys::Escape)
+		{
+			OnInputPreprocessorKeySelectCanceled.ExecuteIfBound(TEXT("Key Remap Has Been Canceled."));
+		}
+
+		switch (CachedInputTypeToListenTo)
+		{
+		case ECommonInputType::MouseAndKeyboard:
+			if (InPressedKey.IsGamepadKey())
+			{
+				OnInputPreprocessorKeySelectCanceled.ExecuteIfBound(TEXT("Detected Gamepad Key Pressed For Keyboard Inputs. Key Remap Has Been Canceled"));
+				return;
+			}
+			break;
+			
+		case ECommonInputType::Gamepad:
+			if (!InPressedKey.IsGamepadKey())
+			{
+				OnInputPreprocessorKeySelectCanceled.ExecuteIfBound(TEXT("Detected Non-Gamepad Key Pressed For Gamepad Inputs. Key Remap Has Been Canceled"));
+				return;
+			}
+			break;
+		
+		default:
+			break;
+		}
+		
+		OnInputPreprocessorKeyPressed.ExecuteIfBound(InPressedKey);
+	}
 	
 private:
 	ECommonInputType CachedInputTypeToListenTo;
