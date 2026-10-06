@@ -119,13 +119,9 @@ void USL_Widget_KeyRemapScreen::NativeOnDeactivated()
 	}
 }
 
-void USL_Widget_KeyRemapScreen::OnValidKeyPressedDetected(const FKey& PressedKey)
-{
-}
+void USL_Widget_KeyRemapScreen::OnValidKeyPressedDetected(const FKey& PressedKey) { }
 
-void USL_Widget_KeyRemapScreen::OnKeySelectCanceled(const FString& CanceledReason)
-{
-}
+void USL_Widget_KeyRemapScreen::OnKeySelectCanceled(const FString& CanceledReason) { }
 
 void USL_Widget_KeyRemapScreen::SetDesiredInputTypeToFilter(ECommonInputType InDesiredInputType)
 {
