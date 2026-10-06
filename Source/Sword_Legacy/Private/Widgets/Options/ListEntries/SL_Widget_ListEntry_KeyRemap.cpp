@@ -4,6 +4,7 @@
 #include "Subsystems/SL_UISubsystem.h"
 #include "Utilities/SL_GameplayTags.h"
 #include "Utilities/SL_FunctionLibrary.h"
+#include "Widgets/Options/SL_Widget_KeyRemapScreen.h"
 
 void USL_Widget_ListEntry_KeyRemap::NativeOnInitialized()
 {
@@ -36,13 +37,19 @@ void USL_Widget_ListEntry_KeyRemap::OnRemapKeyButtonClicked()
 	USL_UISubsystem::Get(this)->PushSoftWidgetToStackAsync(
 		SL_GameplayTags::UI_WidgetStack_Modal,
 		USL_FunctionLibrary::GetGameSoftWidgetClassByTag(SL_GameplayTags::UI_Widget_KeyRemapScreen),
-		[](EAsyncPushWidgetState PushState, USL_Widget_Activatable_Base* PushedWidget)
+		[this](EAsyncPushWidgetState PushState, USL_Widget_Activatable_Base* PushedWidget)
 		{
-			
+			if (PushState == EAsyncPushWidgetState::OnCreatedBeforePush)
+			{
+				USL_Widget_KeyRemapScreen* CreatedKeyRemapScreen = CastChecked<USL_Widget_KeyRemapScreen>(PushedWidget);
+				
+				if (CachedOwningKeyRemapDataObject)
+				{
+					CreatedKeyRemapScreen->SetDesiredInputTypeToFilter(CachedOwningKeyRemapDataObject->GetDesiredInputKeyType());
+				}
+			}
 		}
 	);
 }
 
-void USL_Widget_ListEntry_KeyRemap::OnResetKeyBindingButtonClicked()
-{
-}
+void USL_Widget_ListEntry_KeyRemap::OnResetKeyBindingButtonClicked() { }

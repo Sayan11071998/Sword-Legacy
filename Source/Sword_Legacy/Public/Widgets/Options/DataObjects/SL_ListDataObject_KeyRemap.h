@@ -41,4 +41,7 @@ private:
 	
 	UPROPERTY()
 	EPlayerMappableKeySlot CachedOwningMappableKeySlot;
+	
+public:
+	FORCEINLINE ECommonInputType GetDesiredInputKeyType() const { return CachedDesiredInputKeyType; }
 };
