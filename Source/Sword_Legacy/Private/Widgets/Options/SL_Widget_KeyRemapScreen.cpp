@@ -123,6 +123,23 @@ void USL_Widget_KeyRemapScreen::OnValidKeyPressedDetected(const FKey& PressedKey
 
 void USL_Widget_KeyRemapScreen::OnKeySelectCanceled(const FString& CanceledReason) { }
 
+void USL_Widget_KeyRemapScreen::RequestDeactivateWidget(TFunction<void()> PreDeactivateCallback)
+{
+	// Delay a tick to make sure the input is processed correctly
+	FTSTicker::GetCoreTicker().AddTicker(
+		FTickerDelegate::CreateLambda(
+			[PreDeactivateCallback, this](float DeltaTime)->bool
+			{
+				PreDeactivateCallback();
+				
+				DeactivateWidget();
+				
+				return false;
+			}
+		)
+	);
+}
+
 void USL_Widget_KeyRemapScreen::SetDesiredInputTypeToFilter(ECommonInputType InDesiredInputType)
 {
 	CachedDesiredInputType = InDesiredInputType;
