@@ -1,16 +1,17 @@
 #include "Widgets/Options/SL_Widget_KeyRemapScreen.h"
 #include "CommonRichTextBlock.h"
 #include "Framework/Application/IInputProcessor.h"
-
-#include "SL_DebugHelper.h"
+#include "CommonInputSubsystem.h"
+#include "CommonUITypes.h"
+#include "ICommonInputModule.h"
 
 // *** FSL_KeyRemapScreenInputProcessor ***//
 class FSL_KeyRemapScreenInputProcessor : public IInputProcessor
 {
-	
 public:
-	FSL_KeyRemapScreenInputProcessor(ECommonInputType InInputTypeToListenTo)
-		: CachedInputTypeToListenTo(InInputTypeToListenTo) { }
+	FSL_KeyRemapScreenInputProcessor(ECommonInputType InInputTypeToListenTo, ULocalPlayer* InOwningLocalPlayer)
+		: CachedInputTypeToListenTo(InInputTypeToListenTo),
+		  CachedWeakOwningLocalPlayer(InOwningLocalPlayer) { }
 	
 	DECLARE_DELEGATE_OneParam(FOnInputPreprocessorKeyPressedDelegate, const FKey& /*PressedKey*/);
 	DECLARE_DELEGATE_OneParam(FOnInputPreprocessorKeySelectCanceledDelegate, const FString& /*CanceledReason*/);
@@ -43,11 +44,17 @@ protected:
 		{
 			OnInputPreprocessorKeySelectCanceled.ExecuteIfBound(TEXT("Key Remap Has Been Canceled."));
 		}
+		
+		UCommonInputSubsystem* CommonInputSubsystem = UCommonInputSubsystem::Get(CachedWeakOwningLocalPlayer.Get());
+		
+		check(CommonInputSubsystem);
+		
+		ECommonInputType CurrentInputType = CommonInputSubsystem->GetCurrentInputType();
 
 		switch (CachedInputTypeToListenTo)
 		{
 		case ECommonInputType::MouseAndKeyboard:
-			if (InPressedKey.IsGamepadKey())
+			if (InPressedKey.IsGamepadKey() || CurrentInputType == ECommonInputType::Gamepad)
 			{
 				OnInputPreprocessorKeySelectCanceled.ExecuteIfBound(TEXT("Detected Gamepad Key Pressed For Keyboard Inputs. Key Remap Has Been Canceled"));
 				return;
@@ -55,6 +62,17 @@ protected:
 			break;
 			
 		case ECommonInputType::Gamepad:
+			if (CurrentInputType == ECommonInputType::Gamepad && InPressedKey == EKeys::LeftMouseButton)
+			{
+				FCommonInputActionDataBase* InputActionData = ICommonInputModule::GetSettings().GetDefaultClickAction().GetRow<FCommonInputActionDataBase>(TEXT(""));
+				
+				check(InputActionData);
+				
+				OnInputPreprocessorKeyPressed.ExecuteIfBound(InputActionData->GetDefaultGamepadInputTypeInfo().GetKey());
+				
+				return;
+			}
+			
 			if (!InPressedKey.IsGamepadKey())
 			{
 				OnInputPreprocessorKeySelectCanceled.ExecuteIfBound(TEXT("Detected Non-Gamepad Key Pressed For Gamepad Inputs. Key Remap Has Been Canceled"));
@@ -71,6 +89,7 @@ protected:
 	
 private:
 	ECommonInputType CachedInputTypeToListenTo;
+	TWeakObjectPtr<ULocalPlayer> CachedWeakOwningLocalPlayer;
 };
 // *** FSL_KeyRemapScreenInputProcessor ***//
 
@@ -79,7 +98,7 @@ void USL_Widget_KeyRemapScreen::NativeOnActivated()
 {
 	Super::NativeOnActivated();
 	
-	CachedInputPreprocessor = MakeShared<FSL_KeyRemapScreenInputProcessor>(CachedDesiredInputType);
+	CachedInputPreprocessor = MakeShared<FSL_KeyRemapScreenInputProcessor>(CachedDesiredInputType, GetOwningLocalPlayer());
 	
 	CachedInputPreprocessor->OnInputPreprocessorKeyPressed.BindUObject(this, &USL_Widget_KeyRemapScreen::OnValidKeyPressedDetected);
 	CachedInputPreprocessor->OnInputPreprocessorKeySelectCanceled.BindUObject(this, &USL_Widget_KeyRemapScreen::OnKeySelectCanceled);
