@@ -34,6 +34,8 @@ void USL_Widget_ListEntry_KeyRemap::OnOwningListDataObjectModified(USL_ListDataO
 
 void USL_Widget_ListEntry_KeyRemap::OnRemapKeyButtonClicked()
 {
+	SelectThisEntryWidget();
+	
 	USL_UISubsystem::Get(this)->PushSoftWidgetToStackAsync(
 		SL_GameplayTags::UI_WidgetStack_Modal,
 		USL_FunctionLibrary::GetGameSoftWidgetClassByTag(SL_GameplayTags::UI_Widget_KeyRemapScreen),
@@ -54,7 +56,10 @@ void USL_Widget_ListEntry_KeyRemap::OnRemapKeyButtonClicked()
 	);
 }
 
-void USL_Widget_ListEntry_KeyRemap::OnResetKeyBindingButtonClicked() { }
+void USL_Widget_ListEntry_KeyRemap::OnResetKeyBindingButtonClicked()
+{
+	SelectThisEntryWidget();
+}
 
 void USL_Widget_ListEntry_KeyRemap::OnKeyToRemapPressed(const FKey& PressedKey)
 {
