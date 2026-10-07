@@ -60,9 +60,42 @@ void USL_Widget_ListEntry_KeyRemap::OnResetKeyBindingButtonClicked()
 {
 	SelectThisEntryWidget();
 	
-	// If the current key is already the default key. Display OK screen that says this is already the default key to the player.
+	if (!CachedOwningKeyRemapDataObject) return;
 	
-	// Reset the key binding back to default.
+	// Check if the current key is already the default key. Display OK screen that says this is already the default key to the player.
+	if (!CachedOwningKeyRemapDataObject->CanResetBackToDefaultValue())
+	{
+		USL_UISubsystem::Get(this)->PushConfirmScreenToModalStackAsync(
+			ESL_ConfirmScreenType::Ok,
+			FText::FromString(TEXT("Reset Key Mapping")),
+			FText::FromString(
+				TEXT("The key binding for ") +
+				CachedOwningKeyRemapDataObject->GetDataDisplayName().ToString() +
+				TEXT(" is already set to default.")
+			),
+			[](ESL_ConfirmScreenButtonType ClickedButton) { }
+		);
+		
+		return;
+	}
+	
+	// Reset the key binding back to default
+	USL_UISubsystem::Get(this)->PushConfirmScreenToModalStackAsync(
+		ESL_ConfirmScreenType::YesNo,
+		FText::FromString(TEXT("Reset Key Mapping")),
+		FText::FromString(
+			TEXT("Are you sure you want to reset the key for ") +
+			CachedOwningKeyRemapDataObject->GetDataDisplayName().ToString() +
+			TEXT(" ?")
+		),
+		[this](ESL_ConfirmScreenButtonType ClickedButton)
+		{
+			if (ClickedButton == ESL_ConfirmScreenButtonType::Confirmed)
+			{
+				CachedOwningKeyRemapDataObject->TryResetBackToDefaultValue();
+			}
+		}
+	);
 }
 
 void USL_Widget_ListEntry_KeyRemap::OnKeyToRemapPressed(const FKey& PressedKey)

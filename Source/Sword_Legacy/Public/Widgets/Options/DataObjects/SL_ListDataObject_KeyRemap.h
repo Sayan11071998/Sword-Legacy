@@ -26,13 +26,13 @@ public:
 	
 	void BindNewInputKey(const FKey& InNewKey);
 	
-private:
 	// ~ Begin USL_ListDataObject_Base Interface
 	virtual bool HasDefaultValue() const override;
 	virtual bool CanResetBackToDefaultValue() const override;
 	virtual bool TryResetBackToDefaultValue() override;
 	// ~ End USL_ListDataObject_Base Interface
 	
+private:
 	FPlayerKeyMapping* GetOwningKeyMapping() const;
 	
 	UPROPERTY(Transient)
