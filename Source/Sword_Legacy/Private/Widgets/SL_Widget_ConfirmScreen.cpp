@@ -94,26 +94,9 @@ void USL_Widget_ConfirmScreen::InitConfirmScreen(TObjectPtr<USL_ConfirmScreenInf
 	
 	for (FSL_ConfirmButtonScreenInfo& AvailableButtonInfo : InScreenInfoObject->AvailableScreenButtons)
 	{
-		FDataTableRowHandle InputActionRowHandle;
-		
-		switch (AvailableButtonInfo.ConfirmScreenButtonType)
-		{
-		case ESL_ConfirmScreenButtonType::Cancelled:
-			InputActionRowHandle = ICommonInputModule::GetSettings().GetDefaultBackAction();
-			break;
-			
-		case ESL_ConfirmScreenButtonType::Closed:
-			InputActionRowHandle = ICommonInputModule::GetSettings().GetDefaultBackAction();
-			break;
-			
-		default:
-			break;
-		}
-		
 		USL_CommonButtonBase* AddedButton = DynamicEntryBox_Buttons->CreateEntry<USL_CommonButtonBase>();
 		
 		AddedButton->SetButtonText(AvailableButtonInfo.ButtonTextToDisplay);
-		AddedButton->SetTriggeringInputAction(InputActionRowHandle);
 		
 		AddedButton->OnClicked().AddLambda(
 			[ClickedButtonCallback, AvailableButtonInfo, this]()
