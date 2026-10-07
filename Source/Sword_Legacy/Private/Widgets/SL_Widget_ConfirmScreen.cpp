@@ -2,7 +2,6 @@
 #include "CommonTextBlock.h"
 #include "Components/DynamicEntryBox.h"
 #include "Widgets/Components/SL_CommonButtonBase.h"
-#include "ICommonInputModule.h"
 
 TObjectPtr<USL_ConfirmScreenInfoObject> USL_ConfirmScreenInfoObject::CreateOKScreen(const FText& InScreenTitle,
 	const FText& InScreenMessage)
@@ -107,10 +106,15 @@ void USL_Widget_ConfirmScreen::InitConfirmScreen(TObjectPtr<USL_ConfirmScreenInf
 			}
 		);
 	}
-	
+}
+
+UWidget* USL_Widget_ConfirmScreen::NativeGetDesiredFocusTarget() const
+{
 	if (DynamicEntryBox_Buttons->GetNumEntries() != 0)
 	{
 		// Set focus on the last button. So, if there are two buttons, one is Yes, one is No, our gamepad will focus on No button.
 		DynamicEntryBox_Buttons->GetAllEntries().Last()->SetFocus();
 	}
+	
+	return Super::NativeGetDesiredFocusTarget();
 }

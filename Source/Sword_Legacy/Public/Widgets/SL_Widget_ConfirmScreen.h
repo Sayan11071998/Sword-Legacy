@@ -51,6 +51,11 @@ public:
 		TObjectPtr<USL_ConfirmScreenInfoObject> InScreenInfoObject,
 		TFunction<void(ESL_ConfirmScreenButtonType)> ClickedButtonCallback	
 	);
+
+protected:
+	// ~ Begin UCommonActivatableWidget Interface
+	virtual UWidget* NativeGetDesiredFocusTarget() const override;
+	// ~ End UCommonActivatableWidget Interface
 	
 private:
 	UPROPERTY(meta = (BindWidget))
