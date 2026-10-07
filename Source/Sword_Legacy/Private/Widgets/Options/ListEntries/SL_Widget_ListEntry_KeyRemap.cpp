@@ -6,6 +6,8 @@
 #include "Utilities/SL_FunctionLibrary.h"
 #include "Widgets/Options/SL_Widget_KeyRemapScreen.h"
 
+#include "SL_DebugHelper.h"
+
 void USL_Widget_ListEntry_KeyRemap::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
@@ -42,6 +44,8 @@ void USL_Widget_ListEntry_KeyRemap::OnRemapKeyButtonClicked()
 			if (PushState == EAsyncPushWidgetState::OnCreatedBeforePush)
 			{
 				USL_Widget_KeyRemapScreen* CreatedKeyRemapScreen = CastChecked<USL_Widget_KeyRemapScreen>(PushedWidget);
+				CreatedKeyRemapScreen->OnKeyRemapScreenKeyPressed.BindUObject(this, &USL_Widget_ListEntry_KeyRemap::OnKeyToRemapPressed);
+				CreatedKeyRemapScreen->OnKeyRemapScreenKeySelectCanceled.BindUObject(this, &USL_Widget_ListEntry_KeyRemap::OnKeyRemapCanceled);
 				
 				if (CachedOwningKeyRemapDataObject)
 				{
@@ -53,3 +57,18 @@ void USL_Widget_ListEntry_KeyRemap::OnRemapKeyButtonClicked()
 }
 
 void USL_Widget_ListEntry_KeyRemap::OnResetKeyBindingButtonClicked() { }
+
+void USL_Widget_ListEntry_KeyRemap::OnKeyToRemapPressed(const FKey& PressedKey)
+{
+	Debug::Print(TEXT("Valid Key To Remap Detected. Key: ") + PressedKey.GetDisplayName().ToString());
+}
+
+void USL_Widget_ListEntry_KeyRemap::OnKeyRemapCanceled(const FString& CanceledReason)
+{
+	USL_UISubsystem::Get(this)->PushConfirmScreenToModalStackAsync(
+		ESL_ConfirmScreenType::Ok,
+		FText::FromString(TEXT("Key Remap")),
+		FText::FromString(CanceledReason),
+		[](ESL_ConfirmScreenButtonType ClickedButton) { }
+	);
+}
