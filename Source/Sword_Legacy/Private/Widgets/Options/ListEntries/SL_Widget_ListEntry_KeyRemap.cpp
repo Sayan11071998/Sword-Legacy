@@ -6,8 +6,6 @@
 #include "Utilities/SL_FunctionLibrary.h"
 #include "Widgets/Options/SL_Widget_KeyRemapScreen.h"
 
-#include "SL_DebugHelper.h"
-
 void USL_Widget_ListEntry_KeyRemap::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
@@ -60,7 +58,10 @@ void USL_Widget_ListEntry_KeyRemap::OnResetKeyBindingButtonClicked() { }
 
 void USL_Widget_ListEntry_KeyRemap::OnKeyToRemapPressed(const FKey& PressedKey)
 {
-	Debug::Print(TEXT("Valid Key To Remap Detected. Key: ") + PressedKey.GetDisplayName().ToString());
+	if (CachedOwningKeyRemapDataObject)
+	{
+		CachedOwningKeyRemapDataObject->BindNewInputKey(PressedKey);
+	}
 }
 
 void USL_Widget_ListEntry_KeyRemap::OnKeyRemapCanceled(const FString& CanceledReason)
