@@ -59,6 +59,10 @@ void USL_Widget_ListEntry_KeyRemap::OnRemapKeyButtonClicked()
 void USL_Widget_ListEntry_KeyRemap::OnResetKeyBindingButtonClicked()
 {
 	SelectThisEntryWidget();
+	
+	// If the current key is already the default key. Display OK screen that says this is already the default key to the player.
+	
+	// Reset the key binding back to default.
 }
 
 void USL_Widget_ListEntry_KeyRemap::OnKeyToRemapPressed(const FKey& PressedKey)
