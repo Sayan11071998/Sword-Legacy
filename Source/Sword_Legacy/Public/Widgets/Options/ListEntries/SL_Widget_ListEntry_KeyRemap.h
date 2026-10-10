@@ -4,7 +4,7 @@
 #include "Widgets/Options/ListEntries/SL_Widget_ListEntry_Base.h"
 #include "SL_Widget_ListEntry_KeyRemap.generated.h"
 
-class UCommonRichTextBlock;
+class UCommonTextBlock;
 class USL_ListDataObject_KeyRemap;
 class USL_CommonButtonBase;
 
@@ -40,7 +40,7 @@ private:
 	TObjectPtr<USL_CommonButtonBase> CommonButton_ChordKey;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
-	TObjectPtr<UCommonRichTextBlock> CommonText_ChordPlus;
+	TObjectPtr<UCommonTextBlock> CommonText_ChordPlus;
 	
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget, AllowPrivateAccess = "true"))
 	TObjectPtr<USL_CommonButtonBase> CommonButton_ResetKeyBinding;

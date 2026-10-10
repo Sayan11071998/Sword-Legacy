@@ -1,7 +1,7 @@
 #include "Widgets/Options/ListEntries/SL_Widget_ListEntry_KeyRemap.h"
 #include "Widgets/Options/DataObjects/SL_ListDataObject_KeyRemap.h"
 #include "Widgets/Components/SL_CommonButtonBase.h"
-#include "CommonRichTextBlock.h"
+#include "CommonTextBlock.h"
 #include "Subsystems/SL_UISubsystem.h"
 #include "Utilities/SL_GameplayTags.h"
 #include "Utilities/SL_FunctionLibrary.h"
@@ -13,11 +13,6 @@ void USL_Widget_ListEntry_KeyRemap::NativeOnInitialized()
 	
 	CommonButton_RemapKey->OnClicked().AddUObject(this, &USL_Widget_ListEntry_KeyRemap::OnRemapKeyButtonClicked);
 	CommonButton_ResetKeyBinding->OnClicked().AddUObject(this, &USL_Widget_ListEntry_KeyRemap::OnResetKeyBindingButtonClicked);
-
-	if (CommonButton_ChordKey)
-	{
-		CommonButton_ChordKey->SetIsInteractionEnabled(false);
-	}
 
 	if (CommonText_ChordPlus)
 	{
@@ -122,11 +117,10 @@ void USL_Widget_ListEntry_KeyRemap::OnKeyToRemapPressed(const FKey& PressedKey)
 void USL_Widget_ListEntry_KeyRemap::RefreshChordDisplay()
 {
 	const bool bShowChord = CachedOwningKeyRemapDataObject && CachedOwningKeyRemapDataObject->HasChordKey();
-	const ESlateVisibility ChordVisibility = bShowChord ? ESlateVisibility::HitTestInvisible : ESlateVisibility::Collapsed;
 
 	if (CommonButton_ChordKey)
 	{
-		CommonButton_ChordKey->SetVisibility(ChordVisibility);
+		CommonButton_ChordKey->SetVisibility(bShowChord ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
 
 		if (bShowChord)
 		{
@@ -136,7 +130,7 @@ void USL_Widget_ListEntry_KeyRemap::RefreshChordDisplay()
 
 	if (CommonText_ChordPlus)
 	{
-		CommonText_ChordPlus->SetVisibility(ChordVisibility);
+		CommonText_ChordPlus->SetVisibility(bShowChord ? ESlateVisibility::HitTestInvisible : ESlateVisibility::Collapsed);
 	}
 }
 
