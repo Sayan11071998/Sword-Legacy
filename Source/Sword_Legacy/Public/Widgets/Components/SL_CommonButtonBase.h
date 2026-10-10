@@ -4,6 +4,7 @@
 #include "CommonButtonBase.h"
 #include "SL_CommonButtonBase.generated.h"
 
+class UCommonLazyImage;
 class UCommonTextBlock;
 
 UCLASS(Abstract, BlueprintType, meta = (DisableNativeTick))
@@ -17,6 +18,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void SetButtonText(FText InText);
+	
+	UFUNCTION(BlueprintCallable)
+	void SetButtonDisplayImage(const FSlateBrush& InBrush);
 	
 private:
 	// ~ Begin UUserWidget Interface
@@ -32,6 +36,9 @@ private:
 	// **** Bound Widgets ****//
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UCommonTextBlock> CommonTextBlock_ButtonText;
+	
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
+	TObjectPtr<UCommonLazyImage> CommonLazyImage_ButtonImage;
 	// **** Bound Widgets ****//
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Game Button", meta = (AllowPrivateAccess = "true"))

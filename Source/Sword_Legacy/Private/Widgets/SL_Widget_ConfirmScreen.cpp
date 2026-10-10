@@ -2,7 +2,6 @@
 #include "CommonTextBlock.h"
 #include "Components/DynamicEntryBox.h"
 #include "Widgets/Components/SL_CommonButtonBase.h"
-#include "ICommonInputModule.h"
 
 TObjectPtr<USL_ConfirmScreenInfoObject> USL_ConfirmScreenInfoObject::CreateOKScreen(const FText& InScreenTitle,
 	const FText& InScreenMessage)
@@ -94,26 +93,9 @@ void USL_Widget_ConfirmScreen::InitConfirmScreen(TObjectPtr<USL_ConfirmScreenInf
 	
 	for (FSL_ConfirmButtonScreenInfo& AvailableButtonInfo : InScreenInfoObject->AvailableScreenButtons)
 	{
-		FDataTableRowHandle InputActionRowHandle;
-		
-		switch (AvailableButtonInfo.ConfirmScreenButtonType)
-		{
-		case ESL_ConfirmScreenButtonType::Cancelled:
-			InputActionRowHandle = ICommonInputModule::GetSettings().GetDefaultBackAction();
-			break;
-			
-		case ESL_ConfirmScreenButtonType::Closed:
-			InputActionRowHandle = ICommonInputModule::GetSettings().GetDefaultBackAction();
-			break;
-			
-		default:
-			break;
-		}
-		
 		USL_CommonButtonBase* AddedButton = DynamicEntryBox_Buttons->CreateEntry<USL_CommonButtonBase>();
 		
 		AddedButton->SetButtonText(AvailableButtonInfo.ButtonTextToDisplay);
-		AddedButton->SetTriggeringInputAction(InputActionRowHandle);
 		
 		AddedButton->OnClicked().AddLambda(
 			[ClickedButtonCallback, AvailableButtonInfo, this]()
@@ -124,10 +106,15 @@ void USL_Widget_ConfirmScreen::InitConfirmScreen(TObjectPtr<USL_ConfirmScreenInf
 			}
 		);
 	}
-	
+}
+
+UWidget* USL_Widget_ConfirmScreen::NativeGetDesiredFocusTarget() const
+{
 	if (DynamicEntryBox_Buttons->GetNumEntries() != 0)
 	{
 		// Set focus on the last button. So, if there are two buttons, one is Yes, one is No, our gamepad will focus on No button.
 		DynamicEntryBox_Buttons->GetAllEntries().Last()->SetFocus();
 	}
+	
+	return Super::NativeGetDesiredFocusTarget();
 }
