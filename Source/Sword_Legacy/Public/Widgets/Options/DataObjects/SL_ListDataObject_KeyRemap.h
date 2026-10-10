@@ -23,6 +23,9 @@ public:
 	);
 	
 	FSlateBrush GetIconFromCurrentKey() const;
+	FSlateBrush GetIconFromChordKey() const;
+
+	bool HasChordKey() const;
 	
 	void BindNewInputKey(const FKey& InNewKey);
 	
@@ -34,6 +37,9 @@ public:
 	
 private:
 	FPlayerKeyMapping* GetOwningKeyMapping() const;
+	FSlateBrush GetIconForKey(const FKey& InKey) const;
+	void ResolveChordKey();
+	FKey FindChordDisplayKey(const UInputAction* ChordAction, bool bGamepadKey) const;
 	
 	UPROPERTY(Transient)
 	TObjectPtr<UEnhancedInputUserSettings> CachedOwningInputUserSettings;
@@ -49,6 +55,9 @@ private:
 	
 	UPROPERTY()
 	EPlayerMappableKeySlot CachedOwningMappableKeySlot;
+
+	UPROPERTY()
+	FKey CachedChordKey;
 	
 public:
 	FORCEINLINE ECommonInputType GetDesiredInputKeyType() const { return CachedDesiredInputKeyType; }

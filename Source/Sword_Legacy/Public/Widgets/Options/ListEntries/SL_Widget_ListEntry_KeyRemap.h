@@ -4,6 +4,7 @@
 #include "Widgets/Options/ListEntries/SL_Widget_ListEntry_Base.h"
 #include "SL_Widget_ListEntry_KeyRemap.generated.h"
 
+class UCommonRichTextBlock;
 class USL_ListDataObject_KeyRemap;
 class USL_CommonButtonBase;
 
@@ -28,10 +29,18 @@ private:
 	
 	void OnKeyToRemapPressed(const FKey& PressedKey);
 	void OnKeyRemapCanceled(const FString& CanceledReason);
+
+	void RefreshChordDisplay();
 	
 	// Bound Widgets
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget, AllowPrivateAccess = "true"))
 	TObjectPtr<USL_CommonButtonBase> CommonButton_RemapKey;
+	
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
+	TObjectPtr<USL_CommonButtonBase> CommonButton_ChordKey;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
+	TObjectPtr<UCommonRichTextBlock> CommonText_ChordPlus;
 	
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget, AllowPrivateAccess = "true"))
 	TObjectPtr<USL_CommonButtonBase> CommonButton_ResetKeyBinding;

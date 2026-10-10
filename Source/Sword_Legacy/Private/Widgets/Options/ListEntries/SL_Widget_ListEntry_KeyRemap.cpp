@@ -1,6 +1,7 @@
 #include "Widgets/Options/ListEntries/SL_Widget_ListEntry_KeyRemap.h"
 #include "Widgets/Options/DataObjects/SL_ListDataObject_KeyRemap.h"
 #include "Widgets/Components/SL_CommonButtonBase.h"
+#include "CommonRichTextBlock.h"
 #include "Subsystems/SL_UISubsystem.h"
 #include "Utilities/SL_GameplayTags.h"
 #include "Utilities/SL_FunctionLibrary.h"
@@ -12,6 +13,16 @@ void USL_Widget_ListEntry_KeyRemap::NativeOnInitialized()
 	
 	CommonButton_RemapKey->OnClicked().AddUObject(this, &USL_Widget_ListEntry_KeyRemap::OnRemapKeyButtonClicked);
 	CommonButton_ResetKeyBinding->OnClicked().AddUObject(this, &USL_Widget_ListEntry_KeyRemap::OnResetKeyBindingButtonClicked);
+
+	if (CommonButton_ChordKey)
+	{
+		CommonButton_ChordKey->SetIsInteractionEnabled(false);
+	}
+
+	if (CommonText_ChordPlus)
+	{
+		CommonText_ChordPlus->SetText(FText::FromString(TEXT("+")));
+	}
 }
 
 void USL_Widget_ListEntry_KeyRemap::OnOwningListDataObjectSet(TObjectPtr<USL_ListDataObject_Base> InOwningListDataObject)
@@ -21,6 +32,7 @@ void USL_Widget_ListEntry_KeyRemap::OnOwningListDataObjectSet(TObjectPtr<USL_Lis
 	CachedOwningKeyRemapDataObject = CastChecked<USL_ListDataObject_KeyRemap>(InOwningListDataObject);
 	
 	CommonButton_RemapKey->SetButtonDisplayImage(CachedOwningKeyRemapDataObject->GetIconFromCurrentKey());
+	RefreshChordDisplay();
 }
 
 void USL_Widget_ListEntry_KeyRemap::OnOwningListDataObjectModified(USL_ListDataObject_Base* OwningModifiedData,
@@ -29,6 +41,7 @@ void USL_Widget_ListEntry_KeyRemap::OnOwningListDataObjectModified(USL_ListDataO
 	if (CachedOwningKeyRemapDataObject)
 	{
 		CommonButton_RemapKey->SetButtonDisplayImage(CachedOwningKeyRemapDataObject->GetIconFromCurrentKey());
+		RefreshChordDisplay();
 	}
 }
 
@@ -103,6 +116,27 @@ void USL_Widget_ListEntry_KeyRemap::OnKeyToRemapPressed(const FKey& PressedKey)
 	if (CachedOwningKeyRemapDataObject)
 	{
 		CachedOwningKeyRemapDataObject->BindNewInputKey(PressedKey);
+	}
+}
+
+void USL_Widget_ListEntry_KeyRemap::RefreshChordDisplay()
+{
+	const bool bShowChord = CachedOwningKeyRemapDataObject && CachedOwningKeyRemapDataObject->HasChordKey();
+	const ESlateVisibility ChordVisibility = bShowChord ? ESlateVisibility::HitTestInvisible : ESlateVisibility::Collapsed;
+
+	if (CommonButton_ChordKey)
+	{
+		CommonButton_ChordKey->SetVisibility(ChordVisibility);
+
+		if (bShowChord)
+		{
+			CommonButton_ChordKey->SetButtonDisplayImage(CachedOwningKeyRemapDataObject->GetIconFromChordKey());
+		}
+	}
+
+	if (CommonText_ChordPlus)
+	{
+		CommonText_ChordPlus->SetVisibility(ChordVisibility);
 	}
 }
 
