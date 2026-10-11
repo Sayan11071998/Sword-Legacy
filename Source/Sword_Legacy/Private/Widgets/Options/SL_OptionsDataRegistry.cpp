@@ -642,6 +642,7 @@ void USL_OptionsDataRegistry::InitControlCollectionTab(TObjectPtr<ULocalPlayer> 
 			FPlayerMappableKeyQueryOptions KeyboardMouseOnly;
 			KeyboardMouseOnly.KeyToMatch = EKeys::S;
 			KeyboardMouseOnly.bMatchBasicKeyTypes = true;
+			TSet<FString> AddedMappingGroups;
 			
 			for (const TPair<FGameplayTag, UEnhancedPlayerMappableKeyProfile*>& ProfilePair : EIUserSettings->GetAllSavedKeyProfiles())
 			{
@@ -654,6 +655,11 @@ void USL_OptionsDataRegistry::InitControlCollectionTab(TObjectPtr<ULocalPlayer> 
 					{
 						if (MappableKeyProfile->DoesMappingPassQueryOptions(KeyMapping, KeyboardMouseOnly))
 						{
+							const FString DisplayName = KeyMapping.GetDisplayName().ToString();
+							const FString GroupKey = DisplayName.IsEmpty() ? KeyMapping.GetMappingName().ToString() : DisplayName;
+							if (AddedMappingGroups.Contains(GroupKey)) continue;
+
+							AddedMappingGroups.Add(GroupKey);
 							USL_ListDataObject_KeyRemap* KeyRemapDataObject = NewObject<USL_ListDataObject_KeyRemap>();
 							KeyRemapDataObject->SetDataID(KeyMapping.GetMappingName());
 							KeyRemapDataObject->SetDataDisplayName(KeyMapping.GetDisplayName());
@@ -680,6 +686,7 @@ void USL_OptionsDataRegistry::InitControlCollectionTab(TObjectPtr<ULocalPlayer> 
 			FPlayerMappableKeyQueryOptions GamepadOnly;
 			GamepadOnly.KeyToMatch = EKeys::Gamepad_FaceButton_Bottom;
 			GamepadOnly.bMatchBasicKeyTypes = true;
+			TSet<FString> AddedMappingGroups;
 			
 			for (const TPair<FGameplayTag, UEnhancedPlayerMappableKeyProfile*>& ProfilePair : EIUserSettings->GetAllSavedKeyProfiles())
 			{
@@ -692,6 +699,11 @@ void USL_OptionsDataRegistry::InitControlCollectionTab(TObjectPtr<ULocalPlayer> 
 					{
 						if (MappableKeyProfile->DoesMappingPassQueryOptions(KeyMapping, GamepadOnly))
 						{
+							const FString DisplayName = KeyMapping.GetDisplayName().ToString();
+							const FString GroupKey = DisplayName.IsEmpty() ? KeyMapping.GetMappingName().ToString() : DisplayName;
+							if (AddedMappingGroups.Contains(GroupKey)) continue;
+
+							AddedMappingGroups.Add(GroupKey);
 							USL_ListDataObject_KeyRemap* KeyRemapDataObject = NewObject<USL_ListDataObject_KeyRemap>();
 							KeyRemapDataObject->SetDataID(KeyMapping.GetMappingName());
 							KeyRemapDataObject->SetDataDisplayName(KeyMapping.GetDisplayName());

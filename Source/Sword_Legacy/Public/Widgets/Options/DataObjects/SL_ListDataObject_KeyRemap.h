@@ -51,6 +51,10 @@ private:
 	TArray<FKey> FindChordDisplayKeys(const UInputAction* ChordAction, bool bGamepadKey) const;
 	FKey FindCurrentKeyForMapping(const FEnhancedActionKeyMapping& SourceMapping) const;
 	void UnbindOtherMappingsUsingKey(const FKey& InKey);
+	bool ApplyKeyToLinkedMappings(const FKey& InKey);
+	bool IsMappingForThisDevice(const FPlayerKeyMapping& PlayerMapping) const;
+	bool IsLinkedMapping(const FPlayerKeyMapping& PlayerMapping) const;
+	void SaveAndRebuildPlayerMappings();
 	
 	UFUNCTION()
 	void HandleUserSettingsChanged(UEnhancedInputUserSettings* Settings);
@@ -66,6 +70,9 @@ private:
 	
 	UPROPERTY()
 	FName CachedOwningMappingName;
+
+	UPROPERTY()
+	FString CachedOwningDisplayName;
 	
 	UPROPERTY()
 	EPlayerMappableKeySlot CachedOwningMappableKeySlot;

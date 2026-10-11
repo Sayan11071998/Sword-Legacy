@@ -14,6 +14,7 @@ void USL_ListDataObject_KeyRemap::InitKeyRemapData(TObjectPtr<UEnhancedInputUser
 	CachedOwningKeyProfile = InKeyProfile;
 	CachedDesiredInputKeyType = InDesiredInputKeyType;
 	CachedOwningMappingName = InOwningPlayerKeyMapping.GetMappingName();
+	CachedOwningDisplayName = InOwningPlayerKeyMapping.GetDisplayName().ToString();
 	CachedOwningMappableKeySlot = InOwningPlayerKeyMapping.GetSlot();
 
 	ResolveChordKey();
@@ -21,6 +22,10 @@ void USL_ListDataObject_KeyRemap::InitKeyRemapData(TObjectPtr<UEnhancedInputUser
 	if (const FPlayerKeyMapping* Mapping = GetOwningKeyMapping())
 	{
 		CachedDisplayedKey = Mapping->GetCurrentKey();
+		if (ApplyKeyToLinkedMappings(CachedDisplayedKey))
+		{
+			SaveAndRebuildPlayerMappings();
+		}
 	}
 
 	if (CachedOwningInputUserSettings &&
@@ -81,7 +86,7 @@ bool USL_ListDataObject_KeyRemap::GetAssignedActionNamesForKey(const FKey& InNew
 		for (const FPlayerKeyMapping& PlayerMapping : RowPair.Value.Mappings)
 		{
 			if (PlayerMapping.GetCurrentKey() != InNewKey) continue;
-			if (PlayerMapping.GetMappingName() == CachedOwningMappingName && PlayerMapping.GetSlot() == CachedOwningMappableKeySlot) continue;
+			if (IsLinkedMapping(PlayerMapping)) continue;
 
 			const FString DisplayName = PlayerMapping.GetDisplayName().ToString();
 			ActionNames.AddUnique(DisplayName.IsEmpty() ? PlayerMapping.GetMappingName().ToString() : DisplayName);
@@ -108,15 +113,8 @@ void USL_ListDataObject_KeyRemap::BindNewInputKey(const FKey& InNewKey)
 	FGameplayTagContainer Container;
 	
 	CachedOwningInputUserSettings->MapPlayerKey(KeyArgs, Container);
-	CachedOwningInputUserSettings->SaveSettings();
-
-	if (ULocalPlayer* LocalPlayer = CachedOwningInputUserSettings->GetLocalPlayer())
-	{
-		if (UEnhancedInputLocalPlayerSubsystem* InputSubsystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
-		{
-			InputSubsystem->RequestRebuildControlMappings();
-		}
-	}
+	ApplyKeyToLinkedMappings(InNewKey);
+	SaveAndRebuildPlayerMappings();
 	
 	NotifyListDataModified(this);
 }
@@ -133,19 +131,51 @@ void USL_ListDataObject_KeyRemap::UnbindOtherMappingsUsingKey(const FKey& InKey)
 	};
 
 	TArray<FMappingToClear> MappingsToClear;
+	TSet<FString> SeenMappingIds;
 
-	for (const TPair<FName, FKeyMappingRow>& RowPair : CachedOwningKeyProfile->GetPlayerMappingRows())
+	auto QueueMapping = [&MappingsToClear, &SeenMappingIds](const FPlayerKeyMapping& PlayerMapping)
+	{
+		const FString MappingId = FString::Printf(
+			TEXT("%s|%d|%s"),
+			*PlayerMapping.GetMappingName().ToString(),
+			static_cast<int32>(PlayerMapping.GetSlot()),
+			*PlayerMapping.GetHardwareDeviceId().HardwareDeviceIdentifier.ToString()
+		);
+		if (SeenMappingIds.Contains(MappingId)) return;
+
+		SeenMappingIds.Add(MappingId);
+
+		FMappingToClear MappingToClear;
+		MappingToClear.MappingName = PlayerMapping.GetMappingName();
+		MappingToClear.Slot = PlayerMapping.GetSlot();
+		MappingToClear.HardwareDeviceId = PlayerMapping.GetHardwareDeviceId().HardwareDeviceIdentifier;
+		MappingsToClear.Add(MappingToClear);
+	};
+
+	const TMap<FName, FKeyMappingRow>& MappingRows = CachedOwningKeyProfile->GetPlayerMappingRows();
+	for (const TPair<FName, FKeyMappingRow>& RowPair : MappingRows)
 	{
 		for (const FPlayerKeyMapping& PlayerMapping : RowPair.Value.Mappings)
 		{
-			if (PlayerMapping.GetCurrentKey() != InKey) continue;
-			if (PlayerMapping.GetMappingName() == CachedOwningMappingName && PlayerMapping.GetSlot() == CachedOwningMappableKeySlot) continue;
+			if (PlayerMapping.GetCurrentKey() != InKey || IsLinkedMapping(PlayerMapping)) continue;
 
-			FMappingToClear MappingToClear;
-			MappingToClear.MappingName = PlayerMapping.GetMappingName();
-			MappingToClear.Slot = PlayerMapping.GetSlot();
-			MappingToClear.HardwareDeviceId = PlayerMapping.GetHardwareDeviceId().HardwareDeviceIdentifier;
-			MappingsToClear.Add(MappingToClear);
+			QueueMapping(PlayerMapping);
+
+			const FString ConflictingDisplayName = PlayerMapping.GetDisplayName().ToString();
+			for (const TPair<FName, FKeyMappingRow>& LinkedRowPair : MappingRows)
+			{
+				for (const FPlayerKeyMapping& LinkedMapping : LinkedRowPair.Value.Mappings)
+				{
+					if (!IsMappingForThisDevice(LinkedMapping)) continue;
+
+					const bool bSameMappingName = LinkedMapping.GetMappingName() == PlayerMapping.GetMappingName();
+					const bool bSameDisplayName = !ConflictingDisplayName.IsEmpty() && LinkedMapping.GetDisplayName().ToString() == ConflictingDisplayName;
+					if (bSameMappingName || bSameDisplayName)
+					{
+						QueueMapping(LinkedMapping);
+					}
+				}
+			}
 		}
 	}
 
@@ -159,6 +189,82 @@ void USL_ListDataObject_KeyRemap::UnbindOtherMappingsUsingKey(const FKey& InKey)
 		if (FPlayerKeyMapping* PlayerMapping = CachedOwningKeyProfile->FindKeyMapping(KeyArgs))
 		{
 			PlayerMapping->SetCurrentKey(EKeys::Invalid);
+		}
+	}
+}
+
+bool USL_ListDataObject_KeyRemap::ApplyKeyToLinkedMappings(const FKey& InKey)
+{
+	if (!CachedOwningKeyProfile || CachedOwningMappingName.IsNone()) return false;
+
+	struct FMappingToUpdate
+	{
+		FName MappingName = NAME_None;
+		EPlayerMappableKeySlot Slot = EPlayerMappableKeySlot::Unspecified;
+		FName HardwareDeviceId = NAME_None;
+	};
+
+	TArray<FMappingToUpdate> MappingsToUpdate;
+	for (const TPair<FName, FKeyMappingRow>& RowPair : CachedOwningKeyProfile->GetPlayerMappingRows())
+	{
+		for (const FPlayerKeyMapping& PlayerMapping : RowPair.Value.Mappings)
+		{
+			if (!IsLinkedMapping(PlayerMapping) || PlayerMapping.GetCurrentKey() == InKey) continue;
+
+			FMappingToUpdate MappingToUpdate;
+			MappingToUpdate.MappingName = PlayerMapping.GetMappingName();
+			MappingToUpdate.Slot = PlayerMapping.GetSlot();
+			MappingToUpdate.HardwareDeviceId = PlayerMapping.GetHardwareDeviceId().HardwareDeviceIdentifier;
+			MappingsToUpdate.Add(MappingToUpdate);
+		}
+	}
+
+	bool bChanged = false;
+	for (const FMappingToUpdate& MappingToUpdate : MappingsToUpdate)
+	{
+		FMapPlayerKeyArgs KeyArgs;
+		KeyArgs.MappingName = MappingToUpdate.MappingName;
+		KeyArgs.Slot = MappingToUpdate.Slot;
+		KeyArgs.HardwareDeviceId = MappingToUpdate.HardwareDeviceId;
+
+		if (FPlayerKeyMapping* PlayerMapping = CachedOwningKeyProfile->FindKeyMapping(KeyArgs))
+		{
+			PlayerMapping->SetCurrentKey(InKey);
+			bChanged = true;
+		}
+	}
+
+	return bChanged;
+}
+
+bool USL_ListDataObject_KeyRemap::IsMappingForThisDevice(const FPlayerKeyMapping& PlayerMapping) const
+{
+	const FKey DeviceKey = PlayerMapping.GetDefaultKey().IsValid() ? PlayerMapping.GetDefaultKey() : PlayerMapping.GetCurrentKey();
+	const bool bMappingIsGamepad = DeviceKey.IsGamepadKey();
+	const bool bRowIsGamepad = CachedDesiredInputKeyType == ECommonInputType::Gamepad;
+	return bMappingIsGamepad == bRowIsGamepad;
+}
+
+bool USL_ListDataObject_KeyRemap::IsLinkedMapping(const FPlayerKeyMapping& PlayerMapping) const
+{
+	if (!IsMappingForThisDevice(PlayerMapping)) return false;
+	if (PlayerMapping.GetMappingName() == CachedOwningMappingName) return true;
+
+	const FString DisplayName = PlayerMapping.GetDisplayName().ToString();
+	return !CachedOwningDisplayName.IsEmpty() && DisplayName == CachedOwningDisplayName;
+}
+
+void USL_ListDataObject_KeyRemap::SaveAndRebuildPlayerMappings()
+{
+	if (!CachedOwningInputUserSettings) return;
+
+	CachedOwningInputUserSettings->SaveSettings();
+
+	if (ULocalPlayer* LocalPlayer = CachedOwningInputUserSettings->GetLocalPlayer())
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* InputSubsystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
+		{
+			InputSubsystem->RequestRebuildControlMappings();
 		}
 	}
 }
@@ -180,8 +286,9 @@ bool USL_ListDataObject_KeyRemap::TryResetBackToDefaultValue()
 		check(CachedOwningInputUserSettings);
 		
 		GetOwningKeyMapping()->ResetToDefault();
+		ApplyKeyToLinkedMappings(GetOwningKeyMapping()->GetCurrentKey());
 		
-		CachedOwningInputUserSettings->SaveSettings();
+		SaveAndRebuildPlayerMappings();
 		CachedOwningInputUserSettings->OnSettingsChanged.Broadcast(CachedOwningInputUserSettings);
 		
 		NotifyListDataModified(this, ESL_OptionsListDataModifyReason::ResetToDefault);
@@ -235,19 +342,28 @@ FPlayerKeyMapping* USL_ListDataObject_KeyRemap::GetOwningKeyMapping() const
 
 FSlateBrush USL_ListDataObject_KeyRemap::GetIconForKey(const FKey& InKey) const
 {
-	FSlateBrush FoundBrush;
+	auto MakeBlankBrush = []()
+	{
+		FSlateBrush BlankBrush;
+		BlankBrush.DrawAs = ESlateBrushDrawType::NoDrawType;
+		BlankBrush.TintColor = FLinearColor::Transparent;
+		return BlankBrush;
+	};
 
-	if (!CachedOwningInputUserSettings || !InKey.IsValid()) return FoundBrush;
+	if (!CachedOwningInputUserSettings || !InKey.IsValid()) return MakeBlankBrush();
 
 	UCommonInputSubsystem* CommonInputSubsystem = UCommonInputSubsystem::Get(CachedOwningInputUserSettings->GetLocalPlayer());
 	check(CommonInputSubsystem);
 
+	FSlateBrush FoundBrush;
 	const bool bHasFoundBrush = UCommonInputPlatformSettings::Get()->TryGetInputBrush(
 		FoundBrush,
 		InKey,
 		CachedDesiredInputKeyType,
 		CommonInputSubsystem->GetCurrentGamepadName()
 	);
+
+	if (!bHasFoundBrush) return MakeBlankBrush();
 
 	return FoundBrush;
 }
