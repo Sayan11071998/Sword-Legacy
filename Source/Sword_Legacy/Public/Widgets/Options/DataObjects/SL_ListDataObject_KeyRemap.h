@@ -8,6 +8,7 @@
 
 class UEnhancedPlayerMappableKeyProfile;
 class UEnhancedInputUserSettings;
+struct FEnhancedActionKeyMapping;
 
 UCLASS()
 class SWORD_LEGACY_API USL_ListDataObject_KeyRemap : public USL_ListDataObject_Base
@@ -23,9 +24,10 @@ public:
 	);
 	
 	FSlateBrush GetIconFromCurrentKey() const;
-	FSlateBrush GetIconFromChordKey() const;
+	FSlateBrush GetIconFromChordKey(int32 KeyIndex) const;
 
 	bool HasChordKey() const;
+	int32 GetChordKeyCount() const;
 	
 	void BindNewInputKey(const FKey& InNewKey);
 	
@@ -34,12 +36,20 @@ public:
 	virtual bool CanResetBackToDefaultValue() const override;
 	virtual bool TryResetBackToDefaultValue() override;
 	// ~ End USL_ListDataObject_Base Interface
+
+	// ~ Begin UObject Interface
+	virtual void BeginDestroy() override;
+	// ~ End UObject Interface
 	
 private:
 	FPlayerKeyMapping* GetOwningKeyMapping() const;
 	FSlateBrush GetIconForKey(const FKey& InKey) const;
 	void ResolveChordKey();
-	FKey FindChordDisplayKey(const UInputAction* ChordAction, bool bGamepadKey) const;
+	TArray<FKey> FindChordDisplayKeys(const UInputAction* ChordAction, bool bGamepadKey) const;
+	FKey FindCurrentKeyForMapping(const FEnhancedActionKeyMapping& SourceMapping) const;
+	
+	UFUNCTION()
+	void HandleUserSettingsChanged(UEnhancedInputUserSettings* Settings);
 	
 	UPROPERTY(Transient)
 	TObjectPtr<UEnhancedInputUserSettings> CachedOwningInputUserSettings;
@@ -57,7 +67,7 @@ private:
 	EPlayerMappableKeySlot CachedOwningMappableKeySlot;
 
 	UPROPERTY()
-	FKey CachedChordKey;
+	TArray<FKey> CachedChordKeys;
 	
 public:
 	FORCEINLINE ECommonInputType GetDesiredInputKeyType() const { return CachedDesiredInputKeyType; }

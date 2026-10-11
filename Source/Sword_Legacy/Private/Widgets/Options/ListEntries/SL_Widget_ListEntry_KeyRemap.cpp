@@ -6,6 +6,7 @@
 #include "Utilities/SL_GameplayTags.h"
 #include "Utilities/SL_FunctionLibrary.h"
 #include "Widgets/Options/SL_Widget_KeyRemapScreen.h"
+#include "TimerManager.h"
 
 void USL_Widget_ListEntry_KeyRemap::NativeOnInitialized()
 {
@@ -28,6 +29,20 @@ void USL_Widget_ListEntry_KeyRemap::OnOwningListDataObjectSet(TObjectPtr<USL_Lis
 	
 	CommonButton_RemapKey->SetButtonDisplayImage(CachedOwningKeyRemapDataObject->GetIconFromCurrentKey());
 	RefreshChordDisplay();
+}
+
+void USL_Widget_ListEntry_KeyRemap::NativeOnEntryReleased()
+{
+	StopChordKeyCycle();
+	
+	Super::NativeOnEntryReleased();
+}
+
+void USL_Widget_ListEntry_KeyRemap::NativeDestruct()
+{
+	StopChordKeyCycle();
+	
+	Super::NativeDestruct();
 }
 
 void USL_Widget_ListEntry_KeyRemap::OnOwningListDataObjectModified(USL_ListDataObject_Base* OwningModifiedData,
@@ -116,7 +131,11 @@ void USL_Widget_ListEntry_KeyRemap::OnKeyToRemapPressed(const FKey& PressedKey)
 
 void USL_Widget_ListEntry_KeyRemap::RefreshChordDisplay()
 {
+	StopChordKeyCycle();
+	ChordKeyIndex = 0;
+
 	const bool bShowChord = CachedOwningKeyRemapDataObject && CachedOwningKeyRemapDataObject->HasChordKey();
+	const int32 ChordKeyCount = bShowChord ? CachedOwningKeyRemapDataObject->GetChordKeyCount() : 0;
 
 	if (CommonButton_ChordKey)
 	{
@@ -124,13 +143,46 @@ void USL_Widget_ListEntry_KeyRemap::RefreshChordDisplay()
 
 		if (bShowChord)
 		{
-			CommonButton_ChordKey->SetButtonDisplayImage(CachedOwningKeyRemapDataObject->GetIconFromChordKey());
+			CommonButton_ChordKey->SetButtonDisplayImage(CachedOwningKeyRemapDataObject->GetIconFromChordKey(ChordKeyIndex));
 		}
 	}
 
 	if (CommonText_ChordPlus)
 	{
 		CommonText_ChordPlus->SetVisibility(bShowChord ? ESlateVisibility::HitTestInvisible : ESlateVisibility::Collapsed);
+	}
+
+	if (ChordKeyCount > 1)
+	{
+		if (UWorld* World = GetWorld())
+		{
+			World->GetTimerManager().SetTimer(
+				ChordKeyCycleTimer,
+				this,
+				&USL_Widget_ListEntry_KeyRemap::AdvanceChordKeyCycle,
+				1.f,
+				true
+			);
+		}
+	}
+}
+
+void USL_Widget_ListEntry_KeyRemap::AdvanceChordKeyCycle()
+{
+	if (!CachedOwningKeyRemapDataObject || !CommonButton_ChordKey) return;
+
+	const int32 ChordKeyCount = CachedOwningKeyRemapDataObject->GetChordKeyCount();
+	if (ChordKeyCount <= 1) return;
+
+	ChordKeyIndex = (ChordKeyIndex + 1) % ChordKeyCount;
+	CommonButton_ChordKey->SetButtonDisplayImage(CachedOwningKeyRemapDataObject->GetIconFromChordKey(ChordKeyIndex));
+}
+
+void USL_Widget_ListEntry_KeyRemap::StopChordKeyCycle()
+{
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(ChordKeyCycleTimer);
 	}
 }
 
