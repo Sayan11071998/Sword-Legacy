@@ -59,6 +59,18 @@ public:
 	
 	UFUNCTION()
 	void SetSoundFXVolume(float InVolume);
+
+	UFUNCTION()
+	float GetDialogueVolume() const { return DialogueVolume; }
+
+	UFUNCTION()
+	void SetDialogueVolume(float InVolume);
+
+	UFUNCTION()
+	float GetUIVolume() const { return UIVolume; }
+
+	UFUNCTION()
+	void SetUIVolume(float InVolume);
 	
 	UFUNCTION()
 	bool GetAllowBackgroundAudio() const { return bAllowBackgroundAudio; }
@@ -103,6 +115,12 @@ private:
 	
 	UPROPERTY(Config)
 	float SoundFXVolume;
+
+	UPROPERTY(Config)
+	float DialogueVolume;
+
+	UPROPERTY(Config)
+	float UIVolume;
 	
 	UPROPERTY(Config)
 	bool bAllowBackgroundAudio;

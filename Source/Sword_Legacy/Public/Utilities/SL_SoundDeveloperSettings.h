@@ -19,6 +19,12 @@ public:
 	UPROPERTY(Config, EditAnywhere, Category = "Sound Classes", meta = (AllowedClasses = "/Script/Engine.SoundClass"))
 	FSoftObjectPath SoundFXSoundClass;
 
+	UPROPERTY(Config, EditAnywhere, Category = "Sound Classes", meta = (AllowedClasses = "/Script/Engine.SoundClass"))
+	FSoftObjectPath DialogueSoundClass;
+
+	UPROPERTY(Config, EditAnywhere, Category = "Sound Classes", meta = (AllowedClasses = "/Script/Engine.SoundClass"))
+	FSoftObjectPath UISoundClass;
+
 	UPROPERTY(Config, EditAnywhere, Category = "Sound Mix", meta = (AllowedClasses = "/Script/Engine.SoundMix"))
 	FSoftObjectPath DefaultSoundMix;
 };

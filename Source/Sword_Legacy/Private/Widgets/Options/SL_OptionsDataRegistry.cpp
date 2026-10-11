@@ -194,6 +194,44 @@ void USL_OptionsDataRegistry::InitAudioCollectionTab()
 			
 			VolumeCategoryCollection->AddChildListData(SoundFXVolume);
 		}
+
+		// Dialogue Volume
+		{
+			USL_ListDataObject_Scalar* DialogueVolume = NewObject<USL_ListDataObject_Scalar>();
+			DialogueVolume->SetDataID(FName(TEXT("DialogueVolume")));
+			DialogueVolume->SetDataDisplayName(FText::FromString(TEXT("Dialogue")));
+			DialogueVolume->SetDescriptionRichText(GET_AUDIO_TAB_DESCRIPTION("DialogueVolumeDescKey"));
+			DialogueVolume->SetDisplayValueRange(TRange<float>(0.f, 1.f));
+			DialogueVolume->SetOutputValueRange(TRange<float>(0.f, 2.f));
+			DialogueVolume->SetSliderStepSize(0.01f);
+			DialogueVolume->SetDefaultValueFromString(LexToString(1.f));
+			DialogueVolume->SetDisplayNumericType(ECommonNumericType::Percentage);
+			DialogueVolume->SetNumberFormattingOptions(USL_ListDataObject_Scalar::NoDecimal());
+			DialogueVolume->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetDialogueVolume));
+			DialogueVolume->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetDialogueVolume));
+			DialogueVolume->SetShouldApplySettingsImmediately(true);
+
+			VolumeCategoryCollection->AddChildListData(DialogueVolume);
+		}
+
+		// UI Volume
+		{
+			USL_ListDataObject_Scalar* UIVolume = NewObject<USL_ListDataObject_Scalar>();
+			UIVolume->SetDataID(FName(TEXT("UIVolume")));
+			UIVolume->SetDataDisplayName(FText::FromString(TEXT("UI")));
+			UIVolume->SetDescriptionRichText(GET_AUDIO_TAB_DESCRIPTION("UIVolumeDescKey"));
+			UIVolume->SetDisplayValueRange(TRange<float>(0.f, 1.f));
+			UIVolume->SetOutputValueRange(TRange<float>(0.f, 2.f));
+			UIVolume->SetSliderStepSize(0.01f);
+			UIVolume->SetDefaultValueFromString(LexToString(1.f));
+			UIVolume->SetDisplayNumericType(ECommonNumericType::Percentage);
+			UIVolume->SetNumberFormattingOptions(USL_ListDataObject_Scalar::NoDecimal());
+			UIVolume->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetUIVolume));
+			UIVolume->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetUIVolume));
+			UIVolume->SetShouldApplySettingsImmediately(true);
+
+			VolumeCategoryCollection->AddChildListData(UIVolume);
+		}
 	}
 	
 	// Sound Category
