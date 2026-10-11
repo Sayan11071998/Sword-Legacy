@@ -58,6 +58,24 @@ void USL_Widget_ListEntry_KeyRemap::OnOwningListDataObjectModified(USL_ListDataO
 void USL_Widget_ListEntry_KeyRemap::OnRemapKeyButtonClicked()
 {
 	SelectThisEntryWidget();
+
+	if (!CachedOwningKeyRemapDataObject) return;
+
+	if (CachedOwningKeyRemapDataObject->IsRemapLocked())
+	{
+		USL_UISubsystem::Get(this)->PushConfirmScreenToModalStackAsync(
+			ESL_ConfirmScreenType::Ok,
+			FText::FromString(TEXT("Key Remap")),
+			FText::FromString(
+				TEXT("The ") +
+				CachedOwningKeyRemapDataObject->GetDataDisplayName().ToString() +
+				TEXT(" input cannot be modified.")
+			),
+			[](ESL_ConfirmScreenButtonType ClickedButton) { }
+		);
+
+		return;
+	}
 	
 	USL_UISubsystem::Get(this)->PushSoftWidgetToStackAsync(
 		SL_GameplayTags::UI_WidgetStack_Modal,

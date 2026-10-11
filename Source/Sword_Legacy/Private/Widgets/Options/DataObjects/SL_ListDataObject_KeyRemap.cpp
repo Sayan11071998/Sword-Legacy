@@ -49,6 +49,14 @@ int32 USL_ListDataObject_KeyRemap::GetChordKeyCount() const
 	return CachedChordKeys.Num();
 }
 
+bool USL_ListDataObject_KeyRemap::IsRemapLocked() const
+{
+	const FPlayerKeyMapping* Mapping = GetOwningKeyMapping();
+	if (!Mapping) return false;
+
+	return Mapping->GetCurrentKey() == EKeys::Mouse2D || Mapping->GetDefaultKey() == EKeys::Mouse2D;
+}
+
 void USL_ListDataObject_KeyRemap::BindNewInputKey(const FKey& InNewKey)
 {
 	check(CachedOwningInputUserSettings);

@@ -28,6 +28,7 @@ public:
 
 	bool HasChordKey() const;
 	int32 GetChordKeyCount() const;
+	bool IsRemapLocked() const;
 	
 	void BindNewInputKey(const FKey& InNewKey);
 	
