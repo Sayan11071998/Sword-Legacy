@@ -29,6 +29,8 @@ public:
 	bool HasChordKey() const;
 	int32 GetChordKeyCount() const;
 	bool IsRemapLocked() const;
+	bool IsUsingKey(const FKey& InKey) const;
+	bool GetAssignedActionNamesForKey(const FKey& InNewKey, FText& OutActionNames) const;
 	
 	void BindNewInputKey(const FKey& InNewKey);
 	
@@ -48,6 +50,7 @@ private:
 	void ResolveChordKey();
 	TArray<FKey> FindChordDisplayKeys(const UInputAction* ChordAction, bool bGamepadKey) const;
 	FKey FindCurrentKeyForMapping(const FEnhancedActionKeyMapping& SourceMapping) const;
+	void UnbindOtherMappingsUsingKey(const FKey& InKey);
 	
 	UFUNCTION()
 	void HandleUserSettingsChanged(UEnhancedInputUserSettings* Settings);
@@ -69,6 +72,9 @@ private:
 
 	UPROPERTY()
 	TArray<FKey> CachedChordKeys;
+
+	UPROPERTY()
+	FKey CachedDisplayedKey;
 	
 public:
 	FORCEINLINE ECommonInputType GetDesiredInputKeyType() const { return CachedDesiredInputKeyType; }

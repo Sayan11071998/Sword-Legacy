@@ -141,10 +141,36 @@ void USL_Widget_ListEntry_KeyRemap::OnResetKeyBindingButtonClicked()
 
 void USL_Widget_ListEntry_KeyRemap::OnKeyToRemapPressed(const FKey& PressedKey)
 {
-	if (CachedOwningKeyRemapDataObject)
+	if (!CachedOwningKeyRemapDataObject || !PressedKey.IsValid()) return;
+	if (CachedOwningKeyRemapDataObject->IsUsingKey(PressedKey)) return;
+
+	FText AssignedActionNames;
+	if (!CachedOwningKeyRemapDataObject->GetAssignedActionNamesForKey(PressedKey, AssignedActionNames))
 	{
 		CachedOwningKeyRemapDataObject->BindNewInputKey(PressedKey);
+		return;
 	}
+
+	const FString KeyName = PressedKey.GetDisplayName().ToString();
+	const FString ActionNames = AssignedActionNames.ToString();
+
+	USL_UISubsystem::Get(this)->PushConfirmScreenToModalStackAsync(
+		ESL_ConfirmScreenType::YesNo,
+		FText::FromString(TEXT("Key Already Assigned")),
+		FText::FromString(FString::Printf(
+			TEXT("%s is already assigned to %s. Do you want to replace it? %s will be left with no key."),
+			*KeyName,
+			*ActionNames,
+			*ActionNames
+		)),
+		[this, PressedKey](ESL_ConfirmScreenButtonType ClickedButton)
+		{
+			if (ClickedButton == ESL_ConfirmScreenButtonType::Confirmed && CachedOwningKeyRemapDataObject)
+			{
+				CachedOwningKeyRemapDataObject->BindNewInputKey(PressedKey);
+			}
+		}
+	);
 }
 
 void USL_Widget_ListEntry_KeyRemap::RefreshChordDisplay()
