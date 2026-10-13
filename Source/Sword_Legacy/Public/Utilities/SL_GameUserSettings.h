@@ -33,6 +33,7 @@ public:
 	void ApplySoundMixVolumes() const;
 	void ApplyAllowBackgroundAudio() const;
 	void ApplyHDRAudioMode();
+	void ApplyCameraDistance() const;
 	
 	// Gameplay Collection Tab
 	UFUNCTION()
@@ -40,6 +41,24 @@ public:
 	
 	UFUNCTION()
 	void SetCurrentGameDifficulty(const FString& InNewDifficulty);
+
+	UFUNCTION(BlueprintPure, Category = "Gameplay Settings")
+	bool GetShowBloodEffects() const { return bShowBloodEffects; }
+
+	UFUNCTION(BlueprintCallable, Category = "Gameplay Settings")
+	void SetShowBloodEffects(bool bIsShown);
+
+	UFUNCTION(BlueprintPure, Category = "Gameplay Settings")
+	bool GetEnableCameraShake() const { return bEnableCameraShake; }
+
+	UFUNCTION(BlueprintCallable, Category = "Gameplay Settings")
+	void SetEnableCameraShake(bool bIsEnabled);
+
+	UFUNCTION(BlueprintPure, Category = "Gameplay Settings")
+	float GetCameraDistance() const { return CameraDistance; }
+
+	UFUNCTION(BlueprintCallable, Category = "Gameplay Settings")
+	void SetCameraDistance(float InDistance);
 	
 	// Audio Collection Tab
 	UFUNCTION()
@@ -59,6 +78,18 @@ public:
 	
 	UFUNCTION()
 	void SetSoundFXVolume(float InVolume);
+
+	UFUNCTION()
+	float GetDialogueVolume() const { return DialogueVolume; }
+
+	UFUNCTION()
+	void SetDialogueVolume(float InVolume);
+
+	UFUNCTION()
+	float GetUIVolume() const { return UIVolume; }
+
+	UFUNCTION()
+	void SetUIVolume(float InVolume);
 	
 	UFUNCTION()
 	bool GetAllowBackgroundAudio() const { return bAllowBackgroundAudio; }
@@ -93,6 +124,15 @@ private:
 	// Gameplay Collection Tab
 	UPROPERTY(Config)
 	FString CurrentGameDifficulty = TEXT("Normal");
+
+	UPROPERTY(Config)
+	bool bShowBloodEffects = true;
+
+	UPROPERTY(Config)
+	bool bEnableCameraShake = true;
+
+	UPROPERTY(Config)
+	float CameraDistance = 1.f;
 	
 	// Audio Collection Tab
 	UPROPERTY(Config)
@@ -103,6 +143,12 @@ private:
 	
 	UPROPERTY(Config)
 	float SoundFXVolume;
+
+	UPROPERTY(Config)
+	float DialogueVolume;
+
+	UPROPERTY(Config)
+	float UIVolume;
 	
 	UPROPERTY(Config)
 	bool bAllowBackgroundAudio;

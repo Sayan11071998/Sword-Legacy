@@ -1,6 +1,7 @@
 #include "Widgets/Components/SL_CommonButtonBase.h"
 #include "CommonTextBlock.h"
 #include "Subsystems/SL_UISubsystem.h"
+#include "CommonLazyImage.h"
 
 FText USL_CommonButtonBase::GetButtonDisplayText() const
 {
@@ -17,6 +18,14 @@ void USL_CommonButtonBase::SetButtonText(FText InText)
 	if (CommonTextBlock_ButtonText && !InText.IsEmpty())
 	{
 		CommonTextBlock_ButtonText->SetText(bUseUpperCaseForButtonText ? InText.ToUpper() : InText);
+	}
+}
+
+void USL_CommonButtonBase::SetButtonDisplayImage(const FSlateBrush& InBrush)
+{
+	if (CommonLazyImage_ButtonImage)
+	{
+		CommonLazyImage_ButtonImage->SetBrush(InBrush);
 	}
 }
 

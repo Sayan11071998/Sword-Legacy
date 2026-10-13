@@ -1,14 +1,19 @@
 #include "Widgets/Options/SL_OptionsDataRegistry.h"
+#include "EnhancedInputSubsystems.h"
+#include "InputMappingContext.h"
 #include "Widgets/Options/DataObjects/SL_ListDataObject_Collection.h"
 #include "Widgets/Options/DataObjects/SL_ListDataObject_String.h"
 #include "Utilities/SL_OptionsDataInteractionHelper.h"
 #include "Utilities/SL_GameUserSettings.h"
+#include "Utilities/SL_InputDeveloperSettings.h"
 #include "Widgets/Options/DataObjects/SL_ListDataObject_Scalar.h"
 #include "Widgets/Options/DataObjects/SL_ListDataObject_StringBool.h"
 #include "Widgets/Options/DataObjects/SL_ListDataObject_StringEnum.h"
 #include "Widgets/Options/DataObjects/SL_ListDataObject_Resolution.h"
 #include "Widgets/Options/DataObjects/SL_ListDataObject_StringInteger.h"
 #include "Internationalization/StringTableRegistry.h"
+#include "UserSettings/EnhancedInputUserSettings.h"
+#include "Widgets/Options/DataObjects/SL_ListDataObject_KeyRemap.h"
 
 #define MAKE_OPTIONS_DATA_CONTROL(SetterOrGetterFuncName) \
 	MakeShared<FSL_OptionsDataInteractionHelper>(GET_FUNCTION_NAME_STRING_CHECKED(USL_GameUserSettings, SetterOrGetterFuncName))
@@ -24,7 +29,7 @@ void USL_OptionsDataRegistry::InitOptionsDataRegistry(TObjectPtr<ULocalPlayer> I
 	InitGameplayCollectionTab();
 	InitAudioCollectionTab();
 	InitVideoCollectionTab();
-	InitControlCollectionTab();
+	InitControlCollectionTab(InOwningLocalPlayer);
 }
 
 const TArray<USL_ListDataObject_Base*> USL_OptionsDataRegistry::GetListSourceItemsBySelectedTabID(
@@ -58,6 +63,22 @@ const TArray<USL_ListDataObject_Base*> USL_OptionsDataRegistry::GetListSourceIte
 	return AllChildListItems;
 }
 
+void USL_OptionsDataRegistry::RegisterPlayerMappableMappingContexts(UEnhancedInputUserSettings* EIUserSettings) const
+{
+	if (!EIUserSettings) return;
+
+	const USL_InputDeveloperSettings* InputSettings = GetDefault<USL_InputDeveloperSettings>();
+	if (!InputSettings) return;
+
+	for (const FSoftObjectPath& MappingContextPath : InputSettings->PlayerMappableMappingContexts)
+	{
+		const UInputMappingContext* MappingContext = Cast<UInputMappingContext>(MappingContextPath.TryLoad());
+		if (!MappingContext) continue;
+
+		EIUserSettings->RegisterInputMappingContext(MappingContext);
+	}
+}
+
 void USL_OptionsDataRegistry::FindChildListDataRecursively(USL_ListDataObject_Base* InParentData,
 	TArray<USL_ListDataObject_Base*>& OutFoundChildListData) const
 {
@@ -81,23 +102,92 @@ void USL_OptionsDataRegistry::InitGameplayCollectionTab()
 	USL_ListDataObject_Collection* GameplayTabCollection = NewObject<USL_ListDataObject_Collection>();
 	GameplayTabCollection->SetDataID(FName(TEXT("GameplayTabCollection")));
 	GameplayTabCollection->SetDataDisplayName(FText::FromString(TEXT("Gameplay")));
-	
-	// Game Difficulty
+
+	// Combat Category
 	{
-		USL_ListDataObject_String* GameDifficulty = NewObject<USL_ListDataObject_String>();
-		GameDifficulty->SetDataID(FName(TEXT("GameDifficulty")));
-		GameDifficulty->SetDataDisplayName(FText::FromString(TEXT("Difficulty")));
-		GameDifficulty->SetDescriptionRichText(GET_GAMEPLAY_TAB_DESCRIPTION("GameDifficultyDescKey"));
-		GameDifficulty->AddDynamicOption(TEXT("Easy"), FText::FromString(TEXT("Easy")));
-		GameDifficulty->AddDynamicOption(TEXT("Normal"), FText::FromString(TEXT("Normal")));
-		GameDifficulty->AddDynamicOption(TEXT("Hard"), FText::FromString(TEXT("Hard")));
-		GameDifficulty->AddDynamicOption(TEXT("Very Hard"), FText::FromString(TEXT("Very Hard")));
-		GameDifficulty->SetDefaultValueFromString(TEXT("Normal"));
-		GameDifficulty->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetCurrentGameDifficulty));
-		GameDifficulty->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetCurrentGameDifficulty));
-		GameDifficulty->SetShouldApplySettingsImmediately(true);
-		
-		GameplayTabCollection->AddChildListData(GameDifficulty);
+		USL_ListDataObject_Collection* CombatCategoryCollection = NewObject<USL_ListDataObject_Collection>();
+		CombatCategoryCollection->SetDataID(FName(TEXT("CombatCategoryCollection")));
+		CombatCategoryCollection->SetDataDisplayName(FText::FromString(TEXT("Combat")));
+
+		GameplayTabCollection->AddChildListData(CombatCategoryCollection);
+
+		// Game Difficulty
+		{
+			USL_ListDataObject_String* GameDifficulty = NewObject<USL_ListDataObject_String>();
+			GameDifficulty->SetDataID(FName(TEXT("GameDifficulty")));
+			GameDifficulty->SetDataDisplayName(FText::FromString(TEXT("Difficulty")));
+			GameDifficulty->SetDescriptionRichText(GET_GAMEPLAY_TAB_DESCRIPTION("GameDifficultyDescKey"));
+			GameDifficulty->AddDynamicOption(TEXT("Easy"), FText::FromString(TEXT("Easy")));
+			GameDifficulty->AddDynamicOption(TEXT("Normal"), FText::FromString(TEXT("Normal")));
+			GameDifficulty->AddDynamicOption(TEXT("Hard"), FText::FromString(TEXT("Hard")));
+			GameDifficulty->AddDynamicOption(TEXT("Very Hard"), FText::FromString(TEXT("Very Hard")));
+			GameDifficulty->SetDefaultValueFromString(TEXT("Normal"));
+			GameDifficulty->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetCurrentGameDifficulty));
+			GameDifficulty->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetCurrentGameDifficulty));
+			GameDifficulty->SetShouldApplySettingsImmediately(true);
+
+			CombatCategoryCollection->AddChildListData(GameDifficulty);
+		}
+
+		// Blood Effects
+		{
+			USL_ListDataObject_StringBool* BloodEffects = NewObject<USL_ListDataObject_StringBool>();
+			BloodEffects->SetDataID(FName(TEXT("BloodEffects")));
+			BloodEffects->SetDataDisplayName(FText::FromString(TEXT("Blood")));
+			BloodEffects->SetDescriptionRichText(GET_GAMEPLAY_TAB_DESCRIPTION("BloodEffectsDescKey"));
+			BloodEffects->OverrideTrueDisplayText(FText::FromString(TEXT("ON")));
+			BloodEffects->OverrideFalseDisplayText(FText::FromString(TEXT("OFF")));
+			BloodEffects->SetTrueAsDefaultValue();
+			BloodEffects->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetShowBloodEffects));
+			BloodEffects->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetShowBloodEffects));
+			BloodEffects->SetShouldApplySettingsImmediately(true);
+
+			CombatCategoryCollection->AddChildListData(BloodEffects);
+		}
+	}
+
+	// Camera Category
+	{
+		USL_ListDataObject_Collection* CameraCategoryCollection = NewObject<USL_ListDataObject_Collection>();
+		CameraCategoryCollection->SetDataID(FName(TEXT("CameraCategoryCollection")));
+		CameraCategoryCollection->SetDataDisplayName(FText::FromString(TEXT("Camera")));
+
+		GameplayTabCollection->AddChildListData(CameraCategoryCollection);
+
+		// Camera Shake
+		{
+			USL_ListDataObject_StringBool* CameraShake = NewObject<USL_ListDataObject_StringBool>();
+			CameraShake->SetDataID(FName(TEXT("CameraShake")));
+			CameraShake->SetDataDisplayName(FText::FromString(TEXT("Camera Shake")));
+			CameraShake->SetDescriptionRichText(GET_GAMEPLAY_TAB_DESCRIPTION("CameraShakeDescKey"));
+			CameraShake->OverrideTrueDisplayText(FText::FromString(TEXT("ON")));
+			CameraShake->OverrideFalseDisplayText(FText::FromString(TEXT("OFF")));
+			CameraShake->SetTrueAsDefaultValue();
+			CameraShake->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetEnableCameraShake));
+			CameraShake->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetEnableCameraShake));
+			CameraShake->SetShouldApplySettingsImmediately(true);
+
+			CameraCategoryCollection->AddChildListData(CameraShake);
+		}
+
+		// Camera Distance
+		{
+			USL_ListDataObject_Scalar* CameraDistance = NewObject<USL_ListDataObject_Scalar>();
+			CameraDistance->SetDataID(FName(TEXT("CameraDistance")));
+			CameraDistance->SetDataDisplayName(FText::FromString(TEXT("Camera Distance")));
+			CameraDistance->SetDescriptionRichText(GET_GAMEPLAY_TAB_DESCRIPTION("CameraDistanceDescKey"));
+			CameraDistance->SetDisplayValueRange(TRange<float>(0.7f, 1.4f));
+			CameraDistance->SetOutputValueRange(TRange<float>(0.7f, 1.4f));
+			CameraDistance->SetSliderStepSize(0.01f);
+			CameraDistance->SetDefaultValueFromString(LexToString(1.f));
+			CameraDistance->SetDisplayNumericType(ECommonNumericType::Percentage);
+			CameraDistance->SetNumberFormattingOptions(USL_ListDataObject_Scalar::NoDecimal());
+			CameraDistance->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetCameraDistance));
+			CameraDistance->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetCameraDistance));
+			CameraDistance->SetShouldApplySettingsImmediately(true);
+
+			CameraCategoryCollection->AddChildListData(CameraDistance);
+		}
 	}
 	
 	RegisteredOptionsTabCollections.Add(GameplayTabCollection);
@@ -172,6 +262,44 @@ void USL_OptionsDataRegistry::InitAudioCollectionTab()
 			SoundFXVolume->SetShouldApplySettingsImmediately(true);
 			
 			VolumeCategoryCollection->AddChildListData(SoundFXVolume);
+		}
+
+		// Dialogue Volume
+		{
+			USL_ListDataObject_Scalar* DialogueVolume = NewObject<USL_ListDataObject_Scalar>();
+			DialogueVolume->SetDataID(FName(TEXT("DialogueVolume")));
+			DialogueVolume->SetDataDisplayName(FText::FromString(TEXT("Dialogue")));
+			DialogueVolume->SetDescriptionRichText(GET_AUDIO_TAB_DESCRIPTION("DialogueVolumeDescKey"));
+			DialogueVolume->SetDisplayValueRange(TRange<float>(0.f, 1.f));
+			DialogueVolume->SetOutputValueRange(TRange<float>(0.f, 2.f));
+			DialogueVolume->SetSliderStepSize(0.01f);
+			DialogueVolume->SetDefaultValueFromString(LexToString(1.f));
+			DialogueVolume->SetDisplayNumericType(ECommonNumericType::Percentage);
+			DialogueVolume->SetNumberFormattingOptions(USL_ListDataObject_Scalar::NoDecimal());
+			DialogueVolume->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetDialogueVolume));
+			DialogueVolume->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetDialogueVolume));
+			DialogueVolume->SetShouldApplySettingsImmediately(true);
+
+			VolumeCategoryCollection->AddChildListData(DialogueVolume);
+		}
+
+		// UI Volume
+		{
+			USL_ListDataObject_Scalar* UIVolume = NewObject<USL_ListDataObject_Scalar>();
+			UIVolume->SetDataID(FName(TEXT("UIVolume")));
+			UIVolume->SetDataDisplayName(FText::FromString(TEXT("UI")));
+			UIVolume->SetDescriptionRichText(GET_AUDIO_TAB_DESCRIPTION("UIVolumeDescKey"));
+			UIVolume->SetDisplayValueRange(TRange<float>(0.f, 1.f));
+			UIVolume->SetOutputValueRange(TRange<float>(0.f, 2.f));
+			UIVolume->SetSliderStepSize(0.01f);
+			UIVolume->SetDefaultValueFromString(LexToString(1.f));
+			UIVolume->SetDisplayNumericType(ECommonNumericType::Percentage);
+			UIVolume->SetNumberFormattingOptions(USL_ListDataObject_Scalar::NoDecimal());
+			UIVolume->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetUIVolume));
+			UIVolume->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetUIVolume));
+			UIVolume->SetShouldApplySettingsImmediately(true);
+
+			VolumeCategoryCollection->AddChildListData(UIVolume);
 		}
 	}
 	
@@ -594,11 +722,107 @@ void USL_OptionsDataRegistry::InitVideoCollectionTab()
 	RegisteredOptionsTabCollections.Add(VideoTabCollection);
 }
 
-void USL_OptionsDataRegistry::InitControlCollectionTab()
+void USL_OptionsDataRegistry::InitControlCollectionTab(TObjectPtr<ULocalPlayer> InOwningLocalPlayer)
 {
 	USL_ListDataObject_Collection* ControlTabCollection = NewObject<USL_ListDataObject_Collection>();
 	ControlTabCollection->SetDataID(FName(TEXT("ControlTabCollection")));
 	ControlTabCollection->SetDataDisplayName(FText::FromString(TEXT("Controls")));
+	
+	UEnhancedInputLocalPlayerSubsystem* EISubsystem = InOwningLocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
+	check(EISubsystem);
+	
+	UEnhancedInputUserSettings* EIUserSettings = EISubsystem->GetUserSettings();
+	check(EIUserSettings);
+
+	RegisterPlayerMappableMappingContexts(EIUserSettings);
+	
+	// Keyboard Mouse Category
+	{
+		USL_ListDataObject_Collection* KeyboardMouseCategoryCollection = NewObject<USL_ListDataObject_Collection>();
+		KeyboardMouseCategoryCollection->SetDataID(FName(TEXT("KeyboardMouseCategoryCollection")));
+		KeyboardMouseCategoryCollection->SetDataDisplayName(FText::FromString(TEXT("Keyboard & Mouse")));
+		
+		ControlTabCollection->AddChildListData(KeyboardMouseCategoryCollection);
+		
+		// Keyboard Mouse Inputs
+		{
+			FPlayerMappableKeyQueryOptions KeyboardMouseOnly;
+			KeyboardMouseOnly.KeyToMatch = EKeys::S;
+			KeyboardMouseOnly.bMatchBasicKeyTypes = true;
+			TSet<FString> AddedMappingGroups;
+			
+			for (const TPair<FGameplayTag, UEnhancedPlayerMappableKeyProfile*>& ProfilePair : EIUserSettings->GetAllSavedKeyProfiles())
+			{
+				UEnhancedPlayerMappableKeyProfile* MappableKeyProfile = ProfilePair.Value;
+				check(MappableKeyProfile);
+				
+				for (const TPair<FName, FKeyMappingRow>& MappingRowPair : MappableKeyProfile->GetPlayerMappingRows())
+				{
+					for (const FPlayerKeyMapping& KeyMapping : MappingRowPair.Value.Mappings)
+					{
+						if (MappableKeyProfile->DoesMappingPassQueryOptions(KeyMapping, KeyboardMouseOnly))
+						{
+							const FString DisplayName = KeyMapping.GetDisplayName().ToString();
+							const FString GroupKey = DisplayName.IsEmpty() ? KeyMapping.GetMappingName().ToString() : DisplayName;
+							if (AddedMappingGroups.Contains(GroupKey)) continue;
+
+							AddedMappingGroups.Add(GroupKey);
+							USL_ListDataObject_KeyRemap* KeyRemapDataObject = NewObject<USL_ListDataObject_KeyRemap>();
+							KeyRemapDataObject->SetDataID(KeyMapping.GetMappingName());
+							KeyRemapDataObject->SetDataDisplayName(KeyMapping.GetDisplayName());
+							KeyRemapDataObject->InitKeyRemapData(EIUserSettings, MappableKeyProfile, ECommonInputType::MouseAndKeyboard, KeyMapping);
+							
+							KeyboardMouseCategoryCollection->AddChildListData(KeyRemapDataObject);
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	// Gamepad Category
+	{
+		USL_ListDataObject_Collection* GamepadCategoryCollection = NewObject<USL_ListDataObject_Collection>();
+		GamepadCategoryCollection->SetDataID(FName(TEXT("GamepadCategoryCollection")));
+		GamepadCategoryCollection->SetDataDisplayName(FText::FromString(TEXT("Gamepad")));
+			
+		ControlTabCollection->AddChildListData(GamepadCategoryCollection);
+		
+		// Gamepad Inputs
+		{
+			FPlayerMappableKeyQueryOptions GamepadOnly;
+			GamepadOnly.KeyToMatch = EKeys::Gamepad_FaceButton_Bottom;
+			GamepadOnly.bMatchBasicKeyTypes = true;
+			TSet<FString> AddedMappingGroups;
+			
+			for (const TPair<FGameplayTag, UEnhancedPlayerMappableKeyProfile*>& ProfilePair : EIUserSettings->GetAllSavedKeyProfiles())
+			{
+				UEnhancedPlayerMappableKeyProfile* MappableKeyProfile = ProfilePair.Value;
+				check(MappableKeyProfile);
+				
+				for (const TPair<FName, FKeyMappingRow>& MappingRowPair : MappableKeyProfile->GetPlayerMappingRows())
+				{
+					for (const FPlayerKeyMapping& KeyMapping : MappingRowPair.Value.Mappings)
+					{
+						if (MappableKeyProfile->DoesMappingPassQueryOptions(KeyMapping, GamepadOnly))
+						{
+							const FString DisplayName = KeyMapping.GetDisplayName().ToString();
+							const FString GroupKey = DisplayName.IsEmpty() ? KeyMapping.GetMappingName().ToString() : DisplayName;
+							if (AddedMappingGroups.Contains(GroupKey)) continue;
+
+							AddedMappingGroups.Add(GroupKey);
+							USL_ListDataObject_KeyRemap* KeyRemapDataObject = NewObject<USL_ListDataObject_KeyRemap>();
+							KeyRemapDataObject->SetDataID(KeyMapping.GetMappingName());
+							KeyRemapDataObject->SetDataDisplayName(KeyMapping.GetDisplayName());
+							KeyRemapDataObject->InitKeyRemapData(EIUserSettings, MappableKeyProfile, ECommonInputType::Gamepad, KeyMapping);
+							
+							GamepadCategoryCollection->AddChildListData(KeyRemapDataObject);
+						}
+					}
+				}
+			}
+		}
+	}
 	
 	RegisteredOptionsTabCollections.Add(ControlTabCollection);
 }

@@ -13,6 +13,12 @@
 #include "Components/UI/SL_PlayerUIComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Utilities/SL_FunctionLibrary.h"
+#include "Utilities/SL_GameUserSettings.h"
+
+namespace
+{
+	constexpr float DefaultCameraArmLength = 200.f;
+}
 
 ASL_PlayerCharacter::ASL_PlayerCharacter()
 {
@@ -24,7 +30,7 @@ ASL_PlayerCharacter::ASL_PlayerCharacter()
 	
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(GetRootComponent());
-	CameraBoom->TargetArmLength = 200.f;
+	CameraBoom->TargetArmLength = DefaultCameraArmLength;
 	CameraBoom->SocketOffset = FVector(0.f, 55.f, 65.f);
 	CameraBoom->bUsePawnControlRotation = true;
 	
@@ -86,6 +92,18 @@ void ASL_PlayerCharacter::PossessedBy(AController* NewController)
 			);
 		}
 	}
+
+	if (const USL_GameUserSettings* GameUserSettings = USL_GameUserSettings::Get())
+	{
+		ApplyCameraDistanceMultiplier(GameUserSettings->GetCameraDistance());
+	}
+}
+
+void ASL_PlayerCharacter::ApplyCameraDistanceMultiplier(float InMultiplier)
+{
+	if (!CameraBoom) return;
+
+	CameraBoom->TargetArmLength = DefaultCameraArmLength * FMath::Clamp(InMultiplier, 0.7f, 1.4f);
 }
 
 TObjectPtr<USL_PawnCombatComponent> ASL_PlayerCharacter::GetPawnCombatComponent() const

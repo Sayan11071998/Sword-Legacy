@@ -1,7 +1,9 @@
 #include "Utilities/SL_GameUserSettings.h"
 #include "AbilitySystem/SL_AbilitySystemComponent.h"
+#include "Characters/SL_PlayerCharacter.h"
 #include "Engine/Engine.h"
 #include "Engine/World.h"
+#include "EngineUtils.h"
 #include "AudioMixerBlueprintLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "Misc/App.h"
@@ -26,6 +28,8 @@ USL_GameUserSettings::USL_GameUserSettings() :
 	OverallVolume(1.f),
 	MusicVolume(1.f),
 	SoundFXVolume(1.f),
+	DialogueVolume(1.f),
+	UIVolume(1.f),
 	bAllowBackgroundAudio(false),
 	bUseHDRAudioMode(false)
 { }
@@ -45,6 +49,7 @@ void USL_GameUserSettings::ApplySettings(bool bCheckForCommandLineOverrides)
 	Super::ApplySettings(bCheckForCommandLineOverrides);
 	
 	ApplyCurrentGameDifficultyToAbilitySystems();
+	ApplyCameraDistance();
 	
 	SetOverallVolume(OverallVolume);
 	ApplyAllowBackgroundAudio();
@@ -103,25 +108,32 @@ void USL_GameUserSettings::ApplySoundMixVolumes() const
 	USoundClass* MasterSoundClass = Cast<USoundClass>(SoundSettings->MasterSoundClass.TryLoad());
 	USoundClass* MusicSoundClass = Cast<USoundClass>(SoundSettings->MusicSoundClass.TryLoad());
 	USoundClass* SoundFXSoundClass = Cast<USoundClass>(SoundSettings->SoundFXSoundClass.TryLoad());
+	USoundClass* DialogueSoundClass = Cast<USoundClass>(SoundSettings->DialogueSoundClass.TryLoad());
+	USoundClass* UISoundClass = Cast<USoundClass>(SoundSettings->UISoundClass.TryLoad());
 	USoundMix* DefaultSoundMix = Cast<USoundMix>(SoundSettings->DefaultSoundMix.TryLoad());
 	
 	if (!DefaultSoundMix) return;
 
-	const bool bMasterDrivesMusic = MasterSoundClass && MusicSoundClass && MasterSoundClass->ChildClasses.Contains(MusicSoundClass);
-	const bool bMasterDrivesSoundFX = MasterSoundClass && SoundFXSoundClass && MasterSoundClass->ChildClasses.Contains(SoundFXSoundClass);
+	auto MasterDrivesClass = [MasterSoundClass](const USoundClass* CategorySoundClass)
+	{
+		return MasterSoundClass && CategorySoundClass && MasterSoundClass->ChildClasses.Contains(CategorySoundClass);
+	};
 
-	if (bMasterDrivesMusic && bMasterDrivesSoundFX)
+	const bool bMasterAppliesToChildren = MasterDrivesClass(MusicSoundClass) || MasterDrivesClass(SoundFXSoundClass) || MasterDrivesClass(DialogueSoundClass) || MasterDrivesClass(UISoundClass);
+	SetSoundClassVolume(AudioWorld, DefaultSoundMix, MasterSoundClass, OverallVolume, bMasterAppliesToChildren);
+
+	auto ApplyCategoryVolume = [&](USoundClass* CategorySoundClass, float CategoryVolume)
 	{
-		SetSoundClassVolume(AudioWorld, DefaultSoundMix, MasterSoundClass, OverallVolume, true);
-		SetSoundClassVolume(AudioWorld, DefaultSoundMix, MusicSoundClass, MusicVolume, true);
-		SetSoundClassVolume(AudioWorld, DefaultSoundMix, SoundFXSoundClass, SoundFXVolume, true);
-	}
-	else
-	{
-		SetSoundClassVolume(AudioWorld, DefaultSoundMix, MasterSoundClass, OverallVolume, false);
-		SetSoundClassVolume(AudioWorld, DefaultSoundMix, MusicSoundClass, OverallVolume * MusicVolume, true);
-		SetSoundClassVolume(AudioWorld, DefaultSoundMix, SoundFXSoundClass, OverallVolume * SoundFXVolume, true);
-	}
+		if (!CategorySoundClass) return;
+
+		const float Volume = MasterDrivesClass(CategorySoundClass) ? CategoryVolume : OverallVolume * CategoryVolume;
+		SetSoundClassVolume(AudioWorld, DefaultSoundMix, CategorySoundClass, Volume, true);
+	};
+
+	ApplyCategoryVolume(MusicSoundClass, MusicVolume);
+	ApplyCategoryVolume(SoundFXSoundClass, SoundFXVolume);
+	ApplyCategoryVolume(DialogueSoundClass, DialogueVolume);
+	ApplyCategoryVolume(UISoundClass, UIVolume);
 
 	UGameplayStatics::PushSoundMixModifier(AudioWorld, DefaultSoundMix);
 }
@@ -175,6 +187,38 @@ void USL_GameUserSettings::SetCurrentGameDifficulty(const FString& InNewDifficul
 	ApplyCurrentGameDifficultyToAbilitySystems();
 }
 
+void USL_GameUserSettings::SetShowBloodEffects(bool bIsShown)
+{
+	bShowBloodEffects = bIsShown;
+}
+
+void USL_GameUserSettings::SetEnableCameraShake(bool bIsEnabled)
+{
+	bEnableCameraShake = bIsEnabled;
+}
+
+void USL_GameUserSettings::SetCameraDistance(float InDistance)
+{
+	CameraDistance = FMath::Clamp(InDistance, 0.7f, 1.4f);
+	ApplyCameraDistance();
+}
+
+void USL_GameUserSettings::ApplyCameraDistance() const
+{
+	if (!GEngine) return;
+
+	for (const FWorldContext& WorldContext : GEngine->GetWorldContexts())
+	{
+		UWorld* World = WorldContext.World();
+		if (!World || !World->IsGameWorld()) continue;
+
+		for (TActorIterator<ASL_PlayerCharacter> It(World); It; ++It)
+		{
+			It->ApplyCameraDistanceMultiplier(CameraDistance);
+		}
+	}
+}
+
 UWorld* USL_GameUserSettings::FindGameAudioWorld() const
 {
 	if (!GEngine) return nullptr;
@@ -213,6 +257,18 @@ void USL_GameUserSettings::SetMusicVolume(float InVolume)
 void USL_GameUserSettings::SetSoundFXVolume(float InVolume)
 {
 	SoundFXVolume = InVolume;
+	ApplySoundMixVolumes();
+}
+
+void USL_GameUserSettings::SetDialogueVolume(float InVolume)
+{
+	DialogueVolume = InVolume;
+	ApplySoundMixVolumes();
+}
+
+void USL_GameUserSettings::SetUIVolume(float InVolume)
+{
+	UIVolume = InVolume;
 	ApplySoundMixVolumes();
 }
 

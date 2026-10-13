@@ -5,6 +5,7 @@
 #include "Characters/SL_PlayerCharacter.h"
 #include "Components/CapsuleComponent.h"
 #include "NiagaraFunctionLibrary.h"
+#include "Utilities/SL_GameUserSettings.h"
 
 USL_GA_Player_HitReact::USL_GA_Player_HitReact()
 {
@@ -45,7 +46,8 @@ void USL_GA_Player_HitReact::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 	float AngleDifference = 0.f;
 	FGameplayTag DirectionTag = USL_FunctionLibrary::ComputeHitReactDirectionTag(Attacker, Victim, AngleDifference);
 	
-	if (BloodSplashFX)
+	const USL_GameUserSettings* GameUserSettings = USL_GameUserSettings::Get();
+	if (BloodSplashFX && (!GameUserSettings || GameUserSettings->GetShowBloodEffects()))
 	{
 		FVector Direction = (Attacker->GetActorLocation() - Victim->GetActorLocation()).GetSafeNormal();
 		FVector ImpactPoint = Victim->GetActorLocation();
