@@ -1,7 +1,9 @@
 #include "Utilities/SL_GameUserSettings.h"
 #include "AbilitySystem/SL_AbilitySystemComponent.h"
+#include "Characters/SL_PlayerCharacter.h"
 #include "Engine/Engine.h"
 #include "Engine/World.h"
+#include "EngineUtils.h"
 #include "AudioMixerBlueprintLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "Misc/App.h"
@@ -47,6 +49,7 @@ void USL_GameUserSettings::ApplySettings(bool bCheckForCommandLineOverrides)
 	Super::ApplySettings(bCheckForCommandLineOverrides);
 	
 	ApplyCurrentGameDifficultyToAbilitySystems();
+	ApplyCameraDistance();
 	
 	SetOverallVolume(OverallVolume);
 	ApplyAllowBackgroundAudio();
@@ -182,6 +185,38 @@ void USL_GameUserSettings::SetCurrentGameDifficulty(const FString& InNewDifficul
 {
 	CurrentGameDifficulty = InNewDifficulty;
 	ApplyCurrentGameDifficultyToAbilitySystems();
+}
+
+void USL_GameUserSettings::SetShowBloodEffects(bool bIsShown)
+{
+	bShowBloodEffects = bIsShown;
+}
+
+void USL_GameUserSettings::SetEnableCameraShake(bool bIsEnabled)
+{
+	bEnableCameraShake = bIsEnabled;
+}
+
+void USL_GameUserSettings::SetCameraDistance(float InDistance)
+{
+	CameraDistance = FMath::Clamp(InDistance, 0.7f, 1.4f);
+	ApplyCameraDistance();
+}
+
+void USL_GameUserSettings::ApplyCameraDistance() const
+{
+	if (!GEngine) return;
+
+	for (const FWorldContext& WorldContext : GEngine->GetWorldContexts())
+	{
+		UWorld* World = WorldContext.World();
+		if (!World || !World->IsGameWorld()) continue;
+
+		for (TActorIterator<ASL_PlayerCharacter> It(World); It; ++It)
+		{
+			It->ApplyCameraDistanceMultiplier(CameraDistance);
+		}
+	}
 }
 
 UWorld* USL_GameUserSettings::FindGameAudioWorld() const

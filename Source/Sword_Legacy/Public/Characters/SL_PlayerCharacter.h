@@ -28,6 +28,8 @@ public:
 	// ~ Begin APawn Interface
 	virtual void PossessedBy(AController* NewController) override;
 	// ~ End APawn Interface
+
+	void ApplyCameraDistanceMultiplier(float InMultiplier);
 	
 	// ~ Begin ISL_PawnCombatInterface Interface
 	virtual TObjectPtr<USL_PawnCombatComponent> GetPawnCombatComponent() const override;

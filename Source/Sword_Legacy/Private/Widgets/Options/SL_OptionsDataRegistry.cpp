@@ -102,23 +102,92 @@ void USL_OptionsDataRegistry::InitGameplayCollectionTab()
 	USL_ListDataObject_Collection* GameplayTabCollection = NewObject<USL_ListDataObject_Collection>();
 	GameplayTabCollection->SetDataID(FName(TEXT("GameplayTabCollection")));
 	GameplayTabCollection->SetDataDisplayName(FText::FromString(TEXT("Gameplay")));
-	
-	// Game Difficulty
+
+	// Combat Category
 	{
-		USL_ListDataObject_String* GameDifficulty = NewObject<USL_ListDataObject_String>();
-		GameDifficulty->SetDataID(FName(TEXT("GameDifficulty")));
-		GameDifficulty->SetDataDisplayName(FText::FromString(TEXT("Difficulty")));
-		GameDifficulty->SetDescriptionRichText(GET_GAMEPLAY_TAB_DESCRIPTION("GameDifficultyDescKey"));
-		GameDifficulty->AddDynamicOption(TEXT("Easy"), FText::FromString(TEXT("Easy")));
-		GameDifficulty->AddDynamicOption(TEXT("Normal"), FText::FromString(TEXT("Normal")));
-		GameDifficulty->AddDynamicOption(TEXT("Hard"), FText::FromString(TEXT("Hard")));
-		GameDifficulty->AddDynamicOption(TEXT("Very Hard"), FText::FromString(TEXT("Very Hard")));
-		GameDifficulty->SetDefaultValueFromString(TEXT("Normal"));
-		GameDifficulty->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetCurrentGameDifficulty));
-		GameDifficulty->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetCurrentGameDifficulty));
-		GameDifficulty->SetShouldApplySettingsImmediately(true);
-		
-		GameplayTabCollection->AddChildListData(GameDifficulty);
+		USL_ListDataObject_Collection* CombatCategoryCollection = NewObject<USL_ListDataObject_Collection>();
+		CombatCategoryCollection->SetDataID(FName(TEXT("CombatCategoryCollection")));
+		CombatCategoryCollection->SetDataDisplayName(FText::FromString(TEXT("Combat")));
+
+		GameplayTabCollection->AddChildListData(CombatCategoryCollection);
+
+		// Game Difficulty
+		{
+			USL_ListDataObject_String* GameDifficulty = NewObject<USL_ListDataObject_String>();
+			GameDifficulty->SetDataID(FName(TEXT("GameDifficulty")));
+			GameDifficulty->SetDataDisplayName(FText::FromString(TEXT("Difficulty")));
+			GameDifficulty->SetDescriptionRichText(GET_GAMEPLAY_TAB_DESCRIPTION("GameDifficultyDescKey"));
+			GameDifficulty->AddDynamicOption(TEXT("Easy"), FText::FromString(TEXT("Easy")));
+			GameDifficulty->AddDynamicOption(TEXT("Normal"), FText::FromString(TEXT("Normal")));
+			GameDifficulty->AddDynamicOption(TEXT("Hard"), FText::FromString(TEXT("Hard")));
+			GameDifficulty->AddDynamicOption(TEXT("Very Hard"), FText::FromString(TEXT("Very Hard")));
+			GameDifficulty->SetDefaultValueFromString(TEXT("Normal"));
+			GameDifficulty->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetCurrentGameDifficulty));
+			GameDifficulty->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetCurrentGameDifficulty));
+			GameDifficulty->SetShouldApplySettingsImmediately(true);
+
+			CombatCategoryCollection->AddChildListData(GameDifficulty);
+		}
+
+		// Blood Effects
+		{
+			USL_ListDataObject_StringBool* BloodEffects = NewObject<USL_ListDataObject_StringBool>();
+			BloodEffects->SetDataID(FName(TEXT("BloodEffects")));
+			BloodEffects->SetDataDisplayName(FText::FromString(TEXT("Blood")));
+			BloodEffects->SetDescriptionRichText(GET_GAMEPLAY_TAB_DESCRIPTION("BloodEffectsDescKey"));
+			BloodEffects->OverrideTrueDisplayText(FText::FromString(TEXT("ON")));
+			BloodEffects->OverrideFalseDisplayText(FText::FromString(TEXT("OFF")));
+			BloodEffects->SetTrueAsDefaultValue();
+			BloodEffects->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetShowBloodEffects));
+			BloodEffects->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetShowBloodEffects));
+			BloodEffects->SetShouldApplySettingsImmediately(true);
+
+			CombatCategoryCollection->AddChildListData(BloodEffects);
+		}
+	}
+
+	// Camera Category
+	{
+		USL_ListDataObject_Collection* CameraCategoryCollection = NewObject<USL_ListDataObject_Collection>();
+		CameraCategoryCollection->SetDataID(FName(TEXT("CameraCategoryCollection")));
+		CameraCategoryCollection->SetDataDisplayName(FText::FromString(TEXT("Camera")));
+
+		GameplayTabCollection->AddChildListData(CameraCategoryCollection);
+
+		// Camera Shake
+		{
+			USL_ListDataObject_StringBool* CameraShake = NewObject<USL_ListDataObject_StringBool>();
+			CameraShake->SetDataID(FName(TEXT("CameraShake")));
+			CameraShake->SetDataDisplayName(FText::FromString(TEXT("Camera Shake")));
+			CameraShake->SetDescriptionRichText(GET_GAMEPLAY_TAB_DESCRIPTION("CameraShakeDescKey"));
+			CameraShake->OverrideTrueDisplayText(FText::FromString(TEXT("ON")));
+			CameraShake->OverrideFalseDisplayText(FText::FromString(TEXT("OFF")));
+			CameraShake->SetTrueAsDefaultValue();
+			CameraShake->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetEnableCameraShake));
+			CameraShake->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetEnableCameraShake));
+			CameraShake->SetShouldApplySettingsImmediately(true);
+
+			CameraCategoryCollection->AddChildListData(CameraShake);
+		}
+
+		// Camera Distance
+		{
+			USL_ListDataObject_Scalar* CameraDistance = NewObject<USL_ListDataObject_Scalar>();
+			CameraDistance->SetDataID(FName(TEXT("CameraDistance")));
+			CameraDistance->SetDataDisplayName(FText::FromString(TEXT("Camera Distance")));
+			CameraDistance->SetDescriptionRichText(GET_GAMEPLAY_TAB_DESCRIPTION("CameraDistanceDescKey"));
+			CameraDistance->SetDisplayValueRange(TRange<float>(0.7f, 1.4f));
+			CameraDistance->SetOutputValueRange(TRange<float>(0.7f, 1.4f));
+			CameraDistance->SetSliderStepSize(0.01f);
+			CameraDistance->SetDefaultValueFromString(LexToString(1.f));
+			CameraDistance->SetDisplayNumericType(ECommonNumericType::Percentage);
+			CameraDistance->SetNumberFormattingOptions(USL_ListDataObject_Scalar::NoDecimal());
+			CameraDistance->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetCameraDistance));
+			CameraDistance->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetCameraDistance));
+			CameraDistance->SetShouldApplySettingsImmediately(true);
+
+			CameraCategoryCollection->AddChildListData(CameraDistance);
+		}
 	}
 	
 	RegisteredOptionsTabCollections.Add(GameplayTabCollection);
