@@ -1,4 +1,5 @@
 #include "Subsystems/SL_LoadingScreenSubsystem.h"
+#include "PreLoadScreenManager.h"
 
 bool USL_LoadingScreenSubsystem::ShouldCreateSubsystem(UObject* Outer) const
 {
@@ -84,6 +85,7 @@ void USL_LoadingScreenSubsystem::OnMapPostLoaded(UWorld* LoadedWorld)
 void USL_LoadingScreenSubsystem::TryUpdateLoadingScreen()
 {
 	// Check if there is any startup loading screen that is currently active
+	if (IsPreLoadScreenActive()) return;
 	
 	// Check if we should show the loading screen
 	if (true)
@@ -99,4 +101,14 @@ void USL_LoadingScreenSubsystem::TryUpdateLoadingScreen()
 		// Disable ticking
 		SetTickableTickType(ETickableTickType::Never);
 	}
+}
+
+bool USL_LoadingScreenSubsystem::IsPreLoadScreenActive() const
+{
+	if (FPreLoadScreenManager* PreLoadScreenManager = FPreLoadScreenManager::Get())
+	{
+		return PreLoadScreenManager->HasValidActivePreLoadScreen();
+	}
+	
+	return false;
 }

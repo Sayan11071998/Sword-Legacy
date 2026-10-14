@@ -33,5 +33,7 @@ private:
 	
 	void TryUpdateLoadingScreen();
 	
+	bool IsPreLoadScreenActive() const;
+	
 	bool bIsCurrentlyLoadingMap = false;
 };
