@@ -1,6 +1,7 @@
 #include "Subsystems/SL_LoadingScreenSubsystem.h"
 #include "PreLoadScreenManager.h"
 #include "Utilities/SL_LoadingScreenSettings.h"
+#include "Blueprint/UserWidget.h"
 
 bool USL_LoadingScreenSubsystem::ShouldCreateSubsystem(UObject* Outer) const
 {
@@ -92,6 +93,7 @@ void USL_LoadingScreenSubsystem::TryUpdateLoadingScreen()
 	if (ShouldShowLoadingScreen())
 	{
 		// Try display the loading screen here
+		TryDisplayLoadingScreenIfNone();
 		
 		OnLoadingReasonUpdated.Broadcast(CurrentLoadingReason);
 	}
@@ -189,4 +191,25 @@ bool USL_LoadingScreenSubsystem::CheckTheNeedToShowLoadingScreen()
 	// Check if the game state, player state, or player character, actor components are ready
 	
 	return false;
+}
+
+void USL_LoadingScreenSubsystem::TryDisplayLoadingScreenIfNone()
+{
+	// If there is already active loading screen, return early if yes
+	if (CachedCreatedLoadingScreenWidget) return;
+	
+	const USL_LoadingScreenSettings* LoadingScreenSettings = GetDefault<USL_LoadingScreenSettings>();
+	
+	TSubclassOf<UUserWidget> LoadedWidgetClass = LoadingScreenSettings->GetLoadingScreenWidgetClassChecked();
+	
+	UUserWidget* CreatedWidget = UUserWidget::CreateWidgetInstance(*GetGameInstance(), LoadedWidgetClass, NAME_None);
+	
+	check(CreatedWidget);
+	
+	CachedCreatedLoadingScreenWidget = CreatedWidget->TakeWidget();
+	
+	GetGameInstance()->GetGameViewportClient()->AddViewportWidgetContent(
+		CachedCreatedLoadingScreenWidget.ToSharedRef(),
+		1000
+	);
 }

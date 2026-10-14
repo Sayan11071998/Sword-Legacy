@@ -44,7 +44,10 @@ private:
 	
 	bool CheckTheNeedToShowLoadingScreen();
 	
+	void TryDisplayLoadingScreenIfNone();
+	
 	bool bIsCurrentlyLoadingMap = false;
 	float HoldLoadingScreenStartupTime = -1.f;
 	FString CurrentLoadingReason;
+	TSharedPtr<SWidget> CachedCreatedLoadingScreenWidget;
 };
