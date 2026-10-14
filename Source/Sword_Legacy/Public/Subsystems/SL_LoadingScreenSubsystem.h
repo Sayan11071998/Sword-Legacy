@@ -46,6 +46,8 @@ private:
 	
 	void TryDisplayLoadingScreenIfNone();
 	
+	void TryRemoveLoadingScreen();
+	
 	bool bIsCurrentlyLoadingMap = false;
 	float HoldLoadingScreenStartupTime = -1.f;
 	FString CurrentLoadingReason;

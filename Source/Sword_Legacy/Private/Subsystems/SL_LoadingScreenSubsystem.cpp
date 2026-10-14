@@ -100,6 +100,9 @@ void USL_LoadingScreenSubsystem::TryUpdateLoadingScreen()
 	else
 	{
 		// Try to remove the current active loading screen
+		TryRemoveLoadingScreen();
+		
+		HoldLoadingScreenStartupTime = -1.f;
 		
 		// Notify the loading is complete
 		
@@ -212,4 +215,13 @@ void USL_LoadingScreenSubsystem::TryDisplayLoadingScreenIfNone()
 		CachedCreatedLoadingScreenWidget.ToSharedRef(),
 		1000
 	);
+}
+
+void USL_LoadingScreenSubsystem::TryRemoveLoadingScreen()
+{
+	if (!CachedCreatedLoadingScreenWidget) return;
+	
+	GetGameInstance()->GetGameViewportClient()->RemoveViewportWidgetContent(CachedCreatedLoadingScreenWidget.ToSharedRef());
+	
+	CachedCreatedLoadingScreenWidget.Reset();
 }
