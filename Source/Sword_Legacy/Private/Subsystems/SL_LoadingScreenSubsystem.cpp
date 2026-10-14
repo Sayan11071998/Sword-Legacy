@@ -28,12 +28,42 @@ void USL_LoadingScreenSubsystem::Deinitialize()
 	FCoreUObjectDelegates::PostLoadMapWithWorld.RemoveAll(this);
 }
 
-void USL_LoadingScreenSubsystem::OnMapPreLoaded(const FWorldContext& WorldContext, const FString& MapName)
+UWorld* USL_LoadingScreenSubsystem::GetTickableGameObjectWorld() const
 {
-	Debug::Print(TEXT("On Map Preloaded"));
+	if (UGameInstance* OwningGameInstance = GetGameInstance())
+	{
+		return OwningGameInstance->GetWorld();
+	}
+	
+	return nullptr;
 }
 
-void USL_LoadingScreenSubsystem::OnMapPostLoaded(UWorld* LoadedWorld)
+void USL_LoadingScreenSubsystem::Tick(float DeltaTime)
 {
-	Debug::Print(TEXT("On Map Postloaded"));
+	Debug::Print(TEXT("Ticking"));
 }
+
+ETickableTickType USL_LoadingScreenSubsystem::GetTickableTickType() const
+{
+	if (IsTemplate())
+	{
+		return ETickableTickType::Never;
+	}
+	
+	return ETickableTickType::Conditional;
+}
+
+bool USL_LoadingScreenSubsystem::IsTickable() const
+{
+	
+	return GetGameInstance() && GetGameInstance()->GetGameViewportClient();
+}
+
+TStatId USL_LoadingScreenSubsystem::GetStatId() const
+{
+	RETURN_QUICK_DECLARE_CYCLE_STAT(USL_LoadingScreenSubsystem, STATGROUP_Tickables);
+}
+
+void USL_LoadingScreenSubsystem::OnMapPreLoaded(const FWorldContext& WorldContext, const FString& MapName) { }
+
+void USL_LoadingScreenSubsystem::OnMapPostLoaded(UWorld* LoadedWorld) { }
