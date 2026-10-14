@@ -10,6 +10,8 @@ class SWORD_LEGACY_API USL_LoadingScreenSubsystem : public UGameInstanceSubsyste
 	GENERATED_BODY()
 	
 public:
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLoadingReasonUpdatedDelegate, const FString&, CurrentLoadingReason);
+	
 	// ~ Begin USubsystem Interface
 	virtual bool ShouldCreateSubsystem(UObject* Outer) const override;
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
@@ -27,6 +29,9 @@ public:
 	virtual TStatId GetStatId() const override;
 	// ~ End FTickableObjectBase Interface
 	
+	UPROPERTY(BlueprintAssignable)
+	FOnLoadingReasonUpdatedDelegate OnLoadingReasonUpdated;
+	
 private:
 	void OnMapPreLoaded(const FWorldContext& WorldContext, const FString& MapName);
 	void OnMapPostLoaded(UWorld* LoadedWorld);
@@ -41,4 +46,5 @@ private:
 	
 	bool bIsCurrentlyLoadingMap = false;
 	float HoldLoadingScreenStartupTime = -1.f;
+	FString CurrentLoadingReason;
 };
