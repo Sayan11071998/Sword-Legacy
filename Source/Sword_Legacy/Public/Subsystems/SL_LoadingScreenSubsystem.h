@@ -30,4 +30,8 @@ public:
 private:
 	void OnMapPreLoaded(const FWorldContext& WorldContext, const FString& MapName);
 	void OnMapPostLoaded(UWorld* LoadedWorld);
+	
+	void TryUpdateLoadingScreen();
+	
+	bool bIsCurrentlyLoadingMap = false;
 };

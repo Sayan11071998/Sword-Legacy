@@ -1,7 +1,5 @@
 #include "Subsystems/SL_LoadingScreenSubsystem.h"
 
-#include "SL_DebugHelper.h"
-
 bool USL_LoadingScreenSubsystem::ShouldCreateSubsystem(UObject* Outer) const
 {
 	if (!CastChecked<UGameInstance>(Outer)->IsDedicatedServerInstance())
@@ -40,7 +38,7 @@ UWorld* USL_LoadingScreenSubsystem::GetTickableGameObjectWorld() const
 
 void USL_LoadingScreenSubsystem::Tick(float DeltaTime)
 {
-	Debug::Print(TEXT("Ticking"));
+	TryUpdateLoadingScreen();
 }
 
 ETickableTickType USL_LoadingScreenSubsystem::GetTickableTickType() const
@@ -64,6 +62,41 @@ TStatId USL_LoadingScreenSubsystem::GetStatId() const
 	RETURN_QUICK_DECLARE_CYCLE_STAT(USL_LoadingScreenSubsystem, STATGROUP_Tickables);
 }
 
-void USL_LoadingScreenSubsystem::OnMapPreLoaded(const FWorldContext& WorldContext, const FString& MapName) { }
+void USL_LoadingScreenSubsystem::OnMapPreLoaded(const FWorldContext& WorldContext, const FString& MapName)
+{
+	if (WorldContext.OwningGameInstance != GetGameInstance()) return;
+	
+	SetTickableTickType(ETickableTickType::Conditional);
+	
+	bIsCurrentlyLoadingMap = true;
+	
+	TryUpdateLoadingScreen();
+}
 
-void USL_LoadingScreenSubsystem::OnMapPostLoaded(UWorld* LoadedWorld) { }
+void USL_LoadingScreenSubsystem::OnMapPostLoaded(UWorld* LoadedWorld)
+{
+	if (LoadedWorld && LoadedWorld->GetGameInstance() == GetGameInstance())
+	{
+		bIsCurrentlyLoadingMap = false;
+	}
+}
+
+void USL_LoadingScreenSubsystem::TryUpdateLoadingScreen()
+{
+	// Check if there is any startup loading screen that is currently active
+	
+	// Check if we should show the loading screen
+	if (true)
+	{
+		// Try display the loading screen here
+	}
+	else
+	{
+		// Try to remove the current active loading screen
+		
+		// Notify the loading is complete
+		
+		// Disable ticking
+		SetTickableTickType(ETickableTickType::Never);
+	}
+}
