@@ -2,6 +2,9 @@
 #include "PreLoadScreenManager.h"
 #include "Utilities/SL_LoadingScreenSettings.h"
 #include "Blueprint/UserWidget.h"
+#include "Engine/GameInstance.h"
+#include "Engine/GameViewportClient.h"
+#include "Engine/World.h"
 
 bool USL_LoadingScreenSubsystem::ShouldCreateSubsystem(UObject* Outer) const
 {
@@ -21,12 +24,20 @@ void USL_LoadingScreenSubsystem::Initialize(FSubsystemCollectionBase& Collection
 {
 	FCoreUObjectDelegates::PreLoadMapWithContext.AddUObject(this, &USL_LoadingScreenSubsystem::OnMapPreLoaded);
 	FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(this, &USL_LoadingScreenSubsystem::OnMapPostLoaded);
+	FWorldDelegates::OnWorldBeginTearDown.AddUObject(this, &USL_LoadingScreenSubsystem::OnWorldBeginTearDown);
 }
 
 void USL_LoadingScreenSubsystem::Deinitialize()
 {
+	bIsShuttingDown = true;
+	SetTickableTickType(ETickableTickType::Never);
+	TryRemoveLoadingScreen();
+
 	FCoreUObjectDelegates::PreLoadMapWithContext.RemoveAll(this);
 	FCoreUObjectDelegates::PostLoadMapWithWorld.RemoveAll(this);
+	FWorldDelegates::OnWorldBeginTearDown.RemoveAll(this);
+
+	Super::Deinitialize();
 }
 
 UWorld* USL_LoadingScreenSubsystem::GetTickableGameObjectWorld() const
@@ -56,8 +67,10 @@ ETickableTickType USL_LoadingScreenSubsystem::GetTickableTickType() const
 
 bool USL_LoadingScreenSubsystem::IsTickable() const
 {
-	
-	return GetGameInstance() && GetGameInstance()->GetGameViewportClient();
+	if (bIsShuttingDown || !GetGameInstance() || !GetGameInstance()->GetGameViewportClient()) return false;
+
+	const UWorld* World = GetGameInstance()->GetWorld();
+	return !World || !World->bIsTearingDown;
 }
 
 TStatId USL_LoadingScreenSubsystem::GetStatId() const
@@ -68,7 +81,8 @@ TStatId USL_LoadingScreenSubsystem::GetStatId() const
 void USL_LoadingScreenSubsystem::OnMapPreLoaded(const FWorldContext& WorldContext, const FString& MapName)
 {
 	if (WorldContext.OwningGameInstance != GetGameInstance()) return;
-	
+
+	bIsShuttingDown = false;
 	SetTickableTickType(ETickableTickType::Conditional);
 	
 	bIsCurrentlyLoadingMap = true;
@@ -82,6 +96,18 @@ void USL_LoadingScreenSubsystem::OnMapPostLoaded(UWorld* LoadedWorld)
 	{
 		bIsCurrentlyLoadingMap = false;
 	}
+}
+
+void USL_LoadingScreenSubsystem::OnWorldBeginTearDown(UWorld* World)
+{
+	if (!World || World->GetGameInstance() != GetGameInstance()) return;
+
+	// Map travel tears down the old world after the next map has already asked for the loading screen.
+	if (bIsCurrentlyLoadingMap) return;
+
+	bIsShuttingDown = true;
+	SetTickableTickType(ETickableTickType::Never);
+	TryRemoveLoadingScreen();
 }
 
 void USL_LoadingScreenSubsystem::TryUpdateLoadingScreen()
@@ -123,17 +149,22 @@ bool USL_LoadingScreenSubsystem::IsPreLoadScreenActive() const
 
 bool USL_LoadingScreenSubsystem::ShouldShowLoadingScreen()
 {
+	if (bIsShuttingDown) return false;
+
 	const USL_LoadingScreenSettings* LoadingScreenSettings = GetDefault<USL_LoadingScreenSettings>();
 	
 	if (GIsEditor && !LoadingScreenSettings->bShowLoadingScreenInEditor)
 	{
 		return false;
 	}
+
+	UGameViewportClient* ViewportClient = GetGameInstance() ? GetGameInstance()->GetGameViewportClient() : nullptr;
+	if (!ViewportClient) return false;
 	
 	// Check if the objects in the world need a loading screen
 	if (CheckTheNeedToShowLoadingScreen())
 	{
-		GetGameInstance()->GetGameViewportClient()->bDisableWorldRendering = true;
+		ViewportClient->bDisableWorldRendering = true;
 		
 		return true;
 	}
@@ -141,7 +172,7 @@ bool USL_LoadingScreenSubsystem::ShouldShowLoadingScreen()
 	CurrentLoadingReason = TEXT("Waiting for Texture Streaming");
 	
 	// There is no need to show the loading screen. Allow the world to be renderer to our viewport here
-	GetGameInstance()->GetGameViewportClient()->bDisableWorldRendering = false;
+	ViewportClient->bDisableWorldRendering = false;
 	
 	const float CurrentTime = FPlatformTime::Seconds();
 	
@@ -176,6 +207,8 @@ bool USL_LoadingScreenSubsystem::CheckTheNeedToShowLoadingScreen()
 		
 		return true;
 	}
+
+	if (OwningWorld->bIsTearingDown) return false;
 	
 	if (!OwningWorld->HasBegunPlay())
 	{
@@ -198,20 +231,24 @@ bool USL_LoadingScreenSubsystem::CheckTheNeedToShowLoadingScreen()
 
 void USL_LoadingScreenSubsystem::TryDisplayLoadingScreenIfNone()
 {
-	// If there is already active loading screen, return early if yes
-	if (CachedCreatedLoadingScreenWidget) return;
+	if (bIsShuttingDown || CachedCreatedLoadingScreenWidget.IsValid()) return;
+
+	UGameInstance* GameInstance = GetGameInstance();
+	UGameViewportClient* ViewportClient = GameInstance ? GameInstance->GetGameViewportClient() : nullptr;
+	if (!GameInstance || !ViewportClient) return;
 	
 	const USL_LoadingScreenSettings* LoadingScreenSettings = GetDefault<USL_LoadingScreenSettings>();
 	
 	TSubclassOf<UUserWidget> LoadedWidgetClass = LoadingScreenSettings->GetLoadingScreenWidgetClassChecked();
 	
-	UUserWidget* CreatedWidget = UUserWidget::CreateWidgetInstance(*GetGameInstance(), LoadedWidgetClass, NAME_None);
+	UUserWidget* CreatedWidget = UUserWidget::CreateWidgetInstance(*GameInstance, LoadedWidgetClass, NAME_None);
 	
 	check(CreatedWidget);
-	
+
+	CachedLoadingScreenUserWidget = CreatedWidget;
 	CachedCreatedLoadingScreenWidget = CreatedWidget->TakeWidget();
 	
-	GetGameInstance()->GetGameViewportClient()->AddViewportWidgetContent(
+	ViewportClient->AddViewportWidgetContent(
 		CachedCreatedLoadingScreenWidget.ToSharedRef(),
 		1000
 	);
@@ -219,9 +256,19 @@ void USL_LoadingScreenSubsystem::TryDisplayLoadingScreenIfNone()
 
 void USL_LoadingScreenSubsystem::TryRemoveLoadingScreen()
 {
-	if (!CachedCreatedLoadingScreenWidget) return;
-	
-	GetGameInstance()->GetGameViewportClient()->RemoveViewportWidgetContent(CachedCreatedLoadingScreenWidget.ToSharedRef());
-	
+	UGameInstance* GameInstance = GetGameInstance();
+	UGameViewportClient* ViewportClient = GameInstance ? GameInstance->GetGameViewportClient() : nullptr;
+
+	if (ViewportClient)
+	{
+		ViewportClient->bDisableWorldRendering = false;
+
+		if (CachedCreatedLoadingScreenWidget.IsValid())
+		{
+			ViewportClient->RemoveViewportWidgetContent(CachedCreatedLoadingScreenWidget.ToSharedRef());
+		}
+	}
+
 	CachedCreatedLoadingScreenWidget.Reset();
+	CachedLoadingScreenUserWidget = nullptr;
 }

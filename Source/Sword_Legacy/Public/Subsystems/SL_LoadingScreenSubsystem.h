@@ -4,6 +4,8 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "SL_LoadingScreenSubsystem.generated.h"
 
+class UUserWidget;
+
 UCLASS()
 class SWORD_LEGACY_API USL_LoadingScreenSubsystem : public UGameInstanceSubsystem, public FTickableGameObject
 {
@@ -35,6 +37,7 @@ public:
 private:
 	void OnMapPreLoaded(const FWorldContext& WorldContext, const FString& MapName);
 	void OnMapPostLoaded(UWorld* LoadedWorld);
+	void OnWorldBeginTearDown(UWorld* World);
 	
 	void TryUpdateLoadingScreen();
 	
@@ -49,7 +52,12 @@ private:
 	void TryRemoveLoadingScreen();
 	
 	bool bIsCurrentlyLoadingMap = false;
+	bool bIsShuttingDown = false;
 	float HoldLoadingScreenStartupTime = -1.f;
 	FString CurrentLoadingReason;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UUserWidget> CachedLoadingScreenUserWidget;
+
 	TSharedPtr<SWidget> CachedCreatedLoadingScreenWidget;
 };
