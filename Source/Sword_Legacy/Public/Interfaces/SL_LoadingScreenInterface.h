@@ -17,11 +17,7 @@ class SWORD_LEGACY_API ISL_LoadingScreenInterface
 public:
 	UFUNCTION(BlueprintNativeEvent)
 	void OnLoadingScreenActivated();
-	
-	// virtual void OnLoadingScreenActivated_Implementation();
-	
+
 	UFUNCTION(BlueprintNativeEvent)
 	void OnLoadingScreenDeactivated();
-	
-	// virtual void OnLoadingScreenDeactivated_Implementation();
 };

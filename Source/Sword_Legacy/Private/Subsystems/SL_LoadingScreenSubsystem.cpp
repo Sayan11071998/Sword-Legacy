@@ -115,6 +115,18 @@ void USL_LoadingScreenSubsystem::TryUpdateLoadingScreen()
 {
 	// Check if there is any startup loading screen that is currently active
 	if (IsPreLoadScreenActive()) return;
+
+	const USL_LoadingScreenSettings* LoadingScreenSettings = GetDefault<USL_LoadingScreenSettings>();
+	const bool bShowLoadingScreen = !GIsEditor || (LoadingScreenSettings && LoadingScreenSettings->bShowLoadingScreenInEditor);
+	
+	if (!bShowLoadingScreen)
+	{
+		if (bIsShuttingDown || CheckTheNeedToShowLoadingScreen()) return;
+
+		TryRemoveLoadingScreen();
+		SetTickableTickType(ETickableTickType::Never);
+		return;
+	}
 	
 	// Check if we should show the loading screen
 	if (ShouldShowLoadingScreen())
@@ -153,11 +165,6 @@ bool USL_LoadingScreenSubsystem::ShouldShowLoadingScreen()
 	if (bIsShuttingDown) return false;
 
 	const USL_LoadingScreenSettings* LoadingScreenSettings = GetDefault<USL_LoadingScreenSettings>();
-	
-	if (GIsEditor && !LoadingScreenSettings->bShowLoadingScreenInEditor)
-	{
-		return false;
-	}
 
 	UGameViewportClient* ViewportClient = GetGameInstance() ? GetGameInstance()->GetGameViewportClient() : nullptr;
 	if (!ViewportClient) return false;

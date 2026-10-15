@@ -1,6 +1,7 @@
 #include "Controllers/SL_PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Camera/CameraActor.h"
+#include "Components/Widget.h"
 #include "GameModes/SL_MainMenuGameMode.h"
 #include "Subsystems/SL_UISubsystem.h"
 #include "Utilities/SL_FunctionLibrary.h"
@@ -18,12 +19,23 @@ FGenericTeamId ASL_PlayerController::GetGenericTeamId() const
 	return PlayerTeamID;
 }
 
-void ASL_PlayerController::BeginPlay()
+void ASL_PlayerController::OnLoadingScreenDeactivated_Implementation()
 {
-	Super::BeginPlay();
-	
-	if (!IsLocalPlayerController() || !PrimaryLayoutWidgetClass) return;
-	if (!GetWorld() || !GetWorld()->GetAuthGameMode<ASL_MainMenuGameMode>()) return;
+	if (bHasHandledLoadingScreenDeactivation) return;
+	if (!IsLocalPlayerController()) return;
+
+	UWorld* World = GetWorld();
+	if (!World || World->bIsTearingDown) return;
+	if (!World->GetAuthGameMode<ASL_MainMenuGameMode>()) return;
+
+	bHasHandledLoadingScreenDeactivation = true;
+
+	SetupFrontendUI();
+}
+
+void ASL_PlayerController::SetupFrontendUI()
+{
+	if (!PrimaryLayoutWidgetClass) return;
 
 	USL_Widget_PrimaryLayout* CreatedPrimaryLayout = CreateWidget<USL_Widget_PrimaryLayout>(this, PrimaryLayoutWidgetClass);
 	if (!CreatedPrimaryLayout) return;
@@ -31,16 +43,35 @@ void ASL_PlayerController::BeginPlay()
 	CreatedPrimaryLayout->AddToViewport();
 
 	USL_UISubsystem* UISubsystem = USL_UISubsystem::Get(this);
+	if (!UISubsystem) return;
+
 	UISubsystem->RegisterCreatedPrimaryLayoutWidget(CreatedPrimaryLayout);
 
+	const TSoftClassPtr<USL_Widget_Activatable_Base> PressAnyKeyWidgetClass = USL_FunctionLibrary::GetGameSoftWidgetClassByTag(SL_GameplayTags::UI_Widget_PressAnyKeyScreen);
+	if (PressAnyKeyWidgetClass.IsNull()) return;
+
+	TWeakObjectPtr<ASL_PlayerController> WeakThis(this);
+	
 	UISubsystem->PushSoftWidgetToStackAsync(
 		SL_GameplayTags::UI_WidgetStack_Frontend,
-		USL_FunctionLibrary::GetGameSoftWidgetClassByTag(SL_GameplayTags::UI_Widget_PressAnyKeyScreen),
-		[this](EAsyncPushWidgetState InPushState, TObjectPtr<USL_Widget_Activatable_Base> PushedWidget)
+		PressAnyKeyWidgetClass,
+		[WeakThis](EAsyncPushWidgetState InPushState, TObjectPtr<USL_Widget_Activatable_Base> PushedWidget)
 		{
+			if (!PushedWidget) return;
+
 			if (InPushState == EAsyncPushWidgetState::OnCreatedBeforePush)
 			{
-				PushedWidget->SetOwningPlayer(this);
+				if (ASL_PlayerController* Controller = WeakThis.Get())
+				{
+					PushedWidget->SetOwningPlayer(Controller);
+				}
+			}
+			else if (InPushState == EAsyncPushWidgetState::AfterPush)
+			{
+				if (UWidget* WidgetToFocus = PushedWidget->GetDesiredFocusTarget())
+				{
+					WidgetToFocus->SetFocus();
+				}
 			}
 		}
 	);
