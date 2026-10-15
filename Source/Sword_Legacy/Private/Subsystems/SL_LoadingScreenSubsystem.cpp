@@ -5,6 +5,7 @@
 #include "Engine/GameInstance.h"
 #include "Engine/GameViewportClient.h"
 #include "Engine/World.h"
+#include "Interfaces/SL_LoadingScreenInterface.h"
 
 bool USL_LoadingScreenSubsystem::ShouldCreateSubsystem(UObject* Outer) const
 {
@@ -286,7 +287,34 @@ void USL_LoadingScreenSubsystem::NotifyLoadingScreenVisibilityChanged(bool bIsVi
 		if (APlayerController* PC = ExistingLocalPlayer->GetPlayerController(GetGameInstance()->GetWorld()))
 		{
 			// Query if the player controller implements the interface. Call the function through the interface to notify the loading status if yes
+			if (PC->Implements<USL_LoadingScreenInterface>())
+			{
+				if (bIsVisible)
+				{
+					ISL_LoadingScreenInterface::Execute_OnLoadingScreenActivated(PC);
+				}
+				else
+				{
+					ISL_LoadingScreenInterface::Execute_OnLoadingScreenDeactivated(PC);
+				}
+			}
 			
+			if (APawn* OwningPawn = PC->GetPawn())
+			{
+				if (OwningPawn->Implements<USL_LoadingScreenInterface>())
+				{
+					if (bIsVisible)
+					{
+						ISL_LoadingScreenInterface::Execute_OnLoadingScreenActivated(OwningPawn);
+					}
+					else
+					{
+						ISL_LoadingScreenInterface::Execute_OnLoadingScreenDeactivated(OwningPawn);
+					}
+				}
+			}
 		}
+		
+		// The code for notifying other objects in the world goes here
 	}
 }
