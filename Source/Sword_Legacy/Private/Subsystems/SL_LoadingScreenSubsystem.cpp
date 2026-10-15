@@ -252,6 +252,8 @@ void USL_LoadingScreenSubsystem::TryDisplayLoadingScreenIfNone()
 		CachedCreatedLoadingScreenWidget.ToSharedRef(),
 		1000
 	);
+	
+	NotifyLoadingScreenVisibilityChanged(true);
 }
 
 void USL_LoadingScreenSubsystem::TryRemoveLoadingScreen()
@@ -271,4 +273,20 @@ void USL_LoadingScreenSubsystem::TryRemoveLoadingScreen()
 
 	CachedCreatedLoadingScreenWidget.Reset();
 	CachedLoadingScreenUserWidget = nullptr;
+	
+	NotifyLoadingScreenVisibilityChanged(false);
+}
+
+void USL_LoadingScreenSubsystem::NotifyLoadingScreenVisibilityChanged(bool bIsVisible)
+{
+	for (ULocalPlayer* ExistingLocalPlayer : GetGameInstance()->GetLocalPlayers())
+	{
+		if (!ExistingLocalPlayer) continue;
+		
+		if (APlayerController* PC = ExistingLocalPlayer->GetPlayerController(GetGameInstance()->GetWorld()))
+		{
+			// Query if the player controller implements the interface. Call the function through the interface to notify the loading status if yes
+			
+		}
+	}
 }
