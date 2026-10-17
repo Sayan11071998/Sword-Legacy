@@ -1,7 +1,7 @@
 #include "AbilitySystem/Abilities/SL_EnemyGameplayAbility.h"
 #include "AbilitySystem/SL_AbilitySystemComponent.h"
 #include "Characters/SL_EnemyCharacter.h"
-#include "Utilities/SL_GameplayTags.h"
+#include "GameplayTags/SL_GameplayTags.h"
 
 ASL_EnemyCharacter* USL_EnemyGameplayAbility::GetEnemyCharacterFromActorInfo()
 {

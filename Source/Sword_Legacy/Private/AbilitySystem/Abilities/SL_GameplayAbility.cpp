@@ -3,7 +3,7 @@
 #include "Components/Combat/SL_PawnCombatComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Utilities/SL_FunctionLibrary.h"
-#include "Utilities/SL_GameplayTags.h"
+#include "GameplayTags/SL_GameplayTags.h"
 #include "AbilitySystemGlobals.h"
 
 void USL_GameplayAbility::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)

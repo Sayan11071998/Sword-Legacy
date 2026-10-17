@@ -1,7 +1,7 @@
 #include "Components/Combat/SL_PlayerCombatComponent.h"
 #include "Items/Weapons/SL_PlayerWeapon.h"
 #include "AbilitySystemBlueprintLibrary.h"
-#include "Utilities/SL_GameplayTags.h"
+#include "GameplayTags/SL_GameplayTags.h"
 
 void USL_PlayerCombatComponent::OnHitTargetActor(AActor* HitActor)
 {

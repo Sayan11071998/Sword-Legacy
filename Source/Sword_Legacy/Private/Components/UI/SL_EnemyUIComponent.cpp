@@ -1,5 +1,5 @@
 #include "Components/UI/SL_EnemyUIComponent.h"
-#include "Widgets/SL_WidgetBase.h"
+#include "UI/Widgets/SL_WidgetBase.h"
 
 void USL_EnemyUIComponent::RegisterEnemyDrawnWidget(USL_WidgetBase* InWidgetToRegister)
 {

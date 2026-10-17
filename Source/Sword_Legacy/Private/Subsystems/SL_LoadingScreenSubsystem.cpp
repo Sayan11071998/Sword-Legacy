@@ -1,6 +1,6 @@
 #include "Subsystems/SL_LoadingScreenSubsystem.h"
 #include "PreLoadScreenManager.h"
-#include "Utilities/SL_LoadingScreenSettings.h"
+#include "Subsystems/SL_LoadingScreenSettings.h"
 #include "Blueprint/UserWidget.h"
 #include "Engine/GameInstance.h"
 #include "Engine/GameViewportClient.h"

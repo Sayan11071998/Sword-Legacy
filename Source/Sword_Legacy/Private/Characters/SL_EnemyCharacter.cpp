@@ -12,11 +12,11 @@
 #include "Components/WidgetComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Components/UI/SL_EnemyUIComponent.h"
-#include "Widgets/SL_WidgetBase.h"
+#include "UI/Widgets/SL_WidgetBase.h"
 #include "Utilities/SL_FunctionLibrary.h"
 #include "Animation/AnimMontage.h"
 #include "AbilitySystem/SL_AbilitySystemComponent.h"
-#include "Utilities/SL_GameplayTags.h"
+#include "GameplayTags/SL_GameplayTags.h"
 
 ASL_EnemyCharacter::ASL_EnemyCharacter()
 {

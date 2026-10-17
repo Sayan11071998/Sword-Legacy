@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/Abilities/SL_PlayerGameplayAbility.h"
-#include "Utilities/SL_GameplayTags.h"
+#include "GameplayTags/SL_GameplayTags.h"
 #include "SL_GA_Player_LightAttackMaster.generated.h"
 
 UCLASS()
