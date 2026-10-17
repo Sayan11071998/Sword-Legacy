@@ -1,15 +1,15 @@
 #include "Utilities/SL_FunctionLibrary.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystem/SL_AbilitySystemComponent.h"
-#include "DataAssets/UI/SL_CreditTypes.h"
+#include "UI/Credits/SL_CreditTypes.h"
 #include "Engine/DataTable.h"
 #include "Interfaces/SL_PawnCombatInterface.h"
 #include "GenericTeamAgentInterface.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "Utilities/SL_GameplayTags.h"
+#include "GameplayTags/SL_GameplayTags.h"
 #include "Utilities/SL_CountdownAction.h"
-#include "Utilities/SL_DeveloperSettings.h"
-#include "Utilities/SL_GameUserSettings.h"
+#include "Settings/SL_DeveloperSettings.h"
+#include "Settings/SL_GameUserSettings.h"
 
 TObjectPtr<USL_AbilitySystemComponent> USL_FunctionLibrary::NativeGetASCFromActor(TObjectPtr<AActor> InActor)
 {

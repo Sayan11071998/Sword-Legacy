@@ -3,7 +3,7 @@
 #include "NiagaraComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Utilities/SL_FunctionLibrary.h"
-#include "Utilities/SL_GameplayTags.h"
+#include "GameplayTags/SL_GameplayTags.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraFunctionLibrary.h"

@@ -4,7 +4,7 @@
 #include "AIController.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
-#include "Utilities/SL_GameplayTags.h"
+#include "GameplayTags/SL_GameplayTags.h"
 
 USL_BTD_ShouldAbortAllLogic::USL_BTD_ShouldAbortAllLogic()
 {

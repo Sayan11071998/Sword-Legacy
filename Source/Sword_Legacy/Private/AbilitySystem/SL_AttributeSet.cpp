@@ -1,7 +1,7 @@
 #include "AbilitySystem/SL_AttributeSet.h"
 #include "GameplayEffectExtension.h"
 #include "Utilities/SL_FunctionLibrary.h"
-#include "Utilities/SL_GameplayTags.h"
+#include "GameplayTags/SL_GameplayTags.h"
 #include "Interfaces/SL_PawnUIInterface.h"
 #include "Components/UI/SL_PawnUIComponent.h"
 #include "Components/UI/SL_PlayerUIComponent.h"

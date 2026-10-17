@@ -6,7 +6,7 @@
 #include "AbilitySystem/AbilityTasks/SL_AbilityTask_ExecuteTaskOnTick.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Components/UI/SL_PlayerUIComponent.h"
-#include "Utilities/SL_GameplayTags.h"
+#include "GameplayTags/SL_GameplayTags.h"
 
 USL_GA_Player_PickupStones::USL_GA_Player_PickupStones()
 {

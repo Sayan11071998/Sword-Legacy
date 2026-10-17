@@ -1,5 +1,5 @@
 #include "AbilitySystem/Abilities/Enemy/SL_GA_Enemy_DrawBossBar_Base.h"
-#include "Widgets/SL_WidgetBase.h"
+#include "UI/Widgets/SL_WidgetBase.h"
 #include "Characters/SL_EnemyCharacter.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/TextBlock.h"

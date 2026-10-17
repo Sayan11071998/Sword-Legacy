@@ -4,7 +4,7 @@
 #include "Characters/SL_EnemyCharacter.h"
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "Utilities/SL_GameplayTags.h"
+#include "GameplayTags/SL_GameplayTags.h"
 
 USL_GA_Enemy_SummonEnemies_Base::USL_GA_Enemy_SummonEnemies_Base()
 {

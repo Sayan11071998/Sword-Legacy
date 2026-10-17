@@ -7,14 +7,14 @@
 #include "Camera/CameraComponent.h"
 #include "Components/Combat/SL_PlayerCombatComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Components/Input/SL_EnhancedInputComponent.h"
-#include "DataAssets/Input/SL_DataAsset_InputConfig.h"
-#include "Utilities/SL_GameplayTags.h"
+#include "Input/SL_EnhancedInputComponent.h"
+#include "Input/SL_DataAsset_InputConfig.h"
+#include "GameplayTags/SL_GameplayTags.h"
 #include "DataAssets/StartupData/SL_DataAsset_StartupData_Player.h"
 #include "Components/UI/SL_PlayerUIComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Utilities/SL_FunctionLibrary.h"
-#include "Utilities/SL_GameUserSettings.h"
+#include "Settings/SL_GameUserSettings.h"
 
 namespace
 {

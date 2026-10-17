@@ -1,10 +1,10 @@
 #include "Subsystems/SL_UISubsystem.h"
 #include "Engine/AssetManager.h"
-#include "Widgets/SL_Widget_Activatable_Base.h"
-#include "Widgets/SL_Widget_PrimaryLayout.h"
+#include "UI/Widgets/SL_Widget_Activatable_Base.h"
+#include "UI/Widgets/SL_Widget_PrimaryLayout.h"
 #include "Widgets/CommonActivatableWidgetContainer.h"
-#include "Widgets/SL_Widget_ConfirmScreen.h"
-#include "Utilities/SL_GameplayTags.h"
+#include "UI/Widgets/Screens/SL_Widget_ConfirmScreen.h"
+#include "GameplayTags/SL_GameplayTags.h"
 #include "Utilities/SL_FunctionLibrary.h"
 
 TObjectPtr<USL_UISubsystem> USL_UISubsystem::Get(const TObjectPtr<UObject> WorldContextObject)

@@ -5,9 +5,9 @@
 #include "GameModes/SL_MainMenuGameMode.h"
 #include "Subsystems/SL_UISubsystem.h"
 #include "Utilities/SL_FunctionLibrary.h"
-#include "Utilities/SL_GameplayTags.h"
-#include "Widgets/SL_Widget_Activatable_Base.h"
-#include "Widgets/SL_Widget_PrimaryLayout.h"
+#include "GameplayTags/SL_GameplayTags.h"
+#include "UI/Widgets/SL_Widget_Activatable_Base.h"
+#include "UI/Widgets/SL_Widget_PrimaryLayout.h"
 
 ASL_PlayerController::ASL_PlayerController()
 {
