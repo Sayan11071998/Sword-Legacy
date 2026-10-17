@@ -5,6 +5,7 @@
 #include "Engine/DeveloperSettings.h"
 #include "SL_DeveloperSettings.generated.h"
 
+class UDataTable;
 class USL_Widget_Activatable_Base;
 
 UCLASS(Config = Game, DefaultConfig, meta = (DisplayName = "Game UI Settings"))
@@ -18,4 +19,7 @@ public:
 	
 	UPROPERTY(Config, EditAnywhere, Category = "Widget Image Reference", meta = (ForceInLineRow, Categories = "UI.Image"))
 	TMap<FGameplayTag, TSoftObjectPtr<UTexture2D>> OptionsScreenSoftImageMap;
+	
+	UPROPERTY(Config, EditAnywhere, Category = "Credits", meta = (RequiredAssetDataTags = "RowStructure=/Script/Sword_Legacy.SL_CreditTableRow"))
+	TSoftObjectPtr<UDataTable> CreditsTable;
 };

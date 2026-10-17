@@ -66,4 +66,7 @@ public:
 	
 	UFUNCTION(BlueprintPure, Category = "Pawn|Function Library")
 	static TSoftObjectPtr<UTexture2D> GetOptionsSoftImageByTag(UPARAM(meta = (Categories = "UI.Image")) FGameplayTag InImageTag);
+	
+	UFUNCTION(BlueprintPure, Category = "UI|Credits")
+	static FString GetCreditsDisplayString();
 };

@@ -1,6 +1,8 @@
 #include "Utilities/SL_FunctionLibrary.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystem/SL_AbilitySystemComponent.h"
+#include "DataAssets/UI/SL_CreditTypes.h"
+#include "Engine/DataTable.h"
 #include "Interfaces/SL_PawnCombatInterface.h"
 #include "GenericTeamAgentInterface.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -219,4 +221,68 @@ TSoftObjectPtr<UTexture2D> USL_FunctionLibrary::GetOptionsSoftImageByTag(FGamepl
 	checkf(GameDeveloperSettings->OptionsScreenSoftImageMap.Contains(InImageTag), TEXT("Could not find an image associated with the tag %s"), *InImageTag.ToString());
 	
 	return GameDeveloperSettings->OptionsScreenSoftImageMap.FindRef(InImageTag);
+}
+
+namespace
+{
+	FString BuildCreditsDisplayString(const TArray<FSL_CreditTableRow>& Rows)
+	{
+		FString Result = TEXT("Credits\r\n\r\n");
+		FString CurrentSection;
+
+		for (const FSL_CreditTableRow& Row : Rows)
+		{
+			if (Row.PersonName.IsEmpty()) continue;
+
+			const FString Section = Row.Section.ToString();
+			if (!Section.Equals(CurrentSection, ESearchCase::CaseSensitive))
+			{
+				if (!CurrentSection.IsEmpty())
+				{
+					Result += TEXT("\r\n");
+				}
+
+				CurrentSection = Section;
+
+				if (!Section.IsEmpty())
+				{
+					Result += Section + TEXT("\r\n\r\n");
+				}
+			}
+
+			if (!Row.Role.IsEmpty())
+			{
+				Result += Row.Role.ToString() + TEXT("\r\n");
+			}
+
+			Result += Row.PersonName.ToString() + TEXT("\r\n\r\n");
+		}
+
+		return Result;
+	}
+}
+
+FString USL_FunctionLibrary::GetCreditsDisplayString()
+{
+	const USL_DeveloperSettings* GameDeveloperSettings = GetDefault<USL_DeveloperSettings>();
+	const UDataTable* CreditsTable = GameDeveloperSettings && !GameDeveloperSettings->CreditsTable.IsNull()
+		? GameDeveloperSettings->CreditsTable.LoadSynchronous()
+		: nullptr;
+
+	if (!CreditsTable)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Credits Table is not assigned on Game UI Settings."));
+		return FString();
+	}
+
+	TArray<FSL_CreditTableRow> Rows;
+	CreditsTable->ForeachRow<FSL_CreditTableRow>(
+		TEXT("GetCreditsDisplayString"),
+		[&Rows](const FName& /*RowName*/, const FSL_CreditTableRow& Row)
+		{
+			Rows.Add(Row);
+		}
+	);
+
+	return BuildCreditsDisplayString(Rows);
 }
