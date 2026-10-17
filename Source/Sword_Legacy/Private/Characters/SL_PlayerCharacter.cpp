@@ -1,5 +1,6 @@
 #include "Characters/SL_PlayerCharacter.h"
 #include "EnhancedInputSubsystems.h"
+#include "UserSettings/EnhancedInputUserSettings.h"
 #include "AbilitySystem/SL_AbilitySystemComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -60,6 +61,14 @@ void ASL_PlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer);
 	check(Subsystem);
+
+	if (InputConfigDataAsset->DefaultMappingContext)
+	{
+		if (UEnhancedInputUserSettings* UserSettings = Subsystem->GetUserSettings())
+		{
+			UserSettings->RegisterInputMappingContext(InputConfigDataAsset->DefaultMappingContext);
+		}
+	}
 	
 	Subsystem->AddMappingContext(InputConfigDataAsset->DefaultMappingContext, DefaultInputMappingPriority);
 	USL_EnhancedInputComponent* EnhancedInputComponent = CastChecked<USL_EnhancedInputComponent>(PlayerInputComponent);
