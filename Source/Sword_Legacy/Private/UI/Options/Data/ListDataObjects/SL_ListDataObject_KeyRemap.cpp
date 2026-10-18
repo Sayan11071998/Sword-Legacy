@@ -60,6 +60,11 @@ int32 USL_ListDataObject_KeyRemap::GetChordKeyCount() const
 	return CachedChordKeys.Num();
 }
 
+bool USL_ListDataObject_KeyRemap::CanRemapChordKey() const
+{
+	return !CachedChordMappingName.IsNone() && CachedChordKeys.Num() == 1 && CachedChordKeys[0].IsValid();
+}
+
 bool USL_ListDataObject_KeyRemap::IsRemapLocked() const
 {
 	const FPlayerKeyMapping* Mapping = GetOwningKeyMapping();
@@ -71,10 +76,26 @@ bool USL_ListDataObject_KeyRemap::IsRemapLocked() const
 bool USL_ListDataObject_KeyRemap::IsUsingKey(const FKey& InKey) const
 {
 	const FPlayerKeyMapping* Mapping = GetOwningKeyMapping();
+	
 	return Mapping && Mapping->GetCurrentKey() == InKey;
 }
 
+bool USL_ListDataObject_KeyRemap::IsUsingChordKey(const FKey& InKey) const
+{
+	return CanRemapChordKey() && CachedChordKeys[0] == InKey;
+}
+
 bool USL_ListDataObject_KeyRemap::GetAssignedActionNamesForKey(const FKey& InNewKey, FText& OutActionNames) const
+{
+	return CollectActionNamesForKey(InNewKey, OutActionNames, false);
+}
+
+bool USL_ListDataObject_KeyRemap::GetAssignedActionNamesForChordKey(const FKey& InNewKey, FText& OutActionNames) const
+{
+	return CollectActionNamesForKey(InNewKey, OutActionNames, true);
+}
+
+bool USL_ListDataObject_KeyRemap::CollectActionNamesForKey(const FKey& InNewKey, FText& OutActionNames, bool bForChordKey) const
 {
 	OutActionNames = FText::GetEmpty();
 	if (!InNewKey.IsValid() || !CachedOwningKeyProfile) return false;
@@ -86,7 +107,15 @@ bool USL_ListDataObject_KeyRemap::GetAssignedActionNamesForKey(const FKey& InNew
 		for (const FPlayerKeyMapping& PlayerMapping : RowPair.Value.Mappings)
 		{
 			if (PlayerMapping.GetCurrentKey() != InNewKey) continue;
-			if (IsLinkedMapping(PlayerMapping)) continue;
+			
+			if (bForChordKey)
+			{
+				if (PlayerMapping.GetMappingName() == CachedChordMappingName) continue;
+			}
+			else if (IsLinkedMapping(PlayerMapping))
+			{
+				continue;
+			}
 
 			const FString DisplayName = PlayerMapping.GetDisplayName().ToString();
 			ActionNames.AddUnique(DisplayName.IsEmpty() ? PlayerMapping.GetMappingName().ToString() : DisplayName);
@@ -103,7 +132,7 @@ void USL_ListDataObject_KeyRemap::BindNewInputKey(const FKey& InNewKey)
 {
 	check(CachedOwningInputUserSettings);
 
-	UnbindOtherMappingsUsingKey(InNewKey);
+	UnbindOtherMappingsUsingKey(InNewKey, true);
 	
 	FMapPlayerKeyArgs KeyArgs;
 	KeyArgs.MappingName = CachedOwningMappingName;
@@ -119,7 +148,26 @@ void USL_ListDataObject_KeyRemap::BindNewInputKey(const FKey& InNewKey)
 	NotifyListDataModified(this);
 }
 
-void USL_ListDataObject_KeyRemap::UnbindOtherMappingsUsingKey(const FKey& InKey)
+void USL_ListDataObject_KeyRemap::BindNewChordKey(const FKey& InNewKey)
+{
+	if (!CanRemapChordKey() || !CachedOwningInputUserSettings || !InNewKey.IsValid()) return;
+
+	UnbindOtherMappingsUsingKey(InNewKey, false);
+
+	FMapPlayerKeyArgs KeyArgs;
+	KeyArgs.MappingName = CachedChordMappingName;
+	KeyArgs.Slot = CachedChordMappingSlot;
+	KeyArgs.NewKey = InNewKey;
+
+	FGameplayTagContainer FailureReason;
+	CachedOwningInputUserSettings->MapPlayerKey(KeyArgs, FailureReason);
+	ApplyKeyToChordMappings(InNewKey);
+	SaveAndRebuildPlayerMappings();
+
+	NotifyListDataModified(this);
+}
+
+void USL_ListDataObject_KeyRemap::UnbindOtherMappingsUsingKey(const FKey& InKey, bool bKeepLinkedMappings)
 {
 	if (!InKey.IsValid() || !CachedOwningKeyProfile) return;
 
@@ -157,7 +205,15 @@ void USL_ListDataObject_KeyRemap::UnbindOtherMappingsUsingKey(const FKey& InKey)
 	{
 		for (const FPlayerKeyMapping& PlayerMapping : RowPair.Value.Mappings)
 		{
-			if (PlayerMapping.GetCurrentKey() != InKey || IsLinkedMapping(PlayerMapping)) continue;
+			if (PlayerMapping.GetCurrentKey() != InKey) continue;
+			if (bKeepLinkedMappings)
+			{
+				if (IsLinkedMapping(PlayerMapping)) continue;
+			}
+			else if (PlayerMapping.GetMappingName() == CachedChordMappingName)
+			{
+				continue;
+			}
 
 			QueueMapping(PlayerMapping);
 
@@ -210,6 +266,54 @@ bool USL_ListDataObject_KeyRemap::ApplyKeyToLinkedMappings(const FKey& InKey)
 		for (const FPlayerKeyMapping& PlayerMapping : RowPair.Value.Mappings)
 		{
 			if (!IsLinkedMapping(PlayerMapping) || PlayerMapping.GetCurrentKey() == InKey) continue;
+
+			FMappingToUpdate MappingToUpdate;
+			MappingToUpdate.MappingName = PlayerMapping.GetMappingName();
+			MappingToUpdate.Slot = PlayerMapping.GetSlot();
+			MappingToUpdate.HardwareDeviceId = PlayerMapping.GetHardwareDeviceId().HardwareDeviceIdentifier;
+			MappingsToUpdate.Add(MappingToUpdate);
+		}
+	}
+
+	bool bChanged = false;
+	for (const FMappingToUpdate& MappingToUpdate : MappingsToUpdate)
+	{
+		FMapPlayerKeyArgs KeyArgs;
+		KeyArgs.MappingName = MappingToUpdate.MappingName;
+		KeyArgs.Slot = MappingToUpdate.Slot;
+		KeyArgs.HardwareDeviceId = MappingToUpdate.HardwareDeviceId;
+
+		if (FPlayerKeyMapping* PlayerMapping = CachedOwningKeyProfile->FindKeyMapping(KeyArgs))
+		{
+			PlayerMapping->SetCurrentKey(InKey);
+			bChanged = true;
+		}
+	}
+
+	return bChanged;
+}
+
+bool USL_ListDataObject_KeyRemap::ApplyKeyToChordMappings(const FKey& InKey)
+{
+	if (!CachedOwningKeyProfile || CachedChordMappingName.IsNone()) return false;
+
+	struct FMappingToUpdate
+	{
+		FName MappingName = NAME_None;
+		EPlayerMappableKeySlot Slot = EPlayerMappableKeySlot::Unspecified;
+		FName HardwareDeviceId = NAME_None;
+	};
+
+	TArray<FMappingToUpdate> MappingsToUpdate;
+	for (const TPair<FName, FKeyMappingRow>& RowPair : CachedOwningKeyProfile->GetPlayerMappingRows())
+	{
+		for (const FPlayerKeyMapping& PlayerMapping : RowPair.Value.Mappings)
+		{
+			if (!IsMappingForThisDevice(PlayerMapping) || PlayerMapping.GetCurrentKey() == InKey) continue;
+
+			const bool bSameMappingName = PlayerMapping.GetMappingName() == CachedChordMappingName;
+			const bool bSameDisplayName = !CachedChordDisplayName.IsEmpty() && PlayerMapping.GetDisplayName().ToString() == CachedChordDisplayName;
+			if (!bSameMappingName && !bSameDisplayName) continue;
 
 			FMappingToUpdate MappingToUpdate;
 			MappingToUpdate.MappingName = PlayerMapping.GetMappingName();
@@ -371,6 +475,9 @@ FSlateBrush USL_ListDataObject_KeyRemap::GetIconForKey(const FKey& InKey) const
 void USL_ListDataObject_KeyRemap::ResolveChordKey()
 {
 	CachedChordKeys.Reset();
+	CachedChordMappingName = NAME_None;
+	CachedChordMappingSlot = EPlayerMappableKeySlot::Unspecified;
+	CachedChordDisplayName.Reset();
 
 	const FPlayerKeyMapping* Mapping = GetOwningKeyMapping();
 	if (!Mapping) return;
@@ -411,12 +518,26 @@ void USL_ListDataObject_KeyRemap::ResolveChordKey()
 
 	if (!ChordTrigger || !ChordTrigger->ChordAction) return;
 
-	CachedChordKeys = FindChordDisplayKeys(ChordTrigger->ChordAction, Mapping->GetDefaultKey().IsGamepadKey());
+	CachedChordKeys = FindChordDisplayKeys(
+		ChordTrigger->ChordAction,
+		Mapping->GetDefaultKey().IsGamepadKey(),
+		CachedChordMappingName,
+		CachedChordMappingSlot,
+		CachedChordDisplayName
+	);
 }
 
-TArray<FKey> USL_ListDataObject_KeyRemap::FindChordDisplayKeys(const UInputAction* ChordAction, bool bGamepadKey) const
+TArray<FKey> USL_ListDataObject_KeyRemap::FindChordDisplayKeys(
+	const UInputAction* ChordAction,
+	bool bGamepadKey,
+	FName& OutMappingName,
+	EPlayerMappableKeySlot& OutSlot,
+	FString& OutDisplayName) const
 {
 	TArray<FKey> DisplayKeys;
+	OutMappingName = NAME_None;
+	OutSlot = EPlayerMappableKeySlot::Unspecified;
+	OutDisplayName.Reset();
 	if (!ChordAction || !CachedOwningInputUserSettings) return DisplayKeys;
 
 	auto DirectionOrder = [](const FKey& Key)
@@ -430,6 +551,9 @@ TArray<FKey> USL_ListDataObject_KeyRemap::FindChordDisplayKeys(const UInputActio
 
 	TArray<TPair<int32, FKey>> DirectionKeys;
 	FKey FallbackKey = EKeys::Invalid;
+	FName FallbackMappingName = NAME_None;
+	EPlayerMappableKeySlot FallbackMappingSlot = EPlayerMappableKeySlot::Unspecified;
+	FString FallbackDisplayName;
 
 	for (const TObjectPtr<const UInputMappingContext>& MappingContext : CachedOwningInputUserSettings->GetRegisteredInputMappingContexts())
 	{
@@ -454,6 +578,22 @@ TArray<FKey> USL_ListDataObject_KeyRemap::FindChordDisplayKeys(const UInputActio
 			if (!FallbackKey.IsValid())
 			{
 				FallbackKey = FindCurrentKeyForMapping(SourceMapping);
+				FallbackMappingName = SourceMapping.GetMappingName();
+
+				if (CachedOwningKeyProfile && !FallbackMappingName.IsNone())
+				{
+					if (const FKeyMappingRow* MappingRow = CachedOwningKeyProfile->FindKeyMappingRow(FallbackMappingName))
+					{
+						for (const FPlayerKeyMapping& PlayerMapping : MappingRow->Mappings)
+						{
+							if (PlayerMapping.GetDefaultKey() != SourceMapping.Key && PlayerMapping.GetCurrentKey() != FallbackKey) continue;
+
+							FallbackMappingSlot = PlayerMapping.GetSlot();
+							FallbackDisplayName = PlayerMapping.GetDisplayName().ToString();
+							break;
+						}
+					}
+				}
 			}
 		}
 	}
@@ -476,6 +616,9 @@ TArray<FKey> USL_ListDataObject_KeyRemap::FindChordDisplayKeys(const UInputActio
 	if (FallbackKey.IsValid())
 	{
 		DisplayKeys.Add(FallbackKey);
+		OutMappingName = FallbackMappingName;
+		OutSlot = FallbackMappingSlot;
+		OutDisplayName = FallbackDisplayName;
 	}
 
 	return DisplayKeys;

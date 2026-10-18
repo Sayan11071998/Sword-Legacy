@@ -28,11 +28,15 @@ public:
 
 	bool HasChordKey() const;
 	int32 GetChordKeyCount() const;
+	bool CanRemapChordKey() const;
 	bool IsRemapLocked() const;
 	bool IsUsingKey(const FKey& InKey) const;
+	bool IsUsingChordKey(const FKey& InKey) const;
 	bool GetAssignedActionNamesForKey(const FKey& InNewKey, FText& OutActionNames) const;
+	bool GetAssignedActionNamesForChordKey(const FKey& InNewKey, FText& OutActionNames) const;
 	
 	void BindNewInputKey(const FKey& InNewKey);
+	void BindNewChordKey(const FKey& InNewKey);
 	
 	// ~ Begin USL_ListDataObject_Base Interface
 	virtual bool HasDefaultValue() const override;
@@ -48,10 +52,18 @@ private:
 	FPlayerKeyMapping* GetOwningKeyMapping() const;
 	FSlateBrush GetIconForKey(const FKey& InKey) const;
 	void ResolveChordKey();
-	TArray<FKey> FindChordDisplayKeys(const UInputAction* ChordAction, bool bGamepadKey) const;
+	TArray<FKey> FindChordDisplayKeys(
+		const UInputAction* ChordAction,
+		bool bGamepadKey,
+		FName& OutMappingName,
+		EPlayerMappableKeySlot& OutSlot,
+		FString& OutDisplayName
+	) const;
 	FKey FindCurrentKeyForMapping(const FEnhancedActionKeyMapping& SourceMapping) const;
-	void UnbindOtherMappingsUsingKey(const FKey& InKey);
+	void UnbindOtherMappingsUsingKey(const FKey& InKey, bool bKeepLinkedMappings);
+	bool CollectActionNamesForKey(const FKey& InNewKey, FText& OutActionNames, bool bForChordKey) const;
 	bool ApplyKeyToLinkedMappings(const FKey& InKey);
+	bool ApplyKeyToChordMappings(const FKey& InKey);
 	bool IsMappingForThisDevice(const FPlayerKeyMapping& PlayerMapping) const;
 	bool IsLinkedMapping(const FPlayerKeyMapping& PlayerMapping) const;
 	void SaveAndRebuildPlayerMappings();
@@ -79,6 +91,15 @@ private:
 
 	UPROPERTY()
 	TArray<FKey> CachedChordKeys;
+
+	UPROPERTY()
+	FName CachedChordMappingName;
+
+	UPROPERTY()
+	EPlayerMappableKeySlot CachedChordMappingSlot = EPlayerMappableKeySlot::Unspecified;
+
+	UPROPERTY()
+	FString CachedChordDisplayName;
 
 	UPROPERTY()
 	FKey CachedDisplayedKey;

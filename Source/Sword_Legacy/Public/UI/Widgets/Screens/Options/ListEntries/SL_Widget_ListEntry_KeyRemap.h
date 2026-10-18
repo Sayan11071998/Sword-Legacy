@@ -28,7 +28,9 @@ protected:
 	
 private:
 	void OnRemapKeyButtonClicked();
+	void OnChordKeyButtonClicked();
 	void OnResetKeyBindingButtonClicked();
+	void OpenKeyRemapScreen();
 	
 	void OnKeyToRemapPressed(const FKey& PressedKey);
 	void OnKeyRemapCanceled(const FString& CanceledReason);
@@ -56,4 +58,5 @@ private:
 
 	FTimerHandle ChordKeyCycleTimer;
 	int32 ChordKeyIndex = 0;
+	bool bRemappingChordKey = false;
 };

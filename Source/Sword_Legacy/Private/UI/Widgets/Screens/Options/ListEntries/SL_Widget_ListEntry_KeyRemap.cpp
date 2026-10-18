@@ -15,6 +15,11 @@ void USL_Widget_ListEntry_KeyRemap::NativeOnInitialized()
 	CommonButton_RemapKey->OnClicked().AddUObject(this, &USL_Widget_ListEntry_KeyRemap::OnRemapKeyButtonClicked);
 	CommonButton_ResetKeyBinding->OnClicked().AddUObject(this, &USL_Widget_ListEntry_KeyRemap::OnResetKeyBindingButtonClicked);
 
+	if (CommonButton_ChordKey)
+	{
+		CommonButton_ChordKey->OnClicked().AddUObject(this, &USL_Widget_ListEntry_KeyRemap::OnChordKeyButtonClicked);
+	}
+
 	if (CommonText_ChordPlus)
 	{
 		CommonText_ChordPlus->SetText(FText::FromString(TEXT("+")));
@@ -76,7 +81,23 @@ void USL_Widget_ListEntry_KeyRemap::OnRemapKeyButtonClicked()
 
 		return;
 	}
-	
+
+	bRemappingChordKey = false;
+	OpenKeyRemapScreen();
+}
+
+void USL_Widget_ListEntry_KeyRemap::OnChordKeyButtonClicked()
+{
+	SelectThisEntryWidget();
+
+	if (!CachedOwningKeyRemapDataObject || !CachedOwningKeyRemapDataObject->CanRemapChordKey()) return;
+
+	bRemappingChordKey = true;
+	OpenKeyRemapScreen();
+}
+
+void USL_Widget_ListEntry_KeyRemap::OpenKeyRemapScreen()
+{
 	USL_UISubsystem::Get(this)->PushSoftWidgetToStackAsync(
 		SL_GameplayTags::UI_WidgetStack_Modal,
 		USL_FunctionLibrary::GetGameSoftWidgetClassByTag(SL_GameplayTags::UI_Widget_KeyRemapScreen),
@@ -141,13 +162,28 @@ void USL_Widget_ListEntry_KeyRemap::OnResetKeyBindingButtonClicked()
 
 void USL_Widget_ListEntry_KeyRemap::OnKeyToRemapPressed(const FKey& PressedKey)
 {
+	const bool bChordRemap = bRemappingChordKey;
+	bRemappingChordKey = false;
+
 	if (!CachedOwningKeyRemapDataObject || !PressedKey.IsValid()) return;
-	if (CachedOwningKeyRemapDataObject->IsUsingKey(PressedKey)) return;
+	if (bChordRemap ? CachedOwningKeyRemapDataObject->IsUsingChordKey(PressedKey) : CachedOwningKeyRemapDataObject->IsUsingKey(PressedKey)) return;
 
 	FText AssignedActionNames;
-	if (!CachedOwningKeyRemapDataObject->GetAssignedActionNamesForKey(PressedKey, AssignedActionNames))
+	const bool bKeyAlreadyAssigned = bChordRemap
+		? CachedOwningKeyRemapDataObject->GetAssignedActionNamesForChordKey(PressedKey, AssignedActionNames)
+		: CachedOwningKeyRemapDataObject->GetAssignedActionNamesForKey(PressedKey, AssignedActionNames);
+
+	if (!bKeyAlreadyAssigned)
 	{
-		CachedOwningKeyRemapDataObject->BindNewInputKey(PressedKey);
+		if (bChordRemap)
+		{
+			CachedOwningKeyRemapDataObject->BindNewChordKey(PressedKey);
+		}
+		else
+		{
+			CachedOwningKeyRemapDataObject->BindNewInputKey(PressedKey);
+		}
+		
 		return;
 	}
 
@@ -163,11 +199,18 @@ void USL_Widget_ListEntry_KeyRemap::OnKeyToRemapPressed(const FKey& PressedKey)
 			*ActionNames,
 			*ActionNames
 		)),
-		[this, PressedKey](ESL_ConfirmScreenButtonType ClickedButton)
+		[this, PressedKey, bChordRemap](ESL_ConfirmScreenButtonType ClickedButton)
 		{
 			if (ClickedButton == ESL_ConfirmScreenButtonType::Confirmed && CachedOwningKeyRemapDataObject)
 			{
-				CachedOwningKeyRemapDataObject->BindNewInputKey(PressedKey);
+				if (bChordRemap)
+				{
+					CachedOwningKeyRemapDataObject->BindNewChordKey(PressedKey);
+				}
+				else
+				{
+					CachedOwningKeyRemapDataObject->BindNewInputKey(PressedKey);
+				}
 			}
 		}
 	);
@@ -179,11 +222,16 @@ void USL_Widget_ListEntry_KeyRemap::RefreshChordDisplay()
 	ChordKeyIndex = 0;
 
 	const bool bShowChord = CachedOwningKeyRemapDataObject && CachedOwningKeyRemapDataObject->HasChordKey();
+	const bool bCanRemapChord = bShowChord && CachedOwningKeyRemapDataObject->CanRemapChordKey();
 	const int32 ChordKeyCount = bShowChord ? CachedOwningKeyRemapDataObject->GetChordKeyCount() : 0;
 
 	if (CommonButton_ChordKey)
 	{
-		CommonButton_ChordKey->SetVisibility(bShowChord ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+		const ESlateVisibility ChordVisibility = !bShowChord
+			? ESlateVisibility::Collapsed
+			: (bCanRemapChord ? ESlateVisibility::Visible : ESlateVisibility::HitTestInvisible);
+		CommonButton_ChordKey->SetVisibility(ChordVisibility);
+		CommonButton_ChordKey->SetIsInteractionEnabled(bCanRemapChord);
 
 		if (bShowChord)
 		{
@@ -232,6 +280,8 @@ void USL_Widget_ListEntry_KeyRemap::StopChordKeyCycle()
 
 void USL_Widget_ListEntry_KeyRemap::OnKeyRemapCanceled(const FString& CanceledReason)
 {
+	bRemappingChordKey = false;
+
 	USL_UISubsystem::Get(this)->PushConfirmScreenToModalStackAsync(
 		ESL_ConfirmScreenType::Ok,
 		FText::FromString(TEXT("Key Remap")),
