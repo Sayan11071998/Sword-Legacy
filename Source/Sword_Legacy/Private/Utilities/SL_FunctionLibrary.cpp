@@ -10,6 +10,10 @@
 #include "Utilities/SL_CountdownAction.h"
 #include "Settings/SL_DeveloperSettings.h"
 #include "Settings/SL_GameUserSettings.h"
+#include "Engine/Engine.h"
+#include "Engine/World.h"
+#include "Kismet/GameplayStatics.h"
+#include "Subsystems/SL_LoadingScreenSubsystem.h"
 
 TObjectPtr<USL_AbilitySystemComponent> USL_FunctionLibrary::NativeGetASCFromActor(TObjectPtr<AActor> InActor)
 {
@@ -285,4 +289,22 @@ FString USL_FunctionLibrary::GetCreditsDisplayString()
 	);
 
 	return BuildCreditsDisplayString(Rows);
+}
+
+void USL_FunctionLibrary::OpenLevelWithLoadingScreen(const UObject* WorldContextObject, const TSoftObjectPtr<UWorld> Level, bool bAbsolute, FString Options)
+{
+	if (!WorldContextObject || Level.IsNull()) return;
+
+	if (const UWorld* World = GEngine ? GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull) : nullptr)
+	{
+		if (UGameInstance* GameInstance = World->GetGameInstance())
+		{
+			if (USL_LoadingScreenSubsystem* LoadingScreenSubsystem = GameInstance->GetSubsystem<USL_LoadingScreenSubsystem>())
+			{
+				LoadingScreenSubsystem->ShowLoadingScreen(TEXT("Loading level"));
+			}
+		}
+	}
+
+	UGameplayStatics::OpenLevelBySoftObjectPtr(WorldContextObject, Level, bAbsolute, Options);
 }

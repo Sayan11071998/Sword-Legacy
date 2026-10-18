@@ -21,6 +21,7 @@ public:
 	
 protected:
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	
 	// ~ Begin AAIController Interface
 	virtual void OnPossess(APawn* InPawn) override;
@@ -39,6 +40,14 @@ protected:
 	virtual void OnEnemyPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
 	
 private:
+	void TryStartCombatLogic();
+	void StartCombatLogic();
+	void OnGameplayReady();
+	void SetEnemyPerceptionEnabled(bool bEnabled);
+	void UnbindLoadingScreen();
+	
+	bool bCombatLogicStarted = false;
+	bool bWaitingForLoadingScreen = false;
 	UPROPERTY(EditDefaultsOnly, Category = "Detour Crowd Avoidance Config")
 	bool bEnableDetourCrowdAvoidance = true;
 	

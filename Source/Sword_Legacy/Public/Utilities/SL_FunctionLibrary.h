@@ -11,6 +11,7 @@ class USL_Widget_Activatable_Base;
 struct FScalableFloat;
 class USL_PawnCombatComponent;
 class USL_AbilitySystemComponent;
+class UWorld;
 
 UCLASS()
 class SWORD_LEGACY_API USL_FunctionLibrary : public UBlueprintFunctionLibrary
@@ -69,4 +70,7 @@ public:
 	
 	UFUNCTION(BlueprintPure, Category = "UI|Credits")
 	static FString GetCreditsDisplayString();
+
+	UFUNCTION(BlueprintCallable, Category = "Loading Screen", meta = (WorldContext = "WorldContextObject"))
+	static void OpenLevelWithLoadingScreen(const UObject* WorldContextObject, const TSoftObjectPtr<UWorld> Level, bool bAbsolute = true, FString Options = TEXT(""));
 };
