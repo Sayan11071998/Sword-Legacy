@@ -14,6 +14,9 @@
 #include "Internationalization/StringTableRegistry.h"
 #include "UserSettings/EnhancedInputUserSettings.h"
 #include "UI/Options/Data/ListDataObjects/SL_ListDataObject_KeyRemap.h"
+#include "UI/Options/SL_ControlOrderTypes.h"
+#include "Settings/SL_DeveloperSettings.h"
+#include "Engine/DataTable.h"
 
 #define MAKE_OPTIONS_DATA_CONTROL(SetterOrGetterFuncName) \
 	MakeShared<FSL_OptionsDataInteractionHelper>(GET_FUNCTION_NAME_STRING_CHECKED(USL_GameUserSettings, SetterOrGetterFuncName))
@@ -722,6 +725,108 @@ void USL_OptionsDataRegistry::InitVideoCollectionTab()
 	RegisteredOptionsTabCollections.Add(VideoTabCollection);
 }
 
+static TMap<FString, int32> BuildControlDisplayOrder()
+{
+	TMap<FString, int32> DisplayOrder;
+
+	const USL_DeveloperSettings* GameDeveloperSettings = GetDefault<USL_DeveloperSettings>();
+	const UDataTable* ControlOrderTable = GameDeveloperSettings && !GameDeveloperSettings->ControlOrderTable.IsNull()
+		? GameDeveloperSettings->ControlOrderTable.LoadSynchronous()
+		: nullptr;
+
+	if (!ControlOrderTable)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Control Order table is not assigned on Game UI Settings."));
+		return DisplayOrder;
+	}
+
+	ControlOrderTable->ForeachRow<FSL_ControlOrderTableRow>(
+		TEXT("ControlOrder"),
+		[&DisplayOrder](const FName& /*RowName*/, const FSL_ControlOrderTableRow& Row)
+		{
+			const FString DisplayName = Row.DisplayName.ToString().TrimStartAndEnd();
+			if (!DisplayName.IsEmpty())
+			{
+				DisplayOrder.Add(DisplayName, Row.SortOrder);
+			}
+		}
+	);
+
+	return DisplayOrder;
+}
+
+static void SortKeyRemapRows(TArray<USL_ListDataObject_KeyRemap*>& Rows, const TMap<FString, int32>& DisplayOrder)
+{
+	Rows.Sort([&DisplayOrder](const USL_ListDataObject_KeyRemap& A, const USL_ListDataObject_KeyRemap& B)
+	{
+		const FString NameA = A.GetDataDisplayName().ToString().TrimStartAndEnd();
+		const FString NameB = B.GetDataDisplayName().ToString().TrimStartAndEnd();
+		const int32* OrderA = DisplayOrder.Find(NameA);
+		const int32* OrderB = DisplayOrder.Find(NameB);
+
+		if (OrderA && OrderB && *OrderA != *OrderB)
+		{
+			return *OrderA < *OrderB;
+		}
+
+		if (OrderA && !OrderB)
+		{
+			return true;
+		}
+
+		if (!OrderA && OrderB)
+		{
+			return false;
+		}
+
+		return NameA < NameB;
+	});
+}
+
+static void AddDeviceKeyRemapRows(
+	USL_ListDataObject_Collection* CategoryCollection,
+	UEnhancedInputUserSettings* EIUserSettings,
+	const FPlayerMappableKeyQueryOptions& QueryOptions,
+	ECommonInputType InputType,
+	const TMap<FString, int32>& DisplayOrder)
+{
+	TArray<USL_ListDataObject_KeyRemap*> Rows;
+	TSet<FString> AddedMappingGroups;
+
+	for (const TPair<FGameplayTag, UEnhancedPlayerMappableKeyProfile*>& ProfilePair : EIUserSettings->GetAllSavedKeyProfiles())
+	{
+		UEnhancedPlayerMappableKeyProfile* MappableKeyProfile = ProfilePair.Value;
+		if (!MappableKeyProfile) continue;
+
+		for (const TPair<FName, FKeyMappingRow>& MappingRowPair : MappableKeyProfile->GetPlayerMappingRows())
+		{
+			for (const FPlayerKeyMapping& KeyMapping : MappingRowPair.Value.Mappings)
+			{
+				if (!MappableKeyProfile->DoesMappingPassQueryOptions(KeyMapping, QueryOptions)) continue;
+
+				const FString DisplayName = KeyMapping.GetDisplayName().ToString();
+				const FString GroupKey = DisplayName.IsEmpty() ? KeyMapping.GetMappingName().ToString() : DisplayName;
+				if (AddedMappingGroups.Contains(GroupKey)) continue;
+
+				AddedMappingGroups.Add(GroupKey);
+
+				USL_ListDataObject_KeyRemap* KeyRemapDataObject = NewObject<USL_ListDataObject_KeyRemap>();
+				KeyRemapDataObject->SetDataID(KeyMapping.GetMappingName());
+				KeyRemapDataObject->SetDataDisplayName(KeyMapping.GetDisplayName());
+				KeyRemapDataObject->InitKeyRemapData(EIUserSettings, MappableKeyProfile, InputType, KeyMapping);
+				Rows.Add(KeyRemapDataObject);
+			}
+		}
+	}
+
+	SortKeyRemapRows(Rows, DisplayOrder);
+
+	for (USL_ListDataObject_KeyRemap* KeyRemapDataObject : Rows)
+	{
+		CategoryCollection->AddChildListData(KeyRemapDataObject);
+	}
+}
+
 void USL_OptionsDataRegistry::InitControlCollectionTab(TObjectPtr<ULocalPlayer> InOwningLocalPlayer)
 {
 	USL_ListDataObject_Collection* ControlTabCollection = NewObject<USL_ListDataObject_Collection>();
@@ -735,6 +840,8 @@ void USL_OptionsDataRegistry::InitControlCollectionTab(TObjectPtr<ULocalPlayer> 
 	check(EIUserSettings);
 
 	RegisterPlayerMappableMappingContexts(EIUserSettings);
+
+	const TMap<FString, int32> ControlDisplayOrder = BuildControlDisplayOrder();
 	
 	// Keyboard Mouse Category
 	{
@@ -743,41 +850,17 @@ void USL_OptionsDataRegistry::InitControlCollectionTab(TObjectPtr<ULocalPlayer> 
 		KeyboardMouseCategoryCollection->SetDataDisplayName(FText::FromString(TEXT("Keyboard & Mouse")));
 		
 		ControlTabCollection->AddChildListData(KeyboardMouseCategoryCollection);
-		
-		// Keyboard Mouse Inputs
-		{
-			FPlayerMappableKeyQueryOptions KeyboardMouseOnly;
-			KeyboardMouseOnly.KeyToMatch = EKeys::S;
-			KeyboardMouseOnly.bMatchBasicKeyTypes = true;
-			TSet<FString> AddedMappingGroups;
-			
-			for (const TPair<FGameplayTag, UEnhancedPlayerMappableKeyProfile*>& ProfilePair : EIUserSettings->GetAllSavedKeyProfiles())
-			{
-				UEnhancedPlayerMappableKeyProfile* MappableKeyProfile = ProfilePair.Value;
-				check(MappableKeyProfile);
-				
-				for (const TPair<FName, FKeyMappingRow>& MappingRowPair : MappableKeyProfile->GetPlayerMappingRows())
-				{
-					for (const FPlayerKeyMapping& KeyMapping : MappingRowPair.Value.Mappings)
-					{
-						if (MappableKeyProfile->DoesMappingPassQueryOptions(KeyMapping, KeyboardMouseOnly))
-						{
-							const FString DisplayName = KeyMapping.GetDisplayName().ToString();
-							const FString GroupKey = DisplayName.IsEmpty() ? KeyMapping.GetMappingName().ToString() : DisplayName;
-							if (AddedMappingGroups.Contains(GroupKey)) continue;
 
-							AddedMappingGroups.Add(GroupKey);
-							USL_ListDataObject_KeyRemap* KeyRemapDataObject = NewObject<USL_ListDataObject_KeyRemap>();
-							KeyRemapDataObject->SetDataID(KeyMapping.GetMappingName());
-							KeyRemapDataObject->SetDataDisplayName(KeyMapping.GetDisplayName());
-							KeyRemapDataObject->InitKeyRemapData(EIUserSettings, MappableKeyProfile, ECommonInputType::MouseAndKeyboard, KeyMapping);
-							
-							KeyboardMouseCategoryCollection->AddChildListData(KeyRemapDataObject);
-						}
-					}
-				}
-			}
-		}
+		FPlayerMappableKeyQueryOptions KeyboardMouseOnly;
+		KeyboardMouseOnly.KeyToMatch = EKeys::S;
+		KeyboardMouseOnly.bMatchBasicKeyTypes = true;
+		AddDeviceKeyRemapRows(
+			KeyboardMouseCategoryCollection,
+			EIUserSettings,
+			KeyboardMouseOnly,
+			ECommonInputType::MouseAndKeyboard,
+			ControlDisplayOrder
+		);
 	}
 	
 	// Gamepad Category
@@ -787,41 +870,17 @@ void USL_OptionsDataRegistry::InitControlCollectionTab(TObjectPtr<ULocalPlayer> 
 		GamepadCategoryCollection->SetDataDisplayName(FText::FromString(TEXT("Gamepad")));
 			
 		ControlTabCollection->AddChildListData(GamepadCategoryCollection);
-		
-		// Gamepad Inputs
-		{
-			FPlayerMappableKeyQueryOptions GamepadOnly;
-			GamepadOnly.KeyToMatch = EKeys::Gamepad_FaceButton_Bottom;
-			GamepadOnly.bMatchBasicKeyTypes = true;
-			TSet<FString> AddedMappingGroups;
-			
-			for (const TPair<FGameplayTag, UEnhancedPlayerMappableKeyProfile*>& ProfilePair : EIUserSettings->GetAllSavedKeyProfiles())
-			{
-				UEnhancedPlayerMappableKeyProfile* MappableKeyProfile = ProfilePair.Value;
-				check(MappableKeyProfile);
-				
-				for (const TPair<FName, FKeyMappingRow>& MappingRowPair : MappableKeyProfile->GetPlayerMappingRows())
-				{
-					for (const FPlayerKeyMapping& KeyMapping : MappingRowPair.Value.Mappings)
-					{
-						if (MappableKeyProfile->DoesMappingPassQueryOptions(KeyMapping, GamepadOnly))
-						{
-							const FString DisplayName = KeyMapping.GetDisplayName().ToString();
-							const FString GroupKey = DisplayName.IsEmpty() ? KeyMapping.GetMappingName().ToString() : DisplayName;
-							if (AddedMappingGroups.Contains(GroupKey)) continue;
 
-							AddedMappingGroups.Add(GroupKey);
-							USL_ListDataObject_KeyRemap* KeyRemapDataObject = NewObject<USL_ListDataObject_KeyRemap>();
-							KeyRemapDataObject->SetDataID(KeyMapping.GetMappingName());
-							KeyRemapDataObject->SetDataDisplayName(KeyMapping.GetDisplayName());
-							KeyRemapDataObject->InitKeyRemapData(EIUserSettings, MappableKeyProfile, ECommonInputType::Gamepad, KeyMapping);
-							
-							GamepadCategoryCollection->AddChildListData(KeyRemapDataObject);
-						}
-					}
-				}
-			}
-		}
+		FPlayerMappableKeyQueryOptions GamepadOnly;
+		GamepadOnly.KeyToMatch = EKeys::Gamepad_FaceButton_Bottom;
+		GamepadOnly.bMatchBasicKeyTypes = true;
+		AddDeviceKeyRemapRows(
+			GamepadCategoryCollection,
+			EIUserSettings,
+			GamepadOnly,
+			ECommonInputType::Gamepad,
+			ControlDisplayOrder
+		);
 	}
 	
 	RegisteredOptionsTabCollections.Add(ControlTabCollection);

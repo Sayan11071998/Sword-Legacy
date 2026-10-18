@@ -22,4 +22,7 @@ public:
 	
 	UPROPERTY(Config, EditAnywhere, Category = "Credits", meta = (RequiredAssetDataTags = "RowStructure=/Script/Sword_Legacy.SL_CreditTableRow"))
 	TSoftObjectPtr<UDataTable> CreditsTable;
+
+	UPROPERTY(Config, EditAnywhere, Category = "Controls", meta = (RequiredAssetDataTags = "RowStructure=/Script/Sword_Legacy.SL_ControlOrderTableRow"))
+	TSoftObjectPtr<UDataTable> ControlOrderTable;
 };
