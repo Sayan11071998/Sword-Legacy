@@ -37,7 +37,11 @@ void USL_ListDataObject_KeyRemap::InitKeyRemapData(TObjectPtr<UEnhancedInputUser
 
 FSlateBrush USL_ListDataObject_KeyRemap::GetIconFromCurrentKey() const
 {
-	return GetIconForKey(GetOwningKeyMapping()->GetCurrentKey());
+	const FPlayerKeyMapping* Mapping = GetOwningKeyMapping();
+	if (!Mapping) return FSlateBrush();
+
+	const FKey DisplayKey = Mapping->GetCurrentKey().IsValid() ? Mapping->GetCurrentKey() : Mapping->GetDefaultKey();
+	return GetIconForKey(DisplayKey);
 }
 
 FSlateBrush USL_ListDataObject_KeyRemap::GetIconFromChordKey(int32 KeyIndex) const
@@ -70,7 +74,14 @@ bool USL_ListDataObject_KeyRemap::IsRemapLocked() const
 	const FPlayerKeyMapping* Mapping = GetOwningKeyMapping();
 	if (!Mapping) return false;
 
-	return Mapping->GetCurrentKey() == EKeys::Mouse2D || Mapping->GetDefaultKey() == EKeys::Mouse2D;
+	const FKey CurrentKey = Mapping->GetCurrentKey();
+	const FKey DefaultKey = Mapping->GetDefaultKey();
+	auto IsLockedStick = [](const FKey& Key)
+	{
+		return Key == EKeys::Mouse2D || Key == EKeys::Gamepad_Left2D || Key == EKeys::Gamepad_Right2D;
+	};
+
+	return IsLockedStick(CurrentKey) || IsLockedStick(DefaultKey);
 }
 
 bool USL_ListDataObject_KeyRemap::IsUsingKey(const FKey& InKey) const
