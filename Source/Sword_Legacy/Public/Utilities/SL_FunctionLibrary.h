@@ -73,4 +73,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Loading Screen", meta = (WorldContext = "WorldContextObject"))
 	static void OpenLevelWithLoadingScreen(const UObject* WorldContextObject, const TSoftObjectPtr<UWorld> Level, bool bAbsolute = true, FString Options = TEXT(""));
+
+	UFUNCTION(BlueprintCallable, Category = "Loading Screen", meta = (WorldContext = "WorldContextObject"))
+	static void OpenLevelByNameWithLoadingScreen(const UObject* WorldContextObject, FName LevelName, bool bAbsolute = true, FString Options = TEXT(""));
 };

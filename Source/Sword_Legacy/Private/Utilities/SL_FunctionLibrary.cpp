@@ -308,3 +308,21 @@ void USL_FunctionLibrary::OpenLevelWithLoadingScreen(const UObject* WorldContext
 
 	UGameplayStatics::OpenLevelBySoftObjectPtr(WorldContextObject, Level, bAbsolute, Options);
 }
+
+void USL_FunctionLibrary::OpenLevelByNameWithLoadingScreen(const UObject* WorldContextObject, FName LevelName, bool bAbsolute, FString Options)
+{
+	if (!WorldContextObject || LevelName.IsNone()) return;
+
+	if (const UWorld* World = GEngine ? GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull) : nullptr)
+	{
+		if (UGameInstance* GameInstance = World->GetGameInstance())
+		{
+			if (USL_LoadingScreenSubsystem* LoadingScreenSubsystem = GameInstance->GetSubsystem<USL_LoadingScreenSubsystem>())
+			{
+				LoadingScreenSubsystem->ShowLoadingScreen(TEXT("Loading level"));
+			}
+		}
+	}
+
+	UGameplayStatics::OpenLevel(WorldContextObject, LevelName, bAbsolute, Options);
+}
