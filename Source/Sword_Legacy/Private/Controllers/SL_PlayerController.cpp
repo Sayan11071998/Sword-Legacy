@@ -2,10 +2,13 @@
 #include "Kismet/GameplayStatics.h"
 #include "Camera/CameraActor.h"
 #include "Components/Widget.h"
+#include "GameModes/SL_GameModeBase.h"
 #include "GameModes/SL_MainMenuGameMode.h"
 #include "Subsystems/SL_UISubsystem.h"
 #include "Utilities/SL_FunctionLibrary.h"
 #include "GameplayTags/SL_GameplayTags.h"
+#include "Input/CommonUIActionRouterBase.h"
+#include "Engine/LocalPlayer.h"
 #include "UI/Widgets/SL_Widget_Activatable_Base.h"
 #include "UI/Widgets/SL_Widget_PrimaryLayout.h"
 
@@ -26,26 +29,104 @@ void ASL_PlayerController::OnLoadingScreenDeactivated_Implementation()
 
 	UWorld* World = GetWorld();
 	if (!World || World->bIsTearingDown) return;
-	if (!World->GetAuthGameMode<ASL_MainMenuGameMode>()) return;
 
-	bHasHandledLoadingScreenDeactivation = true;
+	if (World->GetAuthGameMode<ASL_MainMenuGameMode>())
+	{
+		bHasHandledLoadingScreenDeactivation = true;
+		SetupFrontendUI();
+		
+		return;
+	}
 
-	SetupFrontendUI();
+	if (World->GetAuthGameMode<ASL_GameModeBase>())
+	{
+		bHasHandledLoadingScreenDeactivation = true;
+		
+		SetupGameplayUI();
+	}
 }
 
-void ASL_PlayerController::SetupFrontendUI()
+void ASL_PlayerController::EnsurePrimaryLayoutCreated()
 {
+	USL_UISubsystem* UISubsystem = USL_UISubsystem::Get(this);
+	
+	if (!UISubsystem || UISubsystem->HasPrimaryLayout()) return;
 	if (!PrimaryLayoutWidgetClass) return;
 
 	USL_Widget_PrimaryLayout* CreatedPrimaryLayout = CreateWidget<USL_Widget_PrimaryLayout>(this, PrimaryLayoutWidgetClass);
 	if (!CreatedPrimaryLayout) return;
 
 	CreatedPrimaryLayout->AddToViewport();
+	UISubsystem->RegisterCreatedPrimaryLayoutWidget(CreatedPrimaryLayout);
+}
+
+void ASL_PlayerController::SetupGameplayUI()
+{
+	EnsurePrimaryLayoutCreated();
+}
+
+void ASL_PlayerController::ShowGameLoseScreen()
+{
+	EnsurePrimaryLayoutCreated();
+
+	USL_UISubsystem* UISubsystem = USL_UISubsystem::Get(this);
+	
+	if (!UISubsystem || !UISubsystem->HasPrimaryLayout()) return;
+
+	const TSoftClassPtr<USL_Widget_Activatable_Base> LoseScreenClass = USL_FunctionLibrary::GetGameSoftWidgetClassByTag(SL_GameplayTags::UI_Widget_GameLoseScreen);
+	
+	if (LoseScreenClass.IsNull())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Game Lose Screen is not assigned in Game UI Settings."));
+		
+		return;
+	}
+
+	if (ULocalPlayer* LocalPlayer = GetLocalPlayer())
+	{
+		if (UCommonUIActionRouterBase* ActionRouter = LocalPlayer->GetSubsystem<UCommonUIActionRouterBase>())
+		{
+			ActionRouter->SetActiveUIInputConfig(
+				FUIInputConfig(ECommonInputMode::Menu, EMouseCaptureMode::NoCapture),
+				this);
+		}
+	}
+
+	SetShowMouseCursor(true);
+
+	TWeakObjectPtr<ASL_PlayerController> WeakThis(this);
+	
+	UISubsystem->PushSoftWidgetToStackAsync(
+		SL_GameplayTags::UI_WidgetStack_GameMenu,
+		LoseScreenClass,
+		[WeakThis](EAsyncPushWidgetState InPushState, TObjectPtr<USL_Widget_Activatable_Base> PushedWidget)
+		{
+			if (!PushedWidget) return;
+
+			if (InPushState == EAsyncPushWidgetState::OnCreatedBeforePush)
+			{
+				if (ASL_PlayerController* Controller = WeakThis.Get())
+				{
+					PushedWidget->SetOwningPlayer(Controller);
+				}
+			}
+			else if (InPushState == EAsyncPushWidgetState::AfterPush)
+			{
+				if (UWidget* WidgetToFocus = PushedWidget->GetDesiredFocusTarget())
+				{
+					WidgetToFocus->SetFocus();
+				}
+			}
+		}
+	);
+}
+
+void ASL_PlayerController::SetupFrontendUI()
+{
+	EnsurePrimaryLayoutCreated();
 
 	USL_UISubsystem* UISubsystem = USL_UISubsystem::Get(this);
 	if (!UISubsystem) return;
-
-	UISubsystem->RegisterCreatedPrimaryLayoutWidget(CreatedPrimaryLayout);
 
 	const TSoftClassPtr<USL_Widget_Activatable_Base> PressAnyKeyWidgetClass = USL_FunctionLibrary::GetGameSoftWidgetClassByTag(SL_GameplayTags::UI_Widget_PressAnyKeyScreen);
 	if (PressAnyKeyWidgetClass.IsNull()) return;

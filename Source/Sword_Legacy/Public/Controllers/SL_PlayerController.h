@@ -19,6 +19,8 @@ public:
 	// ~ Begin IGenericTeamAgentInterface Interface
 	virtual FGenericTeamId GetGenericTeamId() const override;
 	// ~ End IGenericTeamAgentInterface Interface
+
+	void ShowGameLoseScreen();
 	
 protected:
 	// ~ Begin APlayerController Interface
@@ -37,6 +39,8 @@ protected:
 	
 private:
 	void SetupFrontendUI();
+	void SetupGameplayUI();
+	void EnsurePrimaryLayoutCreated();
 
 	FGenericTeamId PlayerTeamID;
 	

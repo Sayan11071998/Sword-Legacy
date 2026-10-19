@@ -11,6 +11,9 @@ class SWORD_LEGACY_API USL_Widget_GameLoseScreen : public USL_Widget_Activatable
 {
 	GENERATED_BODY()
 
+public:
+	USL_Widget_GameLoseScreen();
+
 protected:
 	// ~ Begin UUserWidget Interface
 	virtual void NativeOnInitialized() override;

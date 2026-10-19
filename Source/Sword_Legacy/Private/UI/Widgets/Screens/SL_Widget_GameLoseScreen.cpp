@@ -4,6 +4,12 @@
 #include "UI/Widgets/Components/SL_CommonButtonBase.h"
 #include "Utilities/SL_FunctionLibrary.h"
 
+USL_Widget_GameLoseScreen::USL_Widget_GameLoseScreen()
+{
+	bIsModal = true;
+	bSupportsActivationFocus = true;
+}
+
 void USL_Widget_GameLoseScreen::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
