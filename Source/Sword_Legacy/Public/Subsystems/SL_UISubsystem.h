@@ -45,6 +45,8 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void RegisterCreatedPrimaryLayoutWidget(USL_Widget_PrimaryLayout* InCreatedWidget);
+
+	bool HasPrimaryLayout() const { return CreatedPrimaryLayout != nullptr; }
 	
 	UPROPERTY(BlueprintAssignable)
 	FOnButtonDescriptionTextUpdatedDelegate OnButtonDescriptionTextUpdated;
