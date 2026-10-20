@@ -28,6 +28,8 @@ public:
 	
 	// ~ Begin USubsystem Interface
 	virtual bool ShouldCreateSubsystem(UObject* Outer) const override;
+	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+	virtual void Deinitialize() override;
 	// ~ End USubsystem Interface
 	
 	void PushSoftWidgetToStackAsync(
@@ -46,12 +48,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void RegisterCreatedPrimaryLayoutWidget(USL_Widget_PrimaryLayout* InCreatedWidget);
 
-	bool HasPrimaryLayout() const { return CreatedPrimaryLayout != nullptr; }
+	bool HasPrimaryLayout() const;
 	
 	UPROPERTY(BlueprintAssignable)
 	FOnButtonDescriptionTextUpdatedDelegate OnButtonDescriptionTextUpdated;
 	
 private:
+	void HandleWorldBeginTearDown(UWorld* World);
+
 	UPROPERTY(Transient)
 	TObjectPtr<USL_Widget_PrimaryLayout> CreatedPrimaryLayout;
 };
