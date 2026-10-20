@@ -6,7 +6,6 @@
 #include "SL_DeveloperSettings.generated.h"
 
 class UDataTable;
-class UWorld;
 class USL_Widget_Activatable_Base;
 
 UCLASS(Config = Game, DefaultConfig, meta = (DisplayName = "Game UI Settings"))
@@ -26,7 +25,4 @@ public:
 
 	UPROPERTY(Config, EditAnywhere, Category = "Controls", meta = (RequiredAssetDataTags = "RowStructure=/Script/Sword_Legacy.SL_ControlOrderTableRow"))
 	TSoftObjectPtr<UDataTable> ControlOrderTable;
-
-	UPROPERTY(Config, EditAnywhere, Category = "Level Reference", meta = (ForceInLineRow, Categories = "Game.Level"))
-	TMap<FGameplayTag, TSoftObjectPtr<UWorld>> GameLevelMap;
 };

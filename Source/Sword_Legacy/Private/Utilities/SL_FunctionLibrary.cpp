@@ -9,6 +9,7 @@
 #include "GameplayTags/SL_GameplayTags.h"
 #include "Utilities/SL_CountdownAction.h"
 #include "Settings/SL_DeveloperSettings.h"
+#include "Settings/SL_LevelDeveloperSettings.h"
 #include "Settings/SL_GameUserSettings.h"
 #include "Engine/Engine.h"
 #include "Engine/World.h"
@@ -311,16 +312,16 @@ void USL_FunctionLibrary::OpenLevelWithLoadingScreen(const UObject* WorldContext
 
 TSoftObjectPtr<UWorld> USL_FunctionLibrary::GetGameLevelByTag(FGameplayTag InLevelTag)
 {
-	const USL_DeveloperSettings* GameDeveloperSettings = GetDefault<USL_DeveloperSettings>();
+	const USL_LevelDeveloperSettings* LevelDeveloperSettings = GetDefault<USL_LevelDeveloperSettings>();
 	
-	if (!GameDeveloperSettings || !GameDeveloperSettings->GameLevelMap.Contains(InLevelTag))
+	if (!LevelDeveloperSettings || !LevelDeveloperSettings->GameLevelMap.Contains(InLevelTag))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Could not find a level under the tag %s"), *InLevelTag.ToString());
 		
 		return TSoftObjectPtr<UWorld>();
 	}
 
-	return GameDeveloperSettings->GameLevelMap.FindRef(InLevelTag);
+	return LevelDeveloperSettings->GameLevelMap.FindRef(InLevelTag);
 }
 
 void USL_FunctionLibrary::OpenLevelByTagWithLoadingScreen(const UObject* WorldContextObject, FGameplayTag InLevelTag, bool bAbsolute, FString Options)
@@ -329,7 +330,7 @@ void USL_FunctionLibrary::OpenLevelByTagWithLoadingScreen(const UObject* WorldCo
 	
 	if (Level.IsNull())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Level tag %s is not assigned in Game UI Settings."), *InLevelTag.ToString());
+		UE_LOG(LogTemp, Warning, TEXT("Level tag %s is not assigned in Game Level Settings."), *InLevelTag.ToString());
 		
 		return;
 	}
