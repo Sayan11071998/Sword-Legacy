@@ -13,6 +13,7 @@ namespace SL_GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Pickup_Stones, "InputTag.Pickup.Stones");
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_SpecialWeaponAbility_Light, "InputTag.SpecialWeaponAbility.Light");
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_SpecialWeaponAbility_Heavy, "InputTag.SpecialWeaponAbility.Heavy");
+	UE_DEFINE_GAMEPLAY_TAG(InputTag_Pause, "InputTag.Pause");
 	
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_LightAttack_Katana, "InputTag.LightAttack.Katana");
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_HeavyAttack_Katana, "InputTag.HeavyAttack.Katana");
