@@ -1,4 +1,5 @@
 #include "UI/Widgets/Screens/SL_Widget_GameLoseScreen.h"
+#include "GameplayTags/SL_GameplayTags.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/Widgets/Components/SL_CommonButtonBase.h"
 #include "Utilities/SL_FunctionLibrary.h"
@@ -46,6 +47,5 @@ void USL_Widget_GameLoseScreen::OnRetryClicked()
 void USL_Widget_GameLoseScreen::OnMainMenuClicked()
 {
 	DeactivateWidget();
-	
-	USL_FunctionLibrary::OpenLevelByNameWithLoadingScreen(this, FName(TEXT("MainMenu")));
+	USL_FunctionLibrary::OpenLevelByTagWithLoadingScreen(this, SL_GameplayTags::Game_Level_MainMenu);
 }

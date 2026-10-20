@@ -309,6 +309,34 @@ void USL_FunctionLibrary::OpenLevelWithLoadingScreen(const UObject* WorldContext
 	UGameplayStatics::OpenLevelBySoftObjectPtr(WorldContextObject, Level, bAbsolute, Options);
 }
 
+TSoftObjectPtr<UWorld> USL_FunctionLibrary::GetGameLevelByTag(FGameplayTag InLevelTag)
+{
+	const USL_DeveloperSettings* GameDeveloperSettings = GetDefault<USL_DeveloperSettings>();
+	
+	if (!GameDeveloperSettings || !GameDeveloperSettings->GameLevelMap.Contains(InLevelTag))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Could not find a level under the tag %s"), *InLevelTag.ToString());
+		
+		return TSoftObjectPtr<UWorld>();
+	}
+
+	return GameDeveloperSettings->GameLevelMap.FindRef(InLevelTag);
+}
+
+void USL_FunctionLibrary::OpenLevelByTagWithLoadingScreen(const UObject* WorldContextObject, FGameplayTag InLevelTag, bool bAbsolute, FString Options)
+{
+	const TSoftObjectPtr<UWorld> Level = GetGameLevelByTag(InLevelTag);
+	
+	if (Level.IsNull())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Level tag %s is not assigned in Game UI Settings."), *InLevelTag.ToString());
+		
+		return;
+	}
+
+	OpenLevelWithLoadingScreen(WorldContextObject, Level, bAbsolute, Options);
+}
+
 void USL_FunctionLibrary::OpenLevelByNameWithLoadingScreen(const UObject* WorldContextObject, FName LevelName, bool bAbsolute, FString Options)
 {
 	if (!WorldContextObject || LevelName.IsNone()) return;

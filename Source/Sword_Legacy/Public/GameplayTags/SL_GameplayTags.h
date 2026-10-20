@@ -130,4 +130,8 @@ namespace SL_GameplayTags
 	
 	/** UI Options Image **/
 	SWORD_LEGACY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Image_TestImage);
+
+	/** Levels **/
+	SWORD_LEGACY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Game_Level_MainMenu);
+	SWORD_LEGACY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Game_Level_NewStory);
 }

@@ -128,4 +128,8 @@ namespace SL_GameplayTags
 	
 	/** UI Options Image **/
 	UE_DEFINE_GAMEPLAY_TAG(UI_Image_TestImage, "UI.Image.TestImage");
+
+	/** Levels **/
+	UE_DEFINE_GAMEPLAY_TAG(Game_Level_MainMenu, "Game.Level.MainMenu");
+	UE_DEFINE_GAMEPLAY_TAG(Game_Level_NewStory, "Game.Level.NewStory");
 }
