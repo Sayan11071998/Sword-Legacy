@@ -9,6 +9,7 @@
 #include "GameplayTags/SL_GameplayTags.h"
 #include "Input/CommonUIActionRouterBase.h"
 #include "Engine/LocalPlayer.h"
+#include "GameFramework/WorldSettings.h"
 #include "UI/Widgets/SL_Widget_Activatable_Base.h"
 #include "UI/Widgets/SL_Widget_PrimaryLayout.h"
 
@@ -20,6 +21,11 @@ ASL_PlayerController::ASL_PlayerController()
 FGenericTeamId ASL_PlayerController::GetGenericTeamId() const
 {
 	return PlayerTeamID;
+}
+
+void ASL_PlayerController::OnLoadingScreenActivated_Implementation()
+{
+	bHasHandledLoadingScreenDeactivation = false;
 }
 
 void ASL_PlayerController::OnLoadingScreenDeactivated_Implementation()
@@ -60,9 +66,54 @@ void ASL_PlayerController::EnsurePrimaryLayoutCreated()
 	UISubsystem->RegisterCreatedPrimaryLayoutWidget(CreatedPrimaryLayout);
 }
 
+void ASL_PlayerController::ApplyGameplayInputConfig()
+{
+	if (!IsLocalPlayerController()) return;
+
+	ResetIgnoreInputFlags();
+
+	if (UWorld* World = GetWorld())
+	{
+		if (AWorldSettings* WorldSettings = World->GetWorldSettings())
+		{
+			WorldSettings->TimeDilation = 1.f;
+			WorldSettings->CinematicTimeDilation = 1.f;
+			WorldSettings->DemoPlayTimeDilation = 1.f;
+			WorldSettings->SetTimeDilation(1.f);
+		}
+	}
+
+	if (ULocalPlayer* LocalPlayer = GetLocalPlayer())
+	{
+		if (UCommonUIActionRouterBase* ActionRouter = LocalPlayer->GetSubsystem<UCommonUIActionRouterBase>())
+		{
+			ActionRouter->SetActiveUIInputConfig(
+				FUIInputConfig(
+					ECommonInputMode::Game,
+					EMouseCaptureMode::CapturePermanently_IncludingInitialMouseDown
+				),
+				this
+			);
+		}
+		else
+		{
+			SetInputMode(FInputModeGameOnly());
+		}
+	}
+
+	SetShowMouseCursor(false);
+
+	if (APawn* ControlledPawn = GetPawn())
+	{
+		ControlledPawn->EnableInput(this);
+	}
+}
+
 void ASL_PlayerController::SetupGameplayUI()
 {
 	EnsurePrimaryLayoutCreated();
+	
+	ApplyGameplayInputConfig();
 }
 
 void ASL_PlayerController::ShowGameLoseScreen()

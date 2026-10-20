@@ -111,7 +111,7 @@ void ASL_AIController::TryStartCombatLogic()
 	UGameInstance* GameInstance = World ? World->GetGameInstance() : nullptr;
 	USL_LoadingScreenSubsystem* LoadingScreen = GameInstance ? GameInstance->GetSubsystem<USL_LoadingScreenSubsystem>() : nullptr;
 
-	if (LoadingScreen && LoadingScreen->IsHoldingGameplay())
+	if (LoadingScreen && !LoadingScreen->IsGameplayReady())
 	{
 		SetEnemyPerceptionEnabled(false);
 

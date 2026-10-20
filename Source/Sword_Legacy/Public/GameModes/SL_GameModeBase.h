@@ -15,10 +15,19 @@ public:
 	void HandlePlayerLost();
 
 protected:
+	// ~ Begin AActor Interface
+	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	// ~ End AActor Interface
+
 	// ~ Begin AGameModeBase Interface
 	virtual void HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer) override;
 	// ~ End AGameModeBase Interface
 
 private:
+	void BeginGameplay();
+	void UnbindLoadingScreen();
+
 	bool bHasHandledPlayerLost = false;
+	bool bHasBegunGameplay = false;
 };

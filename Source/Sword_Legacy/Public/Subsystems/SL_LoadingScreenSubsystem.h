@@ -39,6 +39,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Loading Screen")
 	bool IsHoldingGameplay() const { return bHoldGameplay; }
 
+	UFUNCTION(BlueprintPure, Category = "Loading Screen")
+	bool IsGameplayReady() const { return bGameplayReady; }
+
 	FOnGameplayReadyAfterLoading OnGameplayReady;
 	
 	UPROPERTY(BlueprintAssignable)
@@ -59,28 +62,34 @@ private:
 	bool CheckTheNeedToSettleWorld(UWorld* World);
 	
 	void TryDisplayLoadingScreenIfNone();
-	
 	void TryRemoveLoadingScreen();
 	
 	void NotifyLoadingScreenVisibilityChanged(bool bIsVisible);
 
 	void ForceLoadingScreenPresent();
+	
 	void ApplyLoadingScreenPerformanceSettings(bool bEnableLoadingScreen);
+	
 	void HoldGameplayForLoadingScreen();
+	
 	void ReleaseGameplayHold();
+	
 	bool IsGameplayWorld(const UWorld* World) const;
+	
 	bool CanRenderWorldUnderLoadingScreen(const UWorld* World) const;
 	
 	bool bIsCurrentlyLoadingMap = false;
 	bool bForceShowLoadingScreen = false;
 	bool bLoadingScreenVisible = false;
 	bool bHoldGameplay = false;
-	bool bDidHoldTimeDilation = false;
+	bool bGameplayReady = true;
 	bool bIsShuttingDown = false;
+	
 	int32 WorldSettleFrames = 0;
+	
 	float ShaderWaitStartTime = -1.f;
-	float CachedTimeDilation = 1.f;
 	float HoldLoadingScreenStartupTime = -1.f;
+	
 	FString CurrentLoadingReason;
 
 	UPROPERTY(Transient)

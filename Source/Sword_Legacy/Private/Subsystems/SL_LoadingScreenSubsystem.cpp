@@ -115,8 +115,12 @@ void USL_LoadingScreenSubsystem::ShowLoadingScreen(const FString& Reason)
 
 	bForceShowLoadingScreen = true;
 	bHoldGameplay = true;
+	bGameplayReady = false;
+	
 	CurrentLoadingReason = Reason.IsEmpty() ? TEXT("Loading") : Reason;
+	
 	SetTickableTickType(ETickableTickType::Conditional);
+	
 	TryUpdateLoadingScreen();
 }
 
@@ -128,9 +132,11 @@ void USL_LoadingScreenSubsystem::OnMapPreLoaded(const FWorldContext& WorldContex
 	bForceShowLoadingScreen = false;
 	bIsCurrentlyLoadingMap = true;
 	bHoldGameplay = true;
+	bGameplayReady = false;
 	WorldSettleFrames = 0;
 	ShaderWaitStartTime = -1.f;
 	HoldLoadingScreenStartupTime = -1.f;
+	
 	SetTickableTickType(ETickableTickType::Conditional);
 	
 	TryUpdateLoadingScreen();
@@ -531,34 +537,32 @@ void USL_LoadingScreenSubsystem::ApplyLoadingScreenPerformanceSettings(bool bEna
 void USL_LoadingScreenSubsystem::HoldGameplayForLoadingScreen()
 {
 	UWorld* World = GetGameInstance() ? GetGameInstance()->GetWorld() : nullptr;
+	
 	if (!IsGameplayWorld(World)) return;
 
 	bHoldGameplay = true;
-
-	AWorldSettings* WorldSettings = World->GetWorldSettings();
-	if (!WorldSettings || bDidHoldTimeDilation) return;
-
-	CachedTimeDilation = WorldSettings->TimeDilation;
-	WorldSettings->SetTimeDilation(0.f);
-	bDidHoldTimeDilation = true;
+	bGameplayReady = false;
 }
 
 void USL_LoadingScreenSubsystem::ReleaseGameplayHold()
 {
-	const bool bShouldNotifyReady = bHoldGameplay;
+	const bool bShouldNotifyReady = bHoldGameplay || !bGameplayReady;
+	
 	bHoldGameplay = false;
+	bGameplayReady = true;
 
 	UWorld* World = GetGameInstance() ? GetGameInstance()->GetWorld() : nullptr;
-	if (bDidHoldTimeDilation && World && !World->bIsTearingDown)
+	
+	if (World && !World->bIsTearingDown && IsGameplayWorld(World))
 	{
 		if (AWorldSettings* WorldSettings = World->GetWorldSettings())
 		{
-			WorldSettings->SetTimeDilation(CachedTimeDilation > 0.f ? CachedTimeDilation : 1.f);
+			WorldSettings->TimeDilation = 1.f;
+			WorldSettings->CinematicTimeDilation = 1.f;
+			WorldSettings->DemoPlayTimeDilation = 1.f;
+			WorldSettings->SetTimeDilation(1.f);
 		}
 	}
-
-	bDidHoldTimeDilation = false;
-	CachedTimeDilation = 1.f;
 
 	if (bShouldNotifyReady)
 	{

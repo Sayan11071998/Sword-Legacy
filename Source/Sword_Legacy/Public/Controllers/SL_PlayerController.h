@@ -21,6 +21,7 @@ public:
 	// ~ End IGenericTeamAgentInterface Interface
 
 	void ShowGameLoseScreen();
+	void ApplyGameplayInputConfig();
 	
 protected:
 	// ~ Begin APlayerController Interface
@@ -29,6 +30,7 @@ protected:
 	// ~ End APlayerController Interface
 
 	// ~ Begin ISL_LoadingScreenInterface
+	virtual void OnLoadingScreenActivated_Implementation() override;
 	virtual void OnLoadingScreenDeactivated_Implementation() override;
 	// ~ End ISL_LoadingScreenInterface
 

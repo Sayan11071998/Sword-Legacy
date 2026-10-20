@@ -1,29 +1,82 @@
 #include "GameModes/SL_GameModeBase.h"
 #include "Controllers/SL_PlayerController.h"
-#include "Engine/LocalPlayer.h"
-#include "GameFramework/PlayerController.h"
+#include "Engine/GameInstance.h"
 #include "GameFramework/WorldSettings.h"
-#include "Input/CommonUIActionRouterBase.h"
+#include "Subsystems/SL_LoadingScreenSubsystem.h"
+
+void ASL_GameModeBase::BeginPlay()
+{
+	Super::BeginPlay();
+
+	UGameInstance* GameInstance = GetGameInstance();
+	
+	USL_LoadingScreenSubsystem* LoadingScreen = GameInstance ? GameInstance->GetSubsystem<USL_LoadingScreenSubsystem>() : nullptr;
+
+	if (LoadingScreen && !LoadingScreen->IsGameplayReady())
+	{
+		LoadingScreen->OnGameplayReady.AddUObject(this, &ASL_GameModeBase::BeginGameplay);
+		
+		return;
+	}
+
+	BeginGameplay();
+}
+
+void ASL_GameModeBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	UnbindLoadingScreen();
+	
+	Super::EndPlay(EndPlayReason);
+}
 
 void ASL_GameModeBase::HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer)
 {
 	Super::HandleStartingNewPlayer_Implementation(NewPlayer);
 
-	if (!NewPlayer || !NewPlayer->IsLocalPlayerController()) return;
-
-	if (ULocalPlayer* LocalPlayer = NewPlayer->GetLocalPlayer())
+	// Match input is enabled when the loading screen releases. Until then, keep the new pawn from moving.
+	if (NewPlayer && NewPlayer->IsLocalPlayerController())
 	{
-		if (UCommonUIActionRouterBase* ActionRouter = LocalPlayer->GetSubsystem<UCommonUIActionRouterBase>())
+		NewPlayer->SetIgnoreMoveInput(true);
+		NewPlayer->SetIgnoreLookInput(true);
+	}
+}
+
+void ASL_GameModeBase::BeginGameplay()
+{
+	if (bHasBegunGameplay) return;
+
+	bHasBegunGameplay = true;
+	UnbindLoadingScreen();
+
+	if (UWorld* World = GetWorld())
+	{
+		if (AWorldSettings* WorldSettings = World->GetWorldSettings())
 		{
-			ActionRouter->SetActiveUIInputConfig(
-				FUIInputConfig(ECommonInputMode::Game, EMouseCaptureMode::CapturePermanently_IncludingInitialMouseDown),
-				NewPlayer);
-			return;
+			WorldSettings->TimeDilation = 1.f;
+			WorldSettings->CinematicTimeDilation = 1.f;
+			WorldSettings->DemoPlayTimeDilation = 1.f;
+			WorldSettings->SetTimeDilation(1.f);
+		}
+
+		for (FConstPlayerControllerIterator Iterator = World->GetPlayerControllerIterator(); Iterator; ++Iterator)
+		{
+			ASL_PlayerController* PlayerController = Cast<ASL_PlayerController>(Iterator->Get());
+			
+			if (!PlayerController || !PlayerController->IsLocalPlayerController()) continue;
+
+			PlayerController->ApplyGameplayInputConfig();
 		}
 	}
+}
 
-	NewPlayer->SetInputMode(FInputModeGameOnly());
-	NewPlayer->SetShowMouseCursor(false);
+void ASL_GameModeBase::UnbindLoadingScreen()
+{
+	UGameInstance* GameInstance = GetGameInstance();
+	
+	if (USL_LoadingScreenSubsystem* LoadingScreen = GameInstance ? GameInstance->GetSubsystem<USL_LoadingScreenSubsystem>() : nullptr)
+	{
+		LoadingScreen->OnGameplayReady.RemoveAll(this);
+	}
 }
 
 void ASL_GameModeBase::HandlePlayerLost()
