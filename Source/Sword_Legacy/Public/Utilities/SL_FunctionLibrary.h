@@ -80,6 +80,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Loading Screen")
 	static TSoftObjectPtr<UWorld> GetGameLevelByTag(UPARAM(meta = (Categories = "Game.Level")) FGameplayTag InLevelTag);
 
+	UFUNCTION(BlueprintPure, Category = "Pawn|Function Library", meta = (WorldContext = "WorldContextObject"))
+	static bool IsCurrentLevelByTag(const UObject* WorldContextObject, UPARAM(meta = (Categories = "Game.Level")) FGameplayTag InLevelTag);
+
 	UFUNCTION(BlueprintCallable, Category = "Pawn|Function Library", meta = (WorldContext = "WorldContextObject"))
 	static void OpenLevelByTagWithLoadingScreen(const UObject* WorldContextObject, UPARAM(meta = (Categories = "Game.Level")) FGameplayTag InLevelTag, bool bAbsolute = true, FString Options = TEXT(""));
 };

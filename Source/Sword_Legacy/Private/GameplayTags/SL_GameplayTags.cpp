@@ -134,4 +134,5 @@ namespace SL_GameplayTags
 	/** Levels **/
 	UE_DEFINE_GAMEPLAY_TAG(Game_Level_MainMenu, "Game.Level.MainMenu");
 	UE_DEFINE_GAMEPLAY_TAG(Game_Level_NewStory, "Game.Level.NewStory");
+	UE_DEFINE_GAMEPLAY_TAG(Game_Level_Final, "Game.Level.Final");
 }

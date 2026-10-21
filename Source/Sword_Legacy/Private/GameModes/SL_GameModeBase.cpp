@@ -2,7 +2,9 @@
 #include "Controllers/SL_PlayerController.h"
 #include "Engine/GameInstance.h"
 #include "GameFramework/WorldSettings.h"
+#include "GameplayTags/SL_GameplayTags.h"
 #include "Subsystems/SL_LoadingScreenSubsystem.h"
+#include "Utilities/SL_FunctionLibrary.h"
 
 void ASL_GameModeBase::BeginPlay()
 {
@@ -66,6 +68,11 @@ void ASL_GameModeBase::BeginGameplay()
 
 			PlayerController->ApplyGameplayInputConfig();
 		}
+	}
+
+	if (USL_FunctionLibrary::IsCurrentLevelByTag(this, SL_GameplayTags::Game_Level_Final))
+	{
+		UE_LOG(LogTemp, Display, TEXT("This is the final level."));
 	}
 }
 

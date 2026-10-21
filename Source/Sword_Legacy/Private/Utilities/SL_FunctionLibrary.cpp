@@ -324,6 +324,18 @@ TSoftObjectPtr<UWorld> USL_FunctionLibrary::GetGameLevelByTag(FGameplayTag InLev
 	return LevelDeveloperSettings->GameLevelMap.FindRef(InLevelTag);
 }
 
+bool USL_FunctionLibrary::IsCurrentLevelByTag(const UObject* WorldContextObject, FGameplayTag InLevelTag)
+{
+	if (!WorldContextObject || !InLevelTag.IsValid()) return false;
+
+	const TSoftObjectPtr<UWorld> Level = GetGameLevelByTag(InLevelTag);
+	if (Level.IsNull()) return false;
+
+	const FString CurrentLevelName = UGameplayStatics::GetCurrentLevelName(WorldContextObject, true);
+	
+	return CurrentLevelName == Level.ToSoftObjectPath().GetAssetName();
+}
+
 void USL_FunctionLibrary::OpenLevelByTagWithLoadingScreen(const UObject* WorldContextObject, FGameplayTag InLevelTag, bool bAbsolute, FString Options)
 {
 	const TSoftObjectPtr<UWorld> Level = GetGameLevelByTag(InLevelTag);
