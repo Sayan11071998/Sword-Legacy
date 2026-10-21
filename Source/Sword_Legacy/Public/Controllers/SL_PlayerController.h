@@ -21,6 +21,8 @@ public:
 	// ~ End IGenericTeamAgentInterface Interface
 
 	void ShowGameLoseScreen();
+	void ToggleGamePause();
+	void EndGamePause();
 	void ApplyGameplayInputConfig();
 	
 protected:
@@ -47,4 +49,5 @@ private:
 	FGenericTeamId PlayerTeamID;
 	
 	bool bHasHandledLoadingScreenDeactivation = false;
+	bool bIsGamePaused = false;
 };

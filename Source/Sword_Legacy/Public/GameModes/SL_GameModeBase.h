@@ -14,6 +14,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Game")
 	void HandlePlayerLost();
 
+	bool HasPlayerLost() const { return bHasHandledPlayerLost; }
+
 protected:
 	// ~ Begin AActor Interface
 	virtual void BeginPlay() override;

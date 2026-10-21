@@ -10,6 +10,8 @@
 #include "Input/CommonUIActionRouterBase.h"
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/WorldSettings.h"
+#include "Settings/SL_DeveloperSettings.h"
+#include "Subsystems/SL_LoadingScreenSubsystem.h"
 #include "UI/Widgets/SL_Widget_Activatable_Base.h"
 #include "UI/Widgets/SL_Widget_PrimaryLayout.h"
 
@@ -170,6 +172,103 @@ void ASL_PlayerController::ShowGameLoseScreen()
 			}
 		}
 	);
+}
+
+void ASL_PlayerController::ToggleGamePause()
+{
+	if (!IsLocalPlayerController() || bIsGamePaused) return;
+
+	UWorld* World = GetWorld();
+	if (!World || World->bIsTearingDown) return;
+
+	const ASL_GameModeBase* GameMode = World->GetAuthGameMode<ASL_GameModeBase>();
+	if (!GameMode || GameMode->HasPlayerLost()) return;
+
+	if (const UGameInstance* GameInstance = GetGameInstance())
+	{
+		if (const USL_LoadingScreenSubsystem* LoadingScreen = GameInstance->GetSubsystem<USL_LoadingScreenSubsystem>())
+		{
+			if (!LoadingScreen->IsGameplayReady()) return;
+		}
+	}
+
+	EnsurePrimaryLayoutCreated();
+
+	USL_UISubsystem* UISubsystem = USL_UISubsystem::Get(this);
+	if (!UISubsystem || !UISubsystem->HasPrimaryLayout()) return;
+
+	const USL_DeveloperSettings* DeveloperSettings = GetDefault<USL_DeveloperSettings>();
+	const TSoftClassPtr<USL_Widget_Activatable_Base> PauseScreenClass = DeveloperSettings
+		? DeveloperSettings->GameWidgetMap.FindRef(SL_GameplayTags::UI_Widget_GamePauseScreen)
+		: TSoftClassPtr<USL_Widget_Activatable_Base>();
+
+	if (PauseScreenClass.IsNull())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Game Pause Screen is not assigned in Game UI Settings."));
+		
+		return;
+	}
+
+	TWeakObjectPtr<ASL_PlayerController> WeakThis(this);
+
+	UISubsystem->PushSoftWidgetToStackAsync(
+		SL_GameplayTags::UI_WidgetStack_GameMenu,
+		PauseScreenClass,
+		[WeakThis](EAsyncPushWidgetState InPushState, TObjectPtr<USL_Widget_Activatable_Base> PushedWidget)
+		{
+			if (!PushedWidget) return;
+
+			ASL_PlayerController* PlayerController = WeakThis.Get();
+			if (!PlayerController) return;
+
+			if (InPushState == EAsyncPushWidgetState::OnCreatedBeforePush)
+			{
+				PushedWidget->SetOwningPlayer(PlayerController);
+			}
+			else if (InPushState == EAsyncPushWidgetState::AfterPush)
+			{
+				PlayerController->bIsGamePaused = true;
+
+				if (UWorld* PausedWorld = PlayerController->GetWorld())
+				{
+					if (AWorldSettings* WorldSettings = PausedWorld->GetWorldSettings())
+					{
+						WorldSettings->SetTimeDilation(0.f);
+					}
+				}
+
+				PlayerController->SetShowMouseCursor(true);
+
+				if (UWidget* WidgetToFocus = PushedWidget->GetDesiredFocusTarget())
+				{
+					WidgetToFocus->SetFocus();
+				}
+			}
+		}
+	);
+}
+
+void ASL_PlayerController::EndGamePause()
+{
+	if (!bIsGamePaused) return;
+
+	bIsGamePaused = false;
+
+	if (UWorld* World = GetWorld())
+	{
+		if (!World->bIsTearingDown)
+		{
+			if (AWorldSettings* WorldSettings = World->GetWorldSettings())
+			{
+				WorldSettings->TimeDilation = 1.f;
+				WorldSettings->CinematicTimeDilation = 1.f;
+				WorldSettings->DemoPlayTimeDilation = 1.f;
+				WorldSettings->SetTimeDilation(1.f);
+			}
+		}
+	}
+
+	ApplyGameplayInputConfig();
 }
 
 void ASL_PlayerController::SetupFrontendUI()
