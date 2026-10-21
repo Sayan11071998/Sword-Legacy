@@ -184,6 +184,11 @@ void ASL_PlayerController::ToggleGamePause()
 	const ASL_GameModeBase* GameMode = World->GetAuthGameMode<ASL_GameModeBase>();
 	if (!GameMode || GameMode->HasPlayerLost()) return;
 
+	if (APawn* ControlledPawn = GetPawn())
+	{
+		if (USL_FunctionLibrary::NativeDoesActorHaveTag(ControlledPawn, SL_GameplayTags::Shared_Status_Death)) return;
+	}
+
 	if (const UGameInstance* GameInstance = GetGameInstance())
 	{
 		if (const USL_LoadingScreenSubsystem* LoadingScreen = GameInstance->GetSubsystem<USL_LoadingScreenSubsystem>())
