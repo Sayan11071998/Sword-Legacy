@@ -6,7 +6,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Characters/SL_PlayerCharacter.h"
 #include "Items/Weapons/SL_PlayerWeapon.h"
-#include "Utilities/SL_GameplayTags.h"
+#include "GameplayTags/SL_GameplayTags.h"
 #include "Utilities/SL_FunctionLibrary.h"
 
 USL_GA_Player_Block::USL_GA_Player_Block()

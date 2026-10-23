@@ -1,7 +1,7 @@
 #include "Items/Collectables/Stones/SL_StoneBase.h"
 #include "Characters/SL_PlayerCharacter.h"
 #include "AbilitySystem/SL_AbilitySystemComponent.h"
-#include "Utilities/SL_GameplayTags.h"
+#include "GameplayTags/SL_GameplayTags.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Kismet/GameplayStatics.h"
 

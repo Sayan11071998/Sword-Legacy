@@ -1,5 +1,5 @@
 #include "DataAssets/UI/SL_DataAsset_DataListEntryMapping.h"
-#include "Widgets/Options/DataObjects/SL_ListDataObject_Base.h"
+#include "UI/Options/Data/ListDataObjects/SL_ListDataObject_Base.h"
 
 TSubclassOf<USL_Widget_ListEntry_Base> USL_DataAsset_DataListEntryMapping::FindEntryWidgetClassByDataObject(
 	TObjectPtr<USL_ListDataObject_Base> InDataObject) const

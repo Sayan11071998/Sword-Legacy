@@ -2,7 +2,7 @@
 #include "Characters/SL_PlayerCharacter.h"
 #include "Controllers/SL_PlayerController.h"
 #include "AbilitySystem/SL_AbilitySystemComponent.h"
-#include "Utilities/SL_GameplayTags.h"
+#include "GameplayTags/SL_GameplayTags.h"
 
 ASL_PlayerCharacter* USL_PlayerGameplayAbility::GetPlayerCharacterFromActorInfo()
 {

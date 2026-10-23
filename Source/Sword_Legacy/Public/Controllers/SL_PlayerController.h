@@ -19,6 +19,16 @@ public:
 	// ~ Begin IGenericTeamAgentInterface Interface
 	virtual FGenericTeamId GetGenericTeamId() const override;
 	// ~ End IGenericTeamAgentInterface Interface
+
+	void ShowGameLoseScreen();
+	void ShowGameEnding();
+	void ShowEndingCredits(class USL_Widget_Activatable_Base* ThankYouScreen);
+	
+	void ToggleGamePause();
+	
+	void EndGamePause();
+	
+	void ApplyGameplayInputConfig();
 	
 protected:
 	// ~ Begin APlayerController Interface
@@ -27,6 +37,7 @@ protected:
 	// ~ End APlayerController Interface
 
 	// ~ Begin ISL_LoadingScreenInterface
+	virtual void OnLoadingScreenActivated_Implementation() override;
 	virtual void OnLoadingScreenDeactivated_Implementation() override;
 	// ~ End ISL_LoadingScreenInterface
 
@@ -37,8 +48,11 @@ protected:
 	
 private:
 	void SetupFrontendUI();
+	void SetupGameplayUI();
+	void EnsurePrimaryLayoutCreated();
 
 	FGenericTeamId PlayerTeamID;
 	
 	bool bHasHandledLoadingScreenDeactivation = false;
+	bool bIsGamePaused = false;
 };

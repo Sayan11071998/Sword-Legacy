@@ -2,9 +2,10 @@
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "AbilitySystem/AbilityTasks/SL_AbilityTask_WaitSpawnEnemies.h"
 #include "Characters/SL_EnemyCharacter.h"
+#include "GameModes/SL_GameModeBase.h"
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "Utilities/SL_GameplayTags.h"
+#include "GameplayTags/SL_GameplayTags.h"
 
 USL_GA_Enemy_SummonEnemies_Base::USL_GA_Enemy_SummonEnemies_Base()
 {
@@ -63,6 +64,17 @@ void USL_GA_Enemy_SummonEnemies_Base::OnMontageFinished()
 
 void USL_GA_Enemy_SummonEnemies_Base::OnSpawnFinished(const TArray<ASL_EnemyCharacter*>& SpawnedEnemies)
 {
+	if (UWorld* World = GetWorld())
+	{
+		if (ASL_GameModeBase* GameMode = World->GetAuthGameMode<ASL_GameModeBase>())
+		{
+			for (ASL_EnemyCharacter* SpawnedEnemy : SpawnedEnemies)
+			{
+				GameMode->RegisterSummonedEnemy(SpawnedEnemy);
+			}
+		}
+	}
+
 	if (ASL_EnemyCharacter* EnemyCharacter = GetEnemyCharacterFromActorInfo())
 	{
 		if (AAIController* AIController = Cast<AAIController>(EnemyCharacter->GetController()))

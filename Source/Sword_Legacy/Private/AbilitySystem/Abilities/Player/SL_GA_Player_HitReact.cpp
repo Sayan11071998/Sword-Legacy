@@ -1,11 +1,11 @@
 #include "AbilitySystem/Abilities/Player/SL_GA_Player_HitReact.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Utilities/SL_FunctionLibrary.h"
-#include "Utilities/SL_GameplayTags.h"
+#include "GameplayTags/SL_GameplayTags.h"
 #include "Characters/SL_PlayerCharacter.h"
 #include "Components/CapsuleComponent.h"
 #include "NiagaraFunctionLibrary.h"
-#include "Utilities/SL_GameUserSettings.h"
+#include "Settings/SL_GameUserSettings.h"
 
 USL_GA_Player_HitReact::USL_GA_Player_HitReact()
 {

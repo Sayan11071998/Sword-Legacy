@@ -2,7 +2,7 @@
 #include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Interfaces/SL_EnemyDeathInterface.h"
-#include "Utilities/SL_GameplayTags.h"
+#include "GameplayTags/SL_GameplayTags.h"
 
 USL_GA_Enemy_DeathBase::USL_GA_Enemy_DeathBase()
 {

@@ -1,10 +1,13 @@
 #include "Controllers/SL_AIController.h"
 #include "Navigation/CrowdFollowingComponent.h"
 #include "Perception/AIPerceptionComponent.h"
+#include "Perception/AISense_Sight.h"
 #include "Perception/AISenseConfig_Sight.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Engine/GameInstance.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Subsystems/SL_LoadingScreenSubsystem.h"
 
 ASL_AIController::ASL_AIController(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UCrowdFollowingComponent>("PathFollowingComponent"))
@@ -61,6 +64,12 @@ void ASL_AIController::BeginPlay()
 	}
 }
 
+void ASL_AIController::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	UnbindLoadingScreen();
+	Super::EndPlay(EndPlayReason);
+}
+
 ETeamAttitude::Type ASL_AIController::GetTeamAttitudeTowards(const AActor& Other) const
 {
 	const APawn* PawnToCheck = Cast<const APawn>(&Other);
@@ -79,13 +88,64 @@ ETeamAttitude::Type ASL_AIController::GetTeamAttitudeTowards(const AActor& Other
 void ASL_AIController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
-	
+	SetEnemyPerceptionEnabled(false);
+	TryStartCombatLogic();
+}
+
+void ASL_AIController::OnEnemyPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
+{
+	if (!bCombatLogicStarted) return;
+
+	if (UBlackboardComponent* BlackboardComponent = GetBlackboardComponent())
+	{
+		if (Stimulus.WasSuccessfullySensed() && Actor)
+		{
+			BlackboardComponent->SetValueAsObject(FName("TargetActor"), Actor);
+		}
+	}
+}
+
+void ASL_AIController::TryStartCombatLogic()
+{
+	UWorld* World = GetWorld();
+	UGameInstance* GameInstance = World ? World->GetGameInstance() : nullptr;
+	USL_LoadingScreenSubsystem* LoadingScreen = GameInstance ? GameInstance->GetSubsystem<USL_LoadingScreenSubsystem>() : nullptr;
+
+	if (LoadingScreen && !LoadingScreen->IsGameplayReady())
+	{
+		SetEnemyPerceptionEnabled(false);
+
+		if (!bWaitingForLoadingScreen)
+		{
+			bWaitingForLoadingScreen = true;
+			LoadingScreen->OnGameplayReady.AddUObject(this, &ASL_AIController::OnGameplayReady);
+		}
+		
+		return;
+	}
+
+	StartCombatLogic();
+}
+
+void ASL_AIController::OnGameplayReady()
+{
+	UnbindLoadingScreen();
+	StartCombatLogic();
+}
+
+void ASL_AIController::StartCombatLogic()
+{
+	if (bCombatLogicStarted) return;
+	bCombatLogicStarted = true;
+
+	SetEnemyPerceptionEnabled(true);
+
 	if (BehaviorTreeToRun)
 	{
 		RunBehaviorTree(BehaviorTreeToRun);
 	}
-	
-	if (ACharacter* PossessedCharacter = Cast<ACharacter>(InPawn))
+
+	if (ACharacter* PossessedCharacter = Cast<ACharacter>(GetPawn()))
 	{
 		if (UBlackboardComponent* BlackboardComp = GetBlackboardComponent())
 		{
@@ -95,13 +155,22 @@ void ASL_AIController::OnPossess(APawn* InPawn)
 	}
 }
 
-void ASL_AIController::OnEnemyPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
+void ASL_AIController::SetEnemyPerceptionEnabled(bool bEnabled)
 {
-	if (UBlackboardComponent* BlackboardComponent = GetBlackboardComponent())
+	if (EnemyPerceptionComponent)
 	{
-		if (Stimulus.WasSuccessfullySensed() && Actor)
-		{
-			BlackboardComponent->SetValueAsObject(FName("TargetActor"), Actor);
-		}
+		EnemyPerceptionComponent->SetSenseEnabled(UAISense_Sight::StaticClass(), bEnabled);
 	}
+}
+
+void ASL_AIController::UnbindLoadingScreen()
+{
+	UWorld* World = GetWorld();
+	UGameInstance* GameInstance = World ? World->GetGameInstance() : nullptr;
+	if (USL_LoadingScreenSubsystem* LoadingScreen = GameInstance ? GameInstance->GetSubsystem<USL_LoadingScreenSubsystem>() : nullptr)
+	{
+		LoadingScreen->OnGameplayReady.RemoveAll(this);
+	}
+
+	bWaitingForLoadingScreen = false;
 }

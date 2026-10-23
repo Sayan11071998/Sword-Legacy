@@ -1,10 +1,11 @@
 #include "Subsystems/SL_UISubsystem.h"
 #include "Engine/AssetManager.h"
-#include "Widgets/SL_Widget_Activatable_Base.h"
-#include "Widgets/SL_Widget_PrimaryLayout.h"
+#include "Engine/World.h"
+#include "UI/Widgets/SL_Widget_Activatable_Base.h"
+#include "UI/Widgets/SL_Widget_PrimaryLayout.h"
 #include "Widgets/CommonActivatableWidgetContainer.h"
-#include "Widgets/SL_Widget_ConfirmScreen.h"
-#include "Utilities/SL_GameplayTags.h"
+#include "UI/Widgets/Screens/SL_Widget_ConfirmScreen.h"
+#include "GameplayTags/SL_GameplayTags.h"
 #include "Utilities/SL_FunctionLibrary.h"
 
 TObjectPtr<USL_UISubsystem> USL_UISubsystem::Get(const TObjectPtr<UObject> WorldContextObject)
@@ -33,6 +34,44 @@ bool USL_UISubsystem::ShouldCreateSubsystem(UObject* Outer) const
 	return false;
 }
 
+void USL_UISubsystem::Initialize(FSubsystemCollectionBase& Collection)
+{
+	Super::Initialize(Collection);
+	
+	FWorldDelegates::OnWorldBeginTearDown.AddUObject(this, &USL_UISubsystem::HandleWorldBeginTearDown);
+}
+
+void USL_UISubsystem::Deinitialize()
+{
+	FWorldDelegates::OnWorldBeginTearDown.RemoveAll(this);
+	CreatedPrimaryLayout = nullptr;
+	
+	Super::Deinitialize();
+}
+
+bool USL_UISubsystem::HasPrimaryLayout() const
+{
+	return CreatedPrimaryLayout && IsValid(CreatedPrimaryLayout.Get());
+}
+
+void USL_UISubsystem::RemoveWidgetFromStack(const FGameplayTag& InWidgetStackTag, USL_Widget_Activatable_Base* WidgetToRemove)
+{
+	if (!WidgetToRemove || !HasPrimaryLayout()) return;
+
+	if (UCommonActivatableWidgetContainerBase* WidgetStack = CreatedPrimaryLayout->FindWidgetStackByTag(InWidgetStackTag))
+	{
+		WidgetStack->RemoveWidget(*WidgetToRemove);
+	}
+}
+
+void USL_UISubsystem::HandleWorldBeginTearDown(UWorld* World)
+{
+	if (CreatedPrimaryLayout && CreatedPrimaryLayout->GetWorld() == World)
+	{
+		CreatedPrimaryLayout = nullptr;
+	}
+}
+
 void USL_UISubsystem::PushSoftWidgetToStackAsync(
 	const FGameplayTag& InWidgetStackTag,
 	TSoftClassPtr<USL_Widget_Activatable_Base> InSoftWidgetClass,
@@ -46,10 +85,18 @@ void USL_UISubsystem::PushSoftWidgetToStackAsync(
 			[InSoftWidgetClass, InWidgetStackTag, AsyncPushStateCallback, this]()
 			{
 				UClass* LoadedWidgetClass = InSoftWidgetClass.Get();
-				
-				check(LoadedWidgetClass && CreatedPrimaryLayout);
+				if (!LoadedWidgetClass || !IsValid(CreatedPrimaryLayout.Get()))
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Cannot push widget. Layout or widget class is not valid."));
+					return;
+				}
 				
 				UCommonActivatableWidgetContainerBase* FoundWidgetStack = CreatedPrimaryLayout->FindWidgetStackByTag(InWidgetStackTag);
+				if (!FoundWidgetStack)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Cannot find widget stack %s"), *InWidgetStackTag.ToString());
+					return;
+				}
 				
 				USL_Widget_Activatable_Base* CreatedWidget = FoundWidgetStack->AddWidget<USL_Widget_Activatable_Base>(
 					LoadedWidgetClass,
