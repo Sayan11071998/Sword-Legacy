@@ -54,6 +54,16 @@ bool USL_UISubsystem::HasPrimaryLayout() const
 	return CreatedPrimaryLayout && IsValid(CreatedPrimaryLayout.Get());
 }
 
+void USL_UISubsystem::RemoveWidgetFromStack(const FGameplayTag& InWidgetStackTag, USL_Widget_Activatable_Base* WidgetToRemove)
+{
+	if (!WidgetToRemove || !HasPrimaryLayout()) return;
+
+	if (UCommonActivatableWidgetContainerBase* WidgetStack = CreatedPrimaryLayout->FindWidgetStackByTag(InWidgetStackTag))
+	{
+		WidgetStack->RemoveWidget(*WidgetToRemove);
+	}
+}
+
 void USL_UISubsystem::HandleWorldBeginTearDown(UWorld* World)
 {
 	if (CreatedPrimaryLayout && CreatedPrimaryLayout->GetWorld() == World)

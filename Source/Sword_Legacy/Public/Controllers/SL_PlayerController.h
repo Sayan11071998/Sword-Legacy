@@ -21,8 +21,13 @@ public:
 	// ~ End IGenericTeamAgentInterface Interface
 
 	void ShowGameLoseScreen();
+	void ShowGameEnding();
+	void ShowEndingCredits(class USL_Widget_Activatable_Base* ThankYouScreen);
+	
 	void ToggleGamePause();
+	
 	void EndGamePause();
+	
 	void ApplyGameplayInputConfig();
 	
 protected:

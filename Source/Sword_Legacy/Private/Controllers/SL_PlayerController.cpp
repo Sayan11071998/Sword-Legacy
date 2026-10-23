@@ -174,6 +174,124 @@ void ASL_PlayerController::ShowGameLoseScreen()
 	);
 }
 
+void ASL_PlayerController::ShowGameEnding()
+{
+	EnsurePrimaryLayoutCreated();
+
+	USL_UISubsystem* UISubsystem = USL_UISubsystem::Get(this);
+	if (!UISubsystem || !UISubsystem->HasPrimaryLayout()) return;
+
+	const USL_DeveloperSettings* DeveloperSettings = GetDefault<USL_DeveloperSettings>();
+	
+	const TSoftClassPtr<USL_Widget_Activatable_Base> ThankYouScreenClass = DeveloperSettings
+		? DeveloperSettings->GameWidgetMap.FindRef(SL_GameplayTags::UI_Widget_GameThankYouScreen)
+		: TSoftClassPtr<USL_Widget_Activatable_Base>();
+
+	if (ThankYouScreenClass.IsNull())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Game Thank You Screen is not assigned in Game UI Settings."));
+		
+		return;
+	}
+
+	SetIgnoreMoveInput(true);
+	SetIgnoreLookInput(true);
+	SetShowMouseCursor(false);
+
+	if (ULocalPlayer* LocalPlayer = GetLocalPlayer())
+	{
+		if (UCommonUIActionRouterBase* ActionRouter = LocalPlayer->GetSubsystem<UCommonUIActionRouterBase>())
+		{
+			ActionRouter->SetActiveUIInputConfig(
+				FUIInputConfig(ECommonInputMode::Menu, EMouseCaptureMode::NoCapture),
+				this
+			);
+		}
+	}
+
+	TWeakObjectPtr<ASL_PlayerController> WeakThis(this);
+
+	UISubsystem->PushSoftWidgetToStackAsync(
+		SL_GameplayTags::UI_WidgetStack_GameMenu,
+		ThankYouScreenClass,
+		[WeakThis](EAsyncPushWidgetState InPushState, TObjectPtr<USL_Widget_Activatable_Base> PushedWidget)
+		{
+			if (!PushedWidget) return;
+
+			if (InPushState == EAsyncPushWidgetState::OnCreatedBeforePush)
+			{
+				if (ASL_PlayerController* PlayerController = WeakThis.Get())
+				{
+					PushedWidget->SetOwningPlayer(PlayerController);
+				}
+			}
+		}
+	);
+}
+
+void ASL_PlayerController::ShowEndingCredits(USL_Widget_Activatable_Base* ThankYouScreen)
+{
+	USL_UISubsystem* UISubsystem = USL_UISubsystem::Get(this);
+	if (!UISubsystem || !UISubsystem->HasPrimaryLayout()) return;
+
+	const USL_DeveloperSettings* DeveloperSettings = GetDefault<USL_DeveloperSettings>();
+	
+	const TSoftClassPtr<USL_Widget_Activatable_Base> CreditScreenClass = DeveloperSettings
+		? DeveloperSettings->GameWidgetMap.FindRef(SL_GameplayTags::UI_Widget_CreditScreen)
+		: TSoftClassPtr<USL_Widget_Activatable_Base>();
+
+	if (CreditScreenClass.IsNull())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Credit Screen is not assigned in Game UI Settings."));
+		
+		return;
+	}
+
+	TWeakObjectPtr<ASL_PlayerController> WeakThis(this);
+	TWeakObjectPtr<USL_Widget_Activatable_Base> WeakThankYouScreen(ThankYouScreen);
+
+	UISubsystem->PushSoftWidgetToStackAsync(
+		SL_GameplayTags::UI_WidgetStack_GameMenu,
+		CreditScreenClass,
+		[WeakThis, WeakThankYouScreen](EAsyncPushWidgetState InPushState, TObjectPtr<USL_Widget_Activatable_Base> PushedWidget)
+		{
+			if (!PushedWidget) return;
+
+			ASL_PlayerController* PlayerController = WeakThis.Get();
+
+			if (InPushState == EAsyncPushWidgetState::OnCreatedBeforePush)
+			{
+				if (PlayerController)
+				{
+					PushedWidget->SetOwningPlayer(PlayerController);
+				}
+			}
+			else if (InPushState == EAsyncPushWidgetState::AfterPush)
+			{
+				if (!PlayerController) return;
+
+				if (USL_UISubsystem* EndingUISubsystem = USL_UISubsystem::Get(PlayerController))
+				{
+					EndingUISubsystem->RemoveWidgetFromStack(SL_GameplayTags::UI_WidgetStack_GameMenu, WeakThankYouScreen.Get());
+				}
+
+				PlayerController->SetShowMouseCursor(true);
+
+				if (ULocalPlayer* LocalPlayer = PlayerController->GetLocalPlayer())
+				{
+					if (UCommonUIActionRouterBase* ActionRouter = LocalPlayer->GetSubsystem<UCommonUIActionRouterBase>())
+					{
+						ActionRouter->SetActiveUIInputConfig(
+							FUIInputConfig(ECommonInputMode::Menu, EMouseCaptureMode::NoCapture),
+							PlayerController
+						);
+					}
+				}
+			}
+		}
+	);
+}
+
 void ASL_PlayerController::ToggleGamePause()
 {
 	if (!IsLocalPlayerController() || bIsGamePaused) return;

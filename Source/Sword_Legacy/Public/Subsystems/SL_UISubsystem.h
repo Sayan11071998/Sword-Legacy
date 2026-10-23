@@ -49,6 +49,8 @@ public:
 	void RegisterCreatedPrimaryLayoutWidget(USL_Widget_PrimaryLayout* InCreatedWidget);
 
 	bool HasPrimaryLayout() const;
+
+	void RemoveWidgetFromStack(const FGameplayTag& InWidgetStackTag, USL_Widget_Activatable_Base* WidgetToRemove);
 	
 	UPROPERTY(BlueprintAssignable)
 	FOnButtonDescriptionTextUpdatedDelegate OnButtonDescriptionTextUpdated;

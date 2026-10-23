@@ -215,7 +215,19 @@ void ASL_GameModeBase::HandleLevelCleared()
 	if (USL_FunctionLibrary::IsCurrentLevelByTag(this, SL_GameplayTags::Game_Level_Final))
 	{
 		UE_LOG(LogTemp, Display, TEXT("Final level cleared."));
-		
+
+		if (UWorld* World = GetWorld())
+		{
+			for (FConstPlayerControllerIterator Iterator = World->GetPlayerControllerIterator(); Iterator; ++Iterator)
+			{
+				ASL_PlayerController* PlayerController = Cast<ASL_PlayerController>(Iterator->Get());
+				
+				if (!PlayerController || !PlayerController->IsLocalPlayerController()) continue;
+
+				PlayerController->ShowGameEnding();
+			}
+		}
+
 		return;
 	}
 
