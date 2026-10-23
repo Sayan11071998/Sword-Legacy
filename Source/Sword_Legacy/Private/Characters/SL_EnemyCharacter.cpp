@@ -16,6 +16,7 @@
 #include "Utilities/SL_FunctionLibrary.h"
 #include "Animation/AnimMontage.h"
 #include "AbilitySystem/SL_AbilitySystemComponent.h"
+#include "GameModes/SL_GameModeBase.h"
 #include "GameplayTags/SL_GameplayTags.h"
 
 ASL_EnemyCharacter::ASL_EnemyCharacter()
@@ -59,6 +60,18 @@ ASL_EnemyCharacter::ASL_EnemyCharacter()
 void ASL_EnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (!IsNetStartupActor() && !HasAnyFlags(RF_WasLoaded))
+	{
+		if (UWorld* World = GetWorld())
+		{
+			if (ASL_GameModeBase* GameMode = World->GetAuthGameMode<ASL_GameModeBase>())
+			{
+				GameMode->RegisterSummonedEnemy(this);
+			}
+		}
+	}
+
 	GetMesh()->HideBoneByName(LeftWeaponBoneName, PBO_Term);
 	
 	if (USL_WidgetBase* HealthWidget = Cast<USL_WidgetBase>(EnemyHealthWidgetComponent->GetUserWidgetObject()))
@@ -169,6 +182,14 @@ TObjectPtr<USL_PawnCombatComponent> ASL_EnemyCharacter::GetPawnCombatComponent()
 
 void ASL_EnemyCharacter::OnEnemyDied_Implementation(const TSoftObjectPtr<UNiagaraSystem>& InSoftNiagaraSystem)
 {
+	if (UWorld* World = GetWorld())
+	{
+		if (ASL_GameModeBase* GameMode = World->GetAuthGameMode<ASL_GameModeBase>())
+		{
+			GameMode->NotifyEnemyRosterDeath(this);
+		}
+	}
+
 	if (GetMesh())
 	{
 		GetMesh()->bPauseAnims = true;

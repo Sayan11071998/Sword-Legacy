@@ -83,6 +83,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Pawn|Function Library", meta = (WorldContext = "WorldContextObject"))
 	static bool IsCurrentLevelByTag(const UObject* WorldContextObject, UPARAM(meta = (Categories = "Game.Level")) FGameplayTag InLevelTag);
 
+	UFUNCTION(BlueprintPure, Category = "Loading Screen", meta = (WorldContext = "WorldContextObject"))
+	static bool GetNextProgressionLevelTag(const UObject* WorldContextObject, FGameplayTag& OutNextLevelTag);
+
 	UFUNCTION(BlueprintCallable, Category = "Pawn|Function Library", meta = (WorldContext = "WorldContextObject"))
 	static void OpenLevelByTagWithLoadingScreen(const UObject* WorldContextObject, UPARAM(meta = (Categories = "Game.Level")) FGameplayTag InLevelTag, bool bAbsolute = true, FString Options = TEXT(""));
 };

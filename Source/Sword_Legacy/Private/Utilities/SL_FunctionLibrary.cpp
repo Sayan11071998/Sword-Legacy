@@ -336,6 +336,37 @@ bool USL_FunctionLibrary::IsCurrentLevelByTag(const UObject* WorldContextObject,
 	return CurrentLevelName == Level.ToSoftObjectPath().GetAssetName();
 }
 
+bool USL_FunctionLibrary::GetNextProgressionLevelTag(const UObject* WorldContextObject, FGameplayTag& OutNextLevelTag)
+{
+	OutNextLevelTag = FGameplayTag();
+	
+	if (!WorldContextObject) return false;
+
+	const USL_LevelDeveloperSettings* LevelDeveloperSettings = GetDefault<USL_LevelDeveloperSettings>();
+	if (!LevelDeveloperSettings) return false;
+
+	FGameplayTag CurrentLevelTag;
+	
+	for (const TPair<FGameplayTag, TSoftObjectPtr<UWorld>>& LevelPair : LevelDeveloperSettings->GameLevelMap)
+	{
+		if (IsCurrentLevelByTag(WorldContextObject, LevelPair.Key))
+		{
+			CurrentLevelTag = LevelPair.Key;
+			break;
+		}
+	}
+
+	if (!CurrentLevelTag.IsValid() || CurrentLevelTag == SL_GameplayTags::Game_Level_Final) return false;
+
+	const int32 CurrentIndex = LevelDeveloperSettings->LevelProgression.IndexOfByKey(CurrentLevelTag);
+	
+	if (CurrentIndex == INDEX_NONE || !LevelDeveloperSettings->LevelProgression.IsValidIndex(CurrentIndex + 1)) return false;
+
+	OutNextLevelTag = LevelDeveloperSettings->LevelProgression[CurrentIndex + 1];
+	
+	return OutNextLevelTag.IsValid();
+}
+
 void USL_FunctionLibrary::OpenLevelByTagWithLoadingScreen(const UObject* WorldContextObject, FGameplayTag InLevelTag, bool bAbsolute, FString Options)
 {
 	const TSoftObjectPtr<UWorld> Level = GetGameLevelByTag(InLevelTag);

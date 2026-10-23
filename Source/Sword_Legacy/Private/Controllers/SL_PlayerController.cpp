@@ -182,7 +182,7 @@ void ASL_PlayerController::ToggleGamePause()
 	if (!World || World->bIsTearingDown) return;
 
 	const ASL_GameModeBase* GameMode = World->GetAuthGameMode<ASL_GameModeBase>();
-	if (!GameMode || GameMode->HasPlayerLost()) return;
+	if (!GameMode || GameMode->HasPlayerLost() || GameMode->HasLevelCleared()) return;
 
 	if (APawn* ControlledPawn = GetPawn())
 	{
