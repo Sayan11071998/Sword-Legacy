@@ -126,6 +126,7 @@ namespace SL_GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_KeyRemapScreen, "UI.Widget.KeyRemapScreen");
 	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_CreditScreen, "UI.Widget.CreditScreen");
 	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_EndingCreditScreen, "UI.Widget.EndingCreditScreen");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_EndingPressAnyKeyScreen, "UI.Widget.EndingPressAnyKeyScreen");
 	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_GameLoseScreen, "UI.Widget.GameLoseScreen");
 	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_GamePauseScreen, "UI.Widget.GamePauseScreen");
 	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_GameThankYouScreen, "UI.Widget.GameThankYouScreen");
