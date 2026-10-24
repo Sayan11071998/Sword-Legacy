@@ -237,13 +237,12 @@ void ASL_PlayerController::ShowEndingCredits(USL_Widget_Activatable_Base* ThankY
 	const USL_DeveloperSettings* DeveloperSettings = GetDefault<USL_DeveloperSettings>();
 	
 	const TSoftClassPtr<USL_Widget_Activatable_Base> CreditScreenClass = DeveloperSettings
-		? DeveloperSettings->GameWidgetMap.FindRef(SL_GameplayTags::UI_Widget_CreditScreen)
+		? DeveloperSettings->GameWidgetMap.FindRef(SL_GameplayTags::UI_Widget_EndingCreditScreen)
 		: TSoftClassPtr<USL_Widget_Activatable_Base>();
 
 	if (CreditScreenClass.IsNull())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Credit Screen is not assigned in Game UI Settings."));
-		
+		UE_LOG(LogTemp, Warning, TEXT("Ending Credit Screen is not assigned in Game UI Settings."));
 		return;
 	}
 
@@ -275,7 +274,7 @@ void ASL_PlayerController::ShowEndingCredits(USL_Widget_Activatable_Base* ThankY
 					EndingUISubsystem->RemoveWidgetFromStack(SL_GameplayTags::UI_WidgetStack_GameMenu, WeakThankYouScreen.Get());
 				}
 
-				PlayerController->SetShowMouseCursor(true);
+				PlayerController->SetShowMouseCursor(false);
 
 				if (ULocalPlayer* LocalPlayer = PlayerController->GetLocalPlayer())
 				{
