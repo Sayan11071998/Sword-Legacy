@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
+#include "GameplayTagContainer.h"
 #include "UObject/WeakObjectPtr.h"
 #include "SL_GameModeBase.generated.h"
 
@@ -49,6 +50,10 @@ private:
 	
 	void HandleLevelCleared();
 
+	void LockClearedLevel();
+
+	void LoadNextLevelAfterClear();
+
 	TSet<TWeakObjectPtr<AActor>> SummonedEnemies;
 	TSet<TWeakObjectPtr<AActor>> DefeatedEnemies;
 
@@ -60,4 +65,7 @@ private:
 	bool bHasHandledPlayerLost = false;
 	bool bHasHandledLevelCleared = false;
 	bool bHasBegunGameplay = false;
+
+	FGameplayTag PendingNextLevelTag;
+	FTimerHandle LevelClearHoldTimer;
 };

@@ -1,10 +1,15 @@
 #include "GameModes/SL_GameModeBase.h"
+#include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemComponent.h"
 #include "Characters/SL_EnemyCharacter.h"
 #include "Controllers/SL_PlayerController.h"
 #include "Engine/GameInstance.h"
 #include "EngineUtils.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/WorldSettings.h"
 #include "GameplayTags/SL_GameplayTags.h"
+#include "Settings/SL_LevelDeveloperSettings.h"
 #include "Subsystems/SL_LoadingScreenSubsystem.h"
 #include "Utilities/SL_FunctionLibrary.h"
 
@@ -33,6 +38,11 @@ void ASL_GameModeBase::BeginPlay()
 
 void ASL_GameModeBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(LevelClearHoldTimer);
+	}
+
 	UnbindLoadingScreen();
 	
 	Super::EndPlay(EndPlayReason);
@@ -240,9 +250,85 @@ void ASL_GameModeBase::HandleLevelCleared()
 		return;
 	}
 
-	UE_LOG(LogTemp, Display, TEXT("Level cleared. Loading %s."), *NextLevelTag.ToString());
-	
-	USL_FunctionLibrary::OpenLevelByTagWithLoadingScreen(this, NextLevelTag);
+	const USL_LevelDeveloperSettings* LevelSettings = GetDefault<USL_LevelDeveloperSettings>();
+	const float HoldSeconds = LevelSettings ? LevelSettings->LevelClearHoldSeconds : 0.f;
+
+	UE_LOG(LogTemp, Display, TEXT("Level cleared. Loading %s in %.1f seconds."), *NextLevelTag.ToString(), HoldSeconds);
+
+	PendingNextLevelTag = NextLevelTag;
+	LockClearedLevel();
+
+	if (HoldSeconds <= 0.f)
+	{
+		LoadNextLevelAfterClear();
+		
+		return;
+	}
+
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().SetTimer(
+			LevelClearHoldTimer,
+			this,
+			&ASL_GameModeBase::LoadNextLevelAfterClear,
+			HoldSeconds,
+			false
+		);
+	}
+}
+
+void ASL_GameModeBase::LockClearedLevel()
+{
+	UWorld* World = GetWorld();
+	if (!World) return;
+
+	for (FConstPlayerControllerIterator Iterator = World->GetPlayerControllerIterator(); Iterator; ++Iterator)
+	{
+		APlayerController* PlayerController = Iterator->Get();
+		if (!PlayerController) continue;
+
+		PlayerController->SetIgnoreMoveInput(true);
+		PlayerController->SetIgnoreLookInput(true);
+
+		APawn* Pawn = PlayerController->GetPawn();
+		if (!Pawn) continue;
+
+		Pawn->DisableInput(PlayerController);
+
+		if (ACharacter* Character = Cast<ACharacter>(Pawn))
+		{
+			if (UCharacterMovementComponent* Movement = Character->GetCharacterMovement())
+			{
+				Movement->StopMovementImmediately();
+				Movement->DisableMovement();
+			}
+		}
+
+		if (UAbilitySystemComponent* AbilitySystem = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Pawn))
+		{
+			TArray<FGameplayAbilitySpecHandle> HeldAbilities;
+
+			for (const FGameplayAbilitySpec& AbilitySpec : AbilitySystem->GetActivatableAbilities())
+			{
+				if (AbilitySpec.IsActive() && AbilitySpec.GetDynamicSpecSourceTags().HasTag(SL_GameplayTags::InputTag_MustBeHeld))
+				{
+					HeldAbilities.Add(AbilitySpec.Handle);
+				}
+			}
+
+			for (const FGameplayAbilitySpecHandle& AbilityHandle : HeldAbilities)
+			{
+				AbilitySystem->CancelAbilityHandle(AbilityHandle);
+			}
+		}
+	}
+}
+
+void ASL_GameModeBase::LoadNextLevelAfterClear()
+{
+	if (!PendingNextLevelTag.IsValid()) return;
+
+	USL_FunctionLibrary::OpenLevelByTagWithLoadingScreen(this, PendingNextLevelTag);
 }
 
 void ASL_GameModeBase::HandlePlayerLost()

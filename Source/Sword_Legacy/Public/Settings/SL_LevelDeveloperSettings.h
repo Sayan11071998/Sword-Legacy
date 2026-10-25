@@ -19,4 +19,8 @@ public:
 	// Combat levels in play order. Clearing one loads the next. The final level does not load another level
 	UPROPERTY(Config, EditAnywhere, Category = "Level Progression", meta = (Categories = "Game.Level"))
 	TArray<FGameplayTag> LevelProgression;
+
+	// How long a cleared level stays on screen before the next level loads. The player cannot act during this hold
+	UPROPERTY(Config, EditAnywhere, Category = "Level Progression", meta = (ClampMin = "0.0", Units = "s"))
+	float LevelClearHoldSeconds = 2.5f;
 };
