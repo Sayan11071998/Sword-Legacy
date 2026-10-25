@@ -23,4 +23,8 @@ public:
 	// How long a cleared level stays on screen before the next level loads. The player cannot act during this hold
 	UPROPERTY(Config, EditAnywhere, Category = "Level Progression", meta = (ClampMin = "0.0", Units = "s"))
 	float LevelClearHoldSeconds = 2.5f;
+
+	// Camera fade to black when a level ends, and back in when the next level starts
+	UPROPERTY(Config, EditAnywhere, Category = "Level Progression", meta = (ClampMin = "0.0", Units = "s"))
+	float LevelTransitionFadeSeconds = 1.f;
 };

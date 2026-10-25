@@ -1,6 +1,7 @@
 #include "GameModes/SL_GameModeBase.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "Camera/PlayerCameraManager.h"
 #include "Characters/SL_EnemyCharacter.h"
 #include "Controllers/SL_PlayerController.h"
 #include "Engine/GameInstance.h"
@@ -86,6 +87,8 @@ void ASL_GameModeBase::BeginGameplay()
 			PlayerController->ApplyGameplayInputConfig();
 		}
 	}
+
+	FadeLevelCamera(1.f, 0.f, false);
 
 	if (USL_FunctionLibrary::IsCurrentLevelByTag(this, SL_GameplayTags::Game_Level_Final))
 	{
@@ -251,14 +254,18 @@ void ASL_GameModeBase::HandleLevelCleared()
 	}
 
 	const USL_LevelDeveloperSettings* LevelSettings = GetDefault<USL_LevelDeveloperSettings>();
+	
 	const float HoldSeconds = LevelSettings ? LevelSettings->LevelClearHoldSeconds : 0.f;
+	const float FadeSeconds = LevelSettings ? LevelSettings->LevelTransitionFadeSeconds : 0.f;
+	const float WaitSeconds = FMath::Max(HoldSeconds, FadeSeconds);
 
-	UE_LOG(LogTemp, Display, TEXT("Level cleared. Loading %s in %.1f seconds."), *NextLevelTag.ToString(), HoldSeconds);
+	UE_LOG(LogTemp, Display, TEXT("Level cleared. Loading %s in %.1f seconds."), *NextLevelTag.ToString(), WaitSeconds);
 
 	PendingNextLevelTag = NextLevelTag;
 	LockClearedLevel();
+	FadeLevelCamera(0.f, 1.f, true);
 
-	if (HoldSeconds <= 0.f)
+	if (WaitSeconds <= 0.f)
 	{
 		LoadNextLevelAfterClear();
 		
@@ -271,7 +278,7 @@ void ASL_GameModeBase::HandleLevelCleared()
 			LevelClearHoldTimer,
 			this,
 			&ASL_GameModeBase::LoadNextLevelAfterClear,
-			HoldSeconds,
+			WaitSeconds,
 			false
 		);
 	}
@@ -329,6 +336,38 @@ void ASL_GameModeBase::LoadNextLevelAfterClear()
 	if (!PendingNextLevelTag.IsValid()) return;
 
 	USL_FunctionLibrary::OpenLevelByTagWithLoadingScreen(this, PendingNextLevelTag);
+}
+
+void ASL_GameModeBase::FadeLevelCamera(float FromAlpha, float ToAlpha, bool bHoldWhenFinished) const
+{
+	const USL_LevelDeveloperSettings* LevelSettings = GetDefault<USL_LevelDeveloperSettings>();
+	
+	const float FadeSeconds = LevelSettings ? LevelSettings->LevelTransitionFadeSeconds : 0.f;
+	
+	if (FadeSeconds <= 0.f) return;
+
+	UWorld* World = GetWorld();
+	if (!World) return;
+
+	for (FConstPlayerControllerIterator Iterator = World->GetPlayerControllerIterator(); Iterator; ++Iterator)
+	{
+		APlayerController* PlayerController = Iterator->Get();
+		if (!PlayerController || !PlayerController->PlayerCameraManager) continue;
+
+		if (FromAlpha > ToAlpha)
+		{
+			PlayerController->PlayerCameraManager->SetManualCameraFade(FromAlpha, FLinearColor::Black, false);
+		}
+
+		PlayerController->PlayerCameraManager->StartCameraFade(
+			FromAlpha,
+			ToAlpha,
+			FadeSeconds,
+			FLinearColor::Black,
+			false,
+			bHoldWhenFinished
+		);
+	}
 }
 
 void ASL_GameModeBase::HandlePlayerLost()

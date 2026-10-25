@@ -54,6 +54,8 @@ private:
 
 	void LoadNextLevelAfterClear();
 
+	void FadeLevelCamera(float FromAlpha, float ToAlpha, bool bHoldWhenFinished) const;
+
 	TSet<TWeakObjectPtr<AActor>> SummonedEnemies;
 	TSet<TWeakObjectPtr<AActor>> DefeatedEnemies;
 
