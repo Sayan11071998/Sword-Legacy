@@ -54,6 +54,8 @@ private:
 
 	void StartLevelTransitionFade();
 
+	void FinishLevelClearPresentation();
+
 	void LoadNextLevelAfterClear();
 
 	void FadeLevelCamera(float FromAlpha, float ToAlpha, bool bHoldWhenFinished) const;
@@ -69,6 +71,7 @@ private:
 	bool bHasHandledPlayerLost = false;
 	bool bHasHandledLevelCleared = false;
 	bool bHasBegunGameplay = false;
+	bool bAwaitingGameEnding = false;
 
 	FGameplayTag PendingNextLevelTag;
 	FTimerHandle LevelClearHoldTimer;

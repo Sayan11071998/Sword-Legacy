@@ -224,33 +224,24 @@ void ASL_GameModeBase::HandleLevelCleared()
 	if (bHasHandledLevelCleared || bHasHandledPlayerLost) return;
 
 	bHasHandledLevelCleared = true;
+	bAwaitingGameEnding = USL_FunctionLibrary::IsCurrentLevelByTag(this, SL_GameplayTags::Game_Level_Final);
 
-	if (USL_FunctionLibrary::IsCurrentLevelByTag(this, SL_GameplayTags::Game_Level_Final))
+	if (bAwaitingGameEnding)
 	{
 		UE_LOG(LogTemp, Display, TEXT("Final level cleared."));
+	}
+	else
+	{
+		FGameplayTag NextLevelTag;
 
-		if (UWorld* World = GetWorld())
+		if (!USL_FunctionLibrary::GetNextProgressionLevelTag(this, NextLevelTag))
 		{
-			for (FConstPlayerControllerIterator Iterator = World->GetPlayerControllerIterator(); Iterator; ++Iterator)
-			{
-				ASL_PlayerController* PlayerController = Cast<ASL_PlayerController>(Iterator->Get());
-				
-				if (!PlayerController || !PlayerController->IsLocalPlayerController()) continue;
-
-				PlayerController->ShowGameEnding();
-			}
+			UE_LOG(LogTemp, Warning, TEXT("Level cleared, but no next level is set in Level Progression."));
+			
+			return;
 		}
 
-		return;
-	}
-
-	FGameplayTag NextLevelTag;
-	
-	if (!USL_FunctionLibrary::GetNextProgressionLevelTag(this, NextLevelTag))
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Level cleared, but no next level is set in Level Progression."));
-		
-		return;
+		PendingNextLevelTag = NextLevelTag;
 	}
 
 	const USL_LevelDeveloperSettings* LevelSettings = GetDefault<USL_LevelDeveloperSettings>();
@@ -258,7 +249,6 @@ void ASL_GameModeBase::HandleLevelCleared()
 
 	UE_LOG(LogTemp, Display, TEXT("Level cleared. Holding for %.1f seconds before fade."), HoldSeconds);
 
-	PendingNextLevelTag = NextLevelTag;
 	LockClearedLevel();
 
 	if (HoldSeconds <= 0.f)
@@ -335,8 +325,7 @@ void ASL_GameModeBase::StartLevelTransitionFade()
 
 	if (FadeSeconds <= 0.f)
 	{
-		LoadNextLevelAfterClear();
-		
+		FinishLevelClearPresentation();
 		return;
 	}
 
@@ -345,11 +334,33 @@ void ASL_GameModeBase::StartLevelTransitionFade()
 		World->GetTimerManager().SetTimer(
 			LevelClearHoldTimer,
 			this,
-			&ASL_GameModeBase::LoadNextLevelAfterClear,
+			&ASL_GameModeBase::FinishLevelClearPresentation,
 			FadeSeconds,
 			false
 		);
 	}
+}
+
+void ASL_GameModeBase::FinishLevelClearPresentation()
+{
+	if (bAwaitingGameEnding)
+	{
+		if (UWorld* World = GetWorld())
+		{
+			for (FConstPlayerControllerIterator Iterator = World->GetPlayerControllerIterator(); Iterator; ++Iterator)
+			{
+				ASL_PlayerController* PlayerController = Cast<ASL_PlayerController>(Iterator->Get());
+				
+				if (!PlayerController || !PlayerController->IsLocalPlayerController()) continue;
+
+				PlayerController->ShowGameEnding();
+			}
+		}
+
+		return;
+	}
+
+	LoadNextLevelAfterClear();
 }
 
 void ASL_GameModeBase::LoadNextLevelAfterClear()
