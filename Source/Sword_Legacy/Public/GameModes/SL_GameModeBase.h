@@ -52,6 +52,8 @@ private:
 
 	void LockClearedLevel();
 
+	void StartLevelTransitionFade();
+
 	void LoadNextLevelAfterClear();
 
 	void FadeLevelCamera(float FromAlpha, float ToAlpha, bool bHoldWhenFinished) const;

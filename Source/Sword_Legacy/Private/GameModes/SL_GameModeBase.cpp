@@ -254,21 +254,16 @@ void ASL_GameModeBase::HandleLevelCleared()
 	}
 
 	const USL_LevelDeveloperSettings* LevelSettings = GetDefault<USL_LevelDeveloperSettings>();
-	
 	const float HoldSeconds = LevelSettings ? LevelSettings->LevelClearHoldSeconds : 0.f;
-	const float FadeSeconds = LevelSettings ? LevelSettings->LevelTransitionFadeSeconds : 0.f;
-	const float WaitSeconds = FMath::Max(HoldSeconds, FadeSeconds);
 
-	UE_LOG(LogTemp, Display, TEXT("Level cleared. Loading %s in %.1f seconds."), *NextLevelTag.ToString(), WaitSeconds);
+	UE_LOG(LogTemp, Display, TEXT("Level cleared. Holding for %.1f seconds before fade."), HoldSeconds);
 
 	PendingNextLevelTag = NextLevelTag;
 	LockClearedLevel();
-	FadeLevelCamera(0.f, 1.f, true);
 
-	if (WaitSeconds <= 0.f)
+	if (HoldSeconds <= 0.f)
 	{
-		LoadNextLevelAfterClear();
-		
+		StartLevelTransitionFade();
 		return;
 	}
 
@@ -277,8 +272,8 @@ void ASL_GameModeBase::HandleLevelCleared()
 		World->GetTimerManager().SetTimer(
 			LevelClearHoldTimer,
 			this,
-			&ASL_GameModeBase::LoadNextLevelAfterClear,
-			WaitSeconds,
+			&ASL_GameModeBase::StartLevelTransitionFade,
+			HoldSeconds,
 			false
 		);
 	}
@@ -328,6 +323,32 @@ void ASL_GameModeBase::LockClearedLevel()
 				AbilitySystem->CancelAbilityHandle(AbilityHandle);
 			}
 		}
+	}
+}
+
+void ASL_GameModeBase::StartLevelTransitionFade()
+{
+	const USL_LevelDeveloperSettings* LevelSettings = GetDefault<USL_LevelDeveloperSettings>();
+	const float FadeSeconds = LevelSettings ? LevelSettings->LevelTransitionFadeSeconds : 0.f;
+
+	FadeLevelCamera(0.f, 1.f, true);
+
+	if (FadeSeconds <= 0.f)
+	{
+		LoadNextLevelAfterClear();
+		
+		return;
+	}
+
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().SetTimer(
+			LevelClearHoldTimer,
+			this,
+			&ASL_GameModeBase::LoadNextLevelAfterClear,
+			FadeSeconds,
+			false
+		);
 	}
 }
 
