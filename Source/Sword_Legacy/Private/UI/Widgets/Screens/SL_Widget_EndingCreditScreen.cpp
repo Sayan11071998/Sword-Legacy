@@ -5,6 +5,7 @@
 #include "Components/ScrollBox.h"
 #include "Components/ScrollBoxSlot.h"
 #include "Components/VerticalBoxSlot.h"
+#include "Controllers/SL_PlayerController.h"
 #include "Utilities/SL_FunctionLibrary.h"
 
 USL_Widget_EndingCreditScreen::USL_Widget_EndingCreditScreen()
@@ -123,8 +124,12 @@ void USL_Widget_EndingCreditScreen::NativeTick(const FGeometry& MyGeometry, floa
 	{
 		ScrollBox_Main->SetScrollOffset(EndOffset);
 		bScrollFinished = true;
-		UE_LOG(LogTemp, Display, TEXT("Ending credits finished."));
-		
+
+		if (ASL_PlayerController* PlayerController = GetOwningPlayer<ASL_PlayerController>())
+		{
+			PlayerController->ShowEndingPressAnyKey(this);
+		}
+
 		return;
 	}
 

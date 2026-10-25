@@ -291,6 +291,63 @@ void ASL_PlayerController::ShowEndingCredits(USL_Widget_Activatable_Base* ThankY
 	);
 }
 
+void ASL_PlayerController::ShowEndingPressAnyKey(USL_Widget_Activatable_Base* CreditScreen)
+{
+	USL_UISubsystem* UISubsystem = USL_UISubsystem::Get(this);
+	if (!UISubsystem || !UISubsystem->HasPrimaryLayout()) return;
+
+	const USL_DeveloperSettings* DeveloperSettings = GetDefault<USL_DeveloperSettings>();
+	
+	const TSoftClassPtr<USL_Widget_Activatable_Base> PressAnyKeyClass = DeveloperSettings
+		? DeveloperSettings->GameWidgetMap.FindRef(SL_GameplayTags::UI_Widget_EndingPressAnyKeyScreen)
+		: TSoftClassPtr<USL_Widget_Activatable_Base>();
+
+	if (PressAnyKeyClass.IsNull())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Ending Press Any Key Screen is not assigned in Game UI Settings."));
+		
+		return;
+	}
+
+	TWeakObjectPtr<ASL_PlayerController> WeakThis(this);
+	TWeakObjectPtr<USL_Widget_Activatable_Base> WeakCreditScreen(CreditScreen);
+
+	UISubsystem->PushSoftWidgetToStackAsync(
+		SL_GameplayTags::UI_WidgetStack_GameMenu,
+		PressAnyKeyClass,
+		[WeakThis, WeakCreditScreen](EAsyncPushWidgetState InPushState, TObjectPtr<USL_Widget_Activatable_Base> PushedWidget)
+		{
+			if (!PushedWidget) return;
+
+			ASL_PlayerController* PlayerController = WeakThis.Get();
+
+			if (InPushState == EAsyncPushWidgetState::OnCreatedBeforePush)
+			{
+				if (PlayerController)
+				{
+					PushedWidget->SetOwningPlayer(PlayerController);
+				}
+			}
+			else if (InPushState == EAsyncPushWidgetState::AfterPush)
+			{
+				if (!PlayerController) return;
+
+				if (USL_UISubsystem* EndingUISubsystem = USL_UISubsystem::Get(PlayerController))
+				{
+					EndingUISubsystem->RemoveWidgetFromStack(SL_GameplayTags::UI_WidgetStack_GameMenu, WeakCreditScreen.Get());
+				}
+
+				PlayerController->SetShowMouseCursor(true);
+
+				if (UWidget* WidgetToFocus = PushedWidget->GetDesiredFocusTarget())
+				{
+					WidgetToFocus->SetFocus();
+				}
+			}
+		}
+	);
+}
+
 void ASL_PlayerController::ToggleGamePause()
 {
 	if (!IsLocalPlayerController() || bIsGamePaused) return;

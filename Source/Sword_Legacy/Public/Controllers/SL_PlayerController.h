@@ -23,6 +23,7 @@ public:
 	void ShowGameLoseScreen();
 	void ShowGameEnding();
 	void ShowEndingCredits(class USL_Widget_Activatable_Base* ThankYouScreen);
+	void ShowEndingPressAnyKey(class USL_Widget_Activatable_Base* CreditScreen);
 	
 	void ToggleGamePause();
 	
