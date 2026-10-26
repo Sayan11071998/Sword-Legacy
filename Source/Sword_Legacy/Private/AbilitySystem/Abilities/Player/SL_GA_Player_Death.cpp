@@ -1,9 +1,9 @@
 #include "AbilitySystem/Abilities/Player/SL_GA_Player_Death.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Characters/SL_PlayerCharacter.h"
-#include "Controllers/SL_PlayerController.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/UI/SL_PlayerUIComponent.h"
+#include "GameModes/SL_GameModeBase.h"
 
 USL_GA_Player_Death::USL_GA_Player_Death()
 {
@@ -61,17 +61,17 @@ void USL_GA_Player_Death::EndAbility(const FGameplayAbilitySpecHandle Handle,
 		}
 	}
 	
-	if (ASL_PlayerController* PlayerController = GetPlayerControllerFromActorInfo())
-	{
-		FInputModeUIOnly InputModeData;
-		InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-		PlayerController->SetInputMode(InputModeData);
-		PlayerController->SetShowMouseCursor(true);
-	}
-	
 	if (USL_PlayerUIComponent* PlayerUIComponent = GetPlayerUIComponentFromActorInfo())
 	{
 		PlayerUIComponent->RemovePlayerDrawnWidgetsIfAny();
+	}
+
+	if (UWorld* World = GetWorld())
+	{
+		if (ASL_GameModeBase* GameMode = World->GetAuthGameMode<ASL_GameModeBase>())
+		{
+			GameMode->HandlePlayerLost();
+		}
 	}
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);

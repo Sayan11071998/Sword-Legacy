@@ -23,6 +23,8 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void RemovePlayerDrawnWidgetsIfAny();
+
+	void BroadcastCurrentHealthAndRage();
 	
 	UPROPERTY(BlueprintAssignable)
 	FOnPercentChangedDelegate OnCurrentRageChanged;

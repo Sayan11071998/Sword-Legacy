@@ -1,6 +1,6 @@
 #include "AbilitySystem/SL_AbilitySystemComponent.h"
 #include "AbilitySystem/Abilities/SL_PlayerGameplayAbility.h"
-#include "Utilities/SL_GameplayTags.h"
+#include "GameplayTags/SL_GameplayTags.h"
 
 void USL_AbilitySystemComponent::OnAbilityInputPressed(const FGameplayTag& InInputTag)
 {

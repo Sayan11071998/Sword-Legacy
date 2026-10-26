@@ -1,15 +1,20 @@
 #include "Utilities/SL_FunctionLibrary.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystem/SL_AbilitySystemComponent.h"
-#include "DataAssets/UI/SL_CreditTypes.h"
+#include "UI/Credits/SL_CreditTypes.h"
 #include "Engine/DataTable.h"
 #include "Interfaces/SL_PawnCombatInterface.h"
 #include "GenericTeamAgentInterface.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "Utilities/SL_GameplayTags.h"
+#include "GameplayTags/SL_GameplayTags.h"
 #include "Utilities/SL_CountdownAction.h"
-#include "Utilities/SL_DeveloperSettings.h"
-#include "Utilities/SL_GameUserSettings.h"
+#include "Settings/SL_DeveloperSettings.h"
+#include "Settings/SL_LevelDeveloperSettings.h"
+#include "Settings/SL_GameUserSettings.h"
+#include "Engine/Engine.h"
+#include "Engine/World.h"
+#include "Kismet/GameplayStatics.h"
+#include "Subsystems/SL_LoadingScreenSubsystem.h"
 
 TObjectPtr<USL_AbilitySystemComponent> USL_FunctionLibrary::NativeGetASCFromActor(TObjectPtr<AActor> InActor)
 {
@@ -285,4 +290,111 @@ FString USL_FunctionLibrary::GetCreditsDisplayString()
 	);
 
 	return BuildCreditsDisplayString(Rows);
+}
+
+void USL_FunctionLibrary::OpenLevelWithLoadingScreen(const UObject* WorldContextObject, const TSoftObjectPtr<UWorld> Level, bool bAbsolute, FString Options)
+{
+	if (!WorldContextObject || Level.IsNull()) return;
+
+	if (const UWorld* World = GEngine ? GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull) : nullptr)
+	{
+		if (UGameInstance* GameInstance = World->GetGameInstance())
+		{
+			if (USL_LoadingScreenSubsystem* LoadingScreenSubsystem = GameInstance->GetSubsystem<USL_LoadingScreenSubsystem>())
+			{
+				LoadingScreenSubsystem->ShowLoadingScreen(TEXT("Loading level"));
+			}
+		}
+	}
+
+	UGameplayStatics::OpenLevelBySoftObjectPtr(WorldContextObject, Level, bAbsolute, Options);
+}
+
+TSoftObjectPtr<UWorld> USL_FunctionLibrary::GetGameLevelByTag(FGameplayTag InLevelTag)
+{
+	const USL_LevelDeveloperSettings* LevelDeveloperSettings = GetDefault<USL_LevelDeveloperSettings>();
+	
+	if (!LevelDeveloperSettings || !LevelDeveloperSettings->GameLevelMap.Contains(InLevelTag))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Could not find a level under the tag %s"), *InLevelTag.ToString());
+		
+		return TSoftObjectPtr<UWorld>();
+	}
+
+	return LevelDeveloperSettings->GameLevelMap.FindRef(InLevelTag);
+}
+
+bool USL_FunctionLibrary::IsCurrentLevelByTag(const UObject* WorldContextObject, FGameplayTag InLevelTag)
+{
+	if (!WorldContextObject || !InLevelTag.IsValid()) return false;
+
+	const TSoftObjectPtr<UWorld> Level = GetGameLevelByTag(InLevelTag);
+	if (Level.IsNull()) return false;
+
+	const FString CurrentLevelName = UGameplayStatics::GetCurrentLevelName(WorldContextObject, true);
+	
+	return CurrentLevelName == Level.ToSoftObjectPath().GetAssetName();
+}
+
+bool USL_FunctionLibrary::GetNextProgressionLevelTag(const UObject* WorldContextObject, FGameplayTag& OutNextLevelTag)
+{
+	OutNextLevelTag = FGameplayTag();
+	
+	if (!WorldContextObject) return false;
+
+	const USL_LevelDeveloperSettings* LevelDeveloperSettings = GetDefault<USL_LevelDeveloperSettings>();
+	if (!LevelDeveloperSettings) return false;
+
+	FGameplayTag CurrentLevelTag;
+	
+	for (const TPair<FGameplayTag, TSoftObjectPtr<UWorld>>& LevelPair : LevelDeveloperSettings->GameLevelMap)
+	{
+		if (IsCurrentLevelByTag(WorldContextObject, LevelPair.Key))
+		{
+			CurrentLevelTag = LevelPair.Key;
+			break;
+		}
+	}
+
+	if (!CurrentLevelTag.IsValid() || CurrentLevelTag == SL_GameplayTags::Game_Level_Final) return false;
+
+	const int32 CurrentIndex = LevelDeveloperSettings->LevelProgression.IndexOfByKey(CurrentLevelTag);
+	
+	if (CurrentIndex == INDEX_NONE || !LevelDeveloperSettings->LevelProgression.IsValidIndex(CurrentIndex + 1)) return false;
+
+	OutNextLevelTag = LevelDeveloperSettings->LevelProgression[CurrentIndex + 1];
+	
+	return OutNextLevelTag.IsValid();
+}
+
+void USL_FunctionLibrary::OpenLevelByTagWithLoadingScreen(const UObject* WorldContextObject, FGameplayTag InLevelTag, bool bAbsolute, FString Options)
+{
+	const TSoftObjectPtr<UWorld> Level = GetGameLevelByTag(InLevelTag);
+	
+	if (Level.IsNull())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Level tag %s is not assigned in Game Level Settings."), *InLevelTag.ToString());
+		
+		return;
+	}
+
+	OpenLevelWithLoadingScreen(WorldContextObject, Level, bAbsolute, Options);
+}
+
+void USL_FunctionLibrary::OpenLevelByNameWithLoadingScreen(const UObject* WorldContextObject, FName LevelName, bool bAbsolute, FString Options)
+{
+	if (!WorldContextObject || LevelName.IsNone()) return;
+
+	if (const UWorld* World = GEngine ? GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull) : nullptr)
+	{
+		if (UGameInstance* GameInstance = World->GetGameInstance())
+		{
+			if (USL_LoadingScreenSubsystem* LoadingScreenSubsystem = GameInstance->GetSubsystem<USL_LoadingScreenSubsystem>())
+			{
+				LoadingScreenSubsystem->ShowLoadingScreen(TEXT("Loading level"));
+			}
+		}
+	}
+
+	UGameplayStatics::OpenLevel(WorldContextObject, LevelName, bAbsolute, Options);
 }

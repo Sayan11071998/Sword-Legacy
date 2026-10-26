@@ -5,6 +5,7 @@
 #include "Characters/SL_BaseCharacter.h"
 #include "SL_PlayerCharacter.generated.h"
 
+class UInputAction;
 class USL_PlayerUIComponent;
 struct FInputActionValue;
 class USL_DataAsset_InputConfig;
@@ -30,6 +31,8 @@ public:
 	// ~ End APawn Interface
 
 	void ApplyCameraDistanceMultiplier(float InMultiplier);
+	
+	TObjectPtr<UInputAction> GetNativeInputActionByTag(const FGameplayTag& InInputTag) const;
 	
 	// ~ Begin ISL_PawnCombatInterface Interface
 	virtual TObjectPtr<USL_PawnCombatComponent> GetPawnCombatComponent() const override;
@@ -84,6 +87,7 @@ private:
 	void Input_SwitchTargetCompleted(const FInputActionValue& InputActionValue);
 	
 	void Input_PickupStonesStarted(const FInputActionValue& InputActionValue);
+	void Input_Pause(const FInputActionValue& InputActionValue);
 	
 	void Input_AbilityInputPressed(FGameplayTag InInputTag);
 	void Input_AbilityInputRelease(FGameplayTag InInputTag);

@@ -3,7 +3,7 @@
 #include "AbilitySystem/SL_AbilitySystemComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Characters/SL_EnemyCharacter.h"
-#include "Utilities/SL_GameplayTags.h"
+#include "GameplayTags/SL_GameplayTags.h"
 
 USL_GA_Enemy_HitReactBase::USL_GA_Enemy_HitReactBase()
 {

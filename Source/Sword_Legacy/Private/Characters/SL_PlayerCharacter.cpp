@@ -7,14 +7,15 @@
 #include "Camera/CameraComponent.h"
 #include "Components/Combat/SL_PlayerCombatComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Components/Input/SL_EnhancedInputComponent.h"
-#include "DataAssets/Input/SL_DataAsset_InputConfig.h"
-#include "Utilities/SL_GameplayTags.h"
+#include "Input/SL_EnhancedInputComponent.h"
+#include "Input/SL_DataAsset_InputConfig.h"
+#include "GameplayTags/SL_GameplayTags.h"
 #include "DataAssets/StartupData/SL_DataAsset_StartupData_Player.h"
 #include "Components/UI/SL_PlayerUIComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Utilities/SL_FunctionLibrary.h"
-#include "Utilities/SL_GameUserSettings.h"
+#include "Controllers/SL_PlayerController.h"
+#include "Settings/SL_GameUserSettings.h"
 
 namespace
 {
@@ -83,6 +84,7 @@ void ASL_PlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	EnhancedInputComponent->BindNativeInputAction(InputConfigDataAsset, SL_GameplayTags::InputTag_SwitchTarget, ETriggerEvent::Completed, this, &ASL_PlayerCharacter::Input_SwitchTargetCompleted);
 	
 	EnhancedInputComponent->BindNativeInputAction(InputConfigDataAsset, SL_GameplayTags::InputTag_Pickup_Stones, ETriggerEvent::Started, this, &ASL_PlayerCharacter::Input_PickupStonesStarted);
+	EnhancedInputComponent->BindNativeInputAction(InputConfigDataAsset, SL_GameplayTags::InputTag_Pause, ETriggerEvent::Started, this, &ASL_PlayerCharacter::Input_Pause);
 
 	EnhancedInputComponent->BindAbilityInputAction(InputConfigDataAsset, this, &ASL_PlayerCharacter::Input_AbilityInputPressed, &ASL_PlayerCharacter::Input_AbilityInputRelease);
 }
@@ -106,6 +108,13 @@ void ASL_PlayerCharacter::PossessedBy(AController* NewController)
 	{
 		ApplyCameraDistanceMultiplier(GameUserSettings->GetCameraDistance());
 	}
+}
+
+TObjectPtr<UInputAction> ASL_PlayerCharacter::GetNativeInputActionByTag(const FGameplayTag& InInputTag) const
+{
+	if (!InputConfigDataAsset) return nullptr;
+
+	return InputConfigDataAsset->FindNativeInputActionByTag(InInputTag);
 }
 
 void ASL_PlayerCharacter::ApplyCameraDistanceMultiplier(float InMultiplier)
@@ -190,6 +199,14 @@ void ASL_PlayerCharacter::Input_SwitchTargetCompleted(const FInputActionValue& I
 		SwitchDirection.X > 0.f ? SL_GameplayTags::Player_Event_SwitchTarget_Right : SL_GameplayTags::Player_Event_SwitchTarget_Left,
 		Data
 	);
+}
+
+void ASL_PlayerCharacter::Input_Pause(const FInputActionValue& InputActionValue)
+{
+	if (ASL_PlayerController* PlayerController = GetController<ASL_PlayerController>())
+	{
+		PlayerController->ToggleGamePause();
+	}
 }
 
 void ASL_PlayerCharacter::Input_PickupStonesStarted(const FInputActionValue& InputActionValue)

@@ -1,0 +1,12 @@
+#include "UI/Widgets/SL_Widget_Activatable_Base.h"
+#include "Controllers/SL_PlayerController.h"
+
+ASL_PlayerController* USL_Widget_Activatable_Base::GetOwningPlayerController()
+{
+	if (!CachedOwningPlayerController.IsValid())
+	{
+		CachedOwningPlayerController = GetOwningPlayer<ASL_PlayerController>();
+	}
+	
+	return CachedOwningPlayerController.IsValid() ? CachedOwningPlayerController.Get() : nullptr;
+}

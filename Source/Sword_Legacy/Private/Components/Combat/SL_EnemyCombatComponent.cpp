@@ -1,7 +1,7 @@
 #include "Components/Combat/SL_EnemyCombatComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Characters/SL_EnemyCharacter.h"
-#include "Utilities/SL_GameplayTags.h"
+#include "GameplayTags/SL_GameplayTags.h"
 #include "Utilities/SL_FunctionLibrary.h"
 #include "Components/BoxComponent.h"
 

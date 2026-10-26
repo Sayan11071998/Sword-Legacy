@@ -1,6 +1,7 @@
 #include "AbilitySystem/Abilities/Shared/SL_GA_Shared_SpawnWeapon_Base.h"
 #include "Items/Weapons/SL_WeaponBase.h"
 #include "Components/Combat/SL_PawnCombatComponent.h"
+#include "Characters/SL_EnemyCharacter.h"
 
 void USL_GA_Shared_SpawnWeapon_Base::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
@@ -40,7 +41,14 @@ void USL_GA_Shared_SpawnWeapon_Base::ActivateAbility(const FGameplayAbilitySpecH
 
 		if (UStaticMeshComponent* WeaponMesh = SpawnedWeapon->GetWeaponMesh())
 		{
-			WeaponMesh->SetScalarParameterValueOnMaterials(FName(TEXT("DissolveAmount")), 1.0f);
+			float DissolveAmount = 1.f;
+
+			if (const ASL_EnemyCharacter* EnemyCharacter = Cast<ASL_EnemyCharacter>(AvatarPawn))
+			{
+				DissolveAmount = EnemyCharacter->GetSpawnedWeaponDissolveAmount();
+			}
+
+			WeaponMesh->SetScalarParameterValueOnMaterials(FName(TEXT("DissolveAmount")), DissolveAmount);
 		}
 	}
 	

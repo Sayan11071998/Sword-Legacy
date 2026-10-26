@@ -4,7 +4,7 @@
 #include "Items/Weapons/SL_PlayerWeapon.h"
 #include "Characters/SL_PlayerCharacter.h"
 #include "Items/Projectiles/SL_ProjectileBase.h"
-#include "Utilities/SL_GameplayTags.h"
+#include "GameplayTags/SL_GameplayTags.h"
 
 USL_GA_Player_HeavyAttack_Katana::USL_GA_Player_HeavyAttack_Katana()
 {

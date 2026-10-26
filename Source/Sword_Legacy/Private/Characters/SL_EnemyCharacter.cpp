@@ -12,11 +12,12 @@
 #include "Components/WidgetComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Components/UI/SL_EnemyUIComponent.h"
-#include "Widgets/SL_WidgetBase.h"
+#include "UI/Widgets/SL_WidgetBase.h"
 #include "Utilities/SL_FunctionLibrary.h"
 #include "Animation/AnimMontage.h"
 #include "AbilitySystem/SL_AbilitySystemComponent.h"
-#include "Utilities/SL_GameplayTags.h"
+#include "GameModes/SL_GameModeBase.h"
+#include "GameplayTags/SL_GameplayTags.h"
 
 ASL_EnemyCharacter::ASL_EnemyCharacter()
 {
@@ -59,6 +60,18 @@ ASL_EnemyCharacter::ASL_EnemyCharacter()
 void ASL_EnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (!IsNetStartupActor() && !HasAnyFlags(RF_WasLoaded))
+	{
+		if (UWorld* World = GetWorld())
+		{
+			if (ASL_GameModeBase* GameMode = World->GetAuthGameMode<ASL_GameModeBase>())
+			{
+				GameMode->RegisterSummonedEnemy(this);
+			}
+		}
+	}
+
 	GetMesh()->HideBoneByName(LeftWeaponBoneName, PBO_Term);
 	
 	if (USL_WidgetBase* HealthWidget = Cast<USL_WidgetBase>(EnemyHealthWidgetComponent->GetUserWidgetObject()))
@@ -85,6 +98,13 @@ void ASL_EnemyCharacter::BeginPlay()
 
 		const float PlayRate = 1.0f / FMath::Max(TotalEntryRestoreTime, 0.1f);
 		EntryRestoreTimeline.SetPlayRate(PlayRate);
+
+		FOnTimelineEvent EntryRestoreFinishedDelegate;
+		EntryRestoreFinishedDelegate.BindUFunction(this, FName("HandleEntryRestoreFinished"));
+		EntryRestoreTimeline.SetTimelineFinishedFunc(EntryRestoreFinishedDelegate);
+
+		bEntryRestoreFinished = false;
+		CurrentEntryDissolveAmount = 1.f;
 		EntryRestoreTimeline.ReverseFromEnd();
 
 		SetActorTickEnabled(true);
@@ -169,6 +189,14 @@ TObjectPtr<USL_PawnCombatComponent> ASL_EnemyCharacter::GetPawnCombatComponent()
 
 void ASL_EnemyCharacter::OnEnemyDied_Implementation(const TSoftObjectPtr<UNiagaraSystem>& InSoftNiagaraSystem)
 {
+	if (UWorld* World = GetWorld())
+	{
+		if (ASL_GameModeBase* GameMode = World->GetAuthGameMode<ASL_GameModeBase>())
+		{
+			GameMode->NotifyEnemyRosterDeath(this);
+		}
+	}
+
 	if (GetMesh())
 	{
 		GetMesh()->bPauseAnims = true;
@@ -317,6 +345,8 @@ void ASL_EnemyCharacter::HandleDissolveFinished()
 
 void ASL_EnemyCharacter::HandleEntryRestoreUpdate(float Value)
 {
+	CurrentEntryDissolveAmount = Value;
+
 	if (GetMesh())
 	{
 		GetMesh()->SetScalarParameterValueOnMaterials(DissolveParameterName, Value);
@@ -332,4 +362,25 @@ void ASL_EnemyCharacter::HandleEntryRestoreUpdate(float Value)
 			}
 		}
 	}
+}
+
+void ASL_EnemyCharacter::HandleEntryRestoreFinished()
+{
+	bEntryRestoreFinished = true;
+	HandleEntryRestoreUpdate(0.f);
+}
+
+float ASL_EnemyCharacter::GetSpawnedWeaponDissolveAmount() const
+{
+	if (!EntryRestoreCurve || bEntryRestoreFinished)
+	{
+		return 0.f;
+	}
+
+	if (EntryRestoreTimeline.IsPlaying())
+	{
+		return CurrentEntryDissolveAmount;
+	}
+
+	return 1.f;
 }

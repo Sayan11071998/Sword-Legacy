@@ -1,6 +1,6 @@
 #include "AsyncActions/SL_AsyncAction_PushSoftWidget.h"
 #include "Subsystems/SL_UISubsystem.h"
-#include "Widgets/SL_Widget_Activatable_Base.h"
+#include "UI/Widgets/SL_Widget_Activatable_Base.h"
 
 void USL_AsyncAction_PushSoftWidget::Activate()
 {

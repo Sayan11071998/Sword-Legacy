@@ -30,7 +30,8 @@ public class Sword_Legacy : ModuleRules
 			"CoreUObject",
 			"PropertyPath",
 			"AudioMixer",
-			"PreLoadScreen"
+			"PreLoadScreen",
+			"RenderCore"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });

@@ -11,6 +11,7 @@ class USL_Widget_Activatable_Base;
 struct FScalableFloat;
 class USL_PawnCombatComponent;
 class USL_AbilitySystemComponent;
+class UWorld;
 
 UCLASS()
 class SWORD_LEGACY_API USL_FunctionLibrary : public UBlueprintFunctionLibrary
@@ -69,4 +70,22 @@ public:
 	
 	UFUNCTION(BlueprintPure, Category = "UI|Credits")
 	static FString GetCreditsDisplayString();
+
+	UFUNCTION(BlueprintCallable, Category = "Loading Screen", meta = (WorldContext = "WorldContextObject"))
+	static void OpenLevelWithLoadingScreen(const UObject* WorldContextObject, const TSoftObjectPtr<UWorld> Level, bool bAbsolute = true, FString Options = TEXT(""));
+
+	UFUNCTION(BlueprintCallable, Category = "Loading Screen", meta = (WorldContext = "WorldContextObject"))
+	static void OpenLevelByNameWithLoadingScreen(const UObject* WorldContextObject, FName LevelName, bool bAbsolute = true, FString Options = TEXT(""));
+
+	UFUNCTION(BlueprintPure, Category = "Loading Screen")
+	static TSoftObjectPtr<UWorld> GetGameLevelByTag(UPARAM(meta = (Categories = "Game.Level")) FGameplayTag InLevelTag);
+
+	UFUNCTION(BlueprintPure, Category = "Pawn|Function Library", meta = (WorldContext = "WorldContextObject"))
+	static bool IsCurrentLevelByTag(const UObject* WorldContextObject, UPARAM(meta = (Categories = "Game.Level")) FGameplayTag InLevelTag);
+
+	UFUNCTION(BlueprintPure, Category = "Loading Screen", meta = (WorldContext = "WorldContextObject"))
+	static bool GetNextProgressionLevelTag(const UObject* WorldContextObject, FGameplayTag& OutNextLevelTag);
+
+	UFUNCTION(BlueprintCallable, Category = "Pawn|Function Library", meta = (WorldContext = "WorldContextObject"))
+	static void OpenLevelByTagWithLoadingScreen(const UObject* WorldContextObject, UPARAM(meta = (Categories = "Game.Level")) FGameplayTag InLevelTag, bool bAbsolute = true, FString Options = TEXT(""));
 };

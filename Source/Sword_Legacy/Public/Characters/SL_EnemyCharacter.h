@@ -135,8 +135,16 @@ private:
 
 	UFUNCTION()
 	void HandleEntryRestoreUpdate(float Value);
+
+	UFUNCTION()
+	void HandleEntryRestoreFinished();
+
+	float CurrentEntryDissolveAmount = 1.f;
+	bool bEntryRestoreFinished = false;
 	
 public:
+	float GetSpawnedWeaponDissolveAmount() const;
+
 	FORCEINLINE TObjectPtr<USL_EnemyCombatComponent> GetEnemyCombatComponent() const { return EnemyCombatComponent; }
 	FORCEINLINE TObjectPtr<UBoxComponent> GetLeftHandCollisionBox() const { return LeftHandCollisionBox; }
 	FORCEINLINE TObjectPtr<UBoxComponent> GetRightHandCollisionBox() const { return RightHandCollisionBox; }
