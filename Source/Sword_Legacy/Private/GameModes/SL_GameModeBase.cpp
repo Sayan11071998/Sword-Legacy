@@ -12,6 +12,7 @@
 #include "GameplayTags/SL_GameplayTags.h"
 #include "Settings/SL_LevelDeveloperSettings.h"
 #include "Subsystems/SL_LoadingScreenSubsystem.h"
+#include "Subsystems/SL_UISubsystem.h"
 #include "Utilities/SL_FunctionLibrary.h"
 
 #if WITH_EDITOR
@@ -89,6 +90,7 @@ void ASL_GameModeBase::BeginGameplay()
 	}
 
 	FadeLevelCamera(1.f, 0.f, false);
+	FadeGameHUD(1.f);
 
 	if (USL_FunctionLibrary::IsCurrentLevelByTag(this, SL_GameplayTags::Game_Level_Final))
 	{
@@ -243,6 +245,8 @@ void ASL_GameModeBase::HandleLevelCleared()
 
 		PendingNextLevelTag = NextLevelTag;
 	}
+
+	FadeGameHUD(0.f);
 
 	const USL_LevelDeveloperSettings* LevelSettings = GetDefault<USL_LevelDeveloperSettings>();
 	const float HoldSeconds = LevelSettings ? LevelSettings->LevelClearHoldSeconds : 0.f;
@@ -399,6 +403,17 @@ void ASL_GameModeBase::FadeLevelCamera(float FromAlpha, float ToAlpha, bool bHol
 			false,
 			bHoldWhenFinished
 		);
+	}
+}
+
+void ASL_GameModeBase::FadeGameHUD(float TargetOpacity)
+{
+	const USL_LevelDeveloperSettings* LevelSettings = GetDefault<USL_LevelDeveloperSettings>();
+	const float FadeSeconds = LevelSettings ? LevelSettings->GameHUDFadeSeconds : 0.f;
+
+	if (USL_UISubsystem* UISubsystem = USL_UISubsystem::Get(this))
+	{
+		UISubsystem->FadeGameHUD(TargetOpacity, FadeSeconds);
 	}
 }
 

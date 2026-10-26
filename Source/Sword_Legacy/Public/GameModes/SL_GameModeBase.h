@@ -60,6 +60,8 @@ private:
 
 	void FadeLevelCamera(float FromAlpha, float ToAlpha, bool bHoldWhenFinished) const;
 
+	void FadeGameHUD(float TargetOpacity);
+
 	TSet<TWeakObjectPtr<AActor>> SummonedEnemies;
 	TSet<TWeakObjectPtr<AActor>> DefeatedEnemies;
 

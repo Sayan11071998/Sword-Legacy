@@ -6,6 +6,7 @@
 #include "SL_UISubsystem.generated.h"
 
 class USL_Widget_Activatable_Base;
+class UCommonActivatableWidgetContainerBase;
 struct FGameplayTag;
 class USL_Widget_PrimaryLayout;
 class USL_CommonButtonBase;
@@ -44,9 +45,6 @@ public:
 		const FText& InScreenMsg,
 		TFunction<void(ESL_ConfirmScreenButtonType)> ButtonClickedCallback
 	);
-	
-	UFUNCTION(BlueprintCallable)
-	void RegisterCreatedPrimaryLayoutWidget(USL_Widget_PrimaryLayout* InCreatedWidget);
 
 	bool HasPrimaryLayout() const;
 
@@ -55,6 +53,11 @@ public:
 	void PushPlayerHUD(TSoftClassPtr<USL_Widget_Activatable_Base> PlayerHUDClass);
 
 	void RemovePlayerHUD();
+
+	void FadeGameHUD(float TargetOpacity, float Duration);
+	
+	UFUNCTION(BlueprintCallable)
+	void RegisterCreatedPrimaryLayoutWidget(USL_Widget_PrimaryLayout* InCreatedWidget);
 	
 	UPROPERTY(BlueprintAssignable)
 	FOnButtonDescriptionTextUpdatedDelegate OnButtonDescriptionTextUpdated;
@@ -62,11 +65,30 @@ public:
 private:
 	void HandleWorldBeginTearDown(UWorld* World);
 
+	void SetGameHUDOpacity(float Opacity);
+
+	void StartGameHUDFade();
+	
+	UCommonActivatableWidgetContainerBase* GetGameHUDStack() const;
+
+	void ClearGameHUDFade();
+
+	bool bPlayerHUDPushRequested = false;
+	bool bGameHUDFadeRequested = false;
+
+	float GameHUDFadeTargetOpacity = 0.f;
+	float GameHUDFadeDuration = 0.f;
+	float GameHUDFadeStartOpacity = 0.f;
+	float GameHUDFadeStartTime = 0.f;
+
+	FTimerHandle GameHUDFadeTimer;
+	
+	UFUNCTION()
+	void TickGameHUDFade();
+	
 	UPROPERTY(Transient)
 	TObjectPtr<USL_Widget_PrimaryLayout> CreatedPrimaryLayout;
 
 	UPROPERTY(Transient)
 	TObjectPtr<USL_Widget_Activatable_Base> PlayerHUD;
-
-	bool bPlayerHUDPushRequested = false;
 };

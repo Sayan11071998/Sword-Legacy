@@ -27,4 +27,8 @@ public:
 	// Camera fade to black when a level ends, and back in when the next level starts
 	UPROPERTY(Config, EditAnywhere, Category = "Level Progression", meta = (ClampMin = "0.0", Units = "s"))
 	float LevelTransitionFadeSeconds = 1.f;
+
+	// How long the Game HUD takes to fade out when a level is cleared, and fade in when the next level starts
+	UPROPERTY(Config, EditAnywhere, Category = "Level Progression", meta = (ClampMin = "0.0", Units = "s"))
+	float GameHUDFadeSeconds = 1.5f;
 };

@@ -1,6 +1,7 @@
 #include "Subsystems/SL_UISubsystem.h"
 #include "Engine/AssetManager.h"
 #include "Engine/World.h"
+#include "TimerManager.h"
 #include "UI/Widgets/SL_Widget_Activatable_Base.h"
 #include "UI/Widgets/SL_Widget_PlayerHUD.h"
 #include "UI/Widgets/SL_Widget_PrimaryLayout.h"
@@ -44,11 +45,14 @@ void USL_UISubsystem::Initialize(FSubsystemCollectionBase& Collection)
 
 void USL_UISubsystem::Deinitialize()
 {
+	ClearGameHUDFade();
+	
 	FWorldDelegates::OnWorldBeginTearDown.RemoveAll(this);
 	
 	CreatedPrimaryLayout = nullptr;
 	PlayerHUD = nullptr;
 	bPlayerHUDPushRequested = false;
+	bGameHUDFadeRequested = false;
 	
 	Super::Deinitialize();
 }
@@ -72,9 +76,12 @@ void USL_UISubsystem::HandleWorldBeginTearDown(UWorld* World)
 {
 	if (CreatedPrimaryLayout && CreatedPrimaryLayout->GetWorld() == World)
 	{
+		ClearGameHUDFade();
+		
 		CreatedPrimaryLayout = nullptr;
 		PlayerHUD = nullptr;
 		bPlayerHUDPushRequested = false;
+		bGameHUDFadeRequested = false;
 	}
 }
 
@@ -95,6 +102,7 @@ void USL_UISubsystem::PushPlayerHUD(TSoftClassPtr<USL_Widget_Activatable_Base> P
 	if (UCommonActivatableWidgetContainerBase* WidgetStack = CreatedPrimaryLayout->FindWidgetStackByTag(SL_GameplayTags::UI_WidgetStack_GameHUD))
 	{
 		WidgetStack->SetTransitionDuration(0.f);
+		WidgetStack->SetRenderOpacity(0.f);
 	}
 
 	bPlayerHUDPushRequested = true;
@@ -104,9 +112,20 @@ void USL_UISubsystem::PushPlayerHUD(TSoftClassPtr<USL_Widget_Activatable_Base> P
 		PlayerHUDClass,
 		[this](EAsyncPushWidgetState InPushState, TObjectPtr<USL_Widget_Activatable_Base> PushedWidget)
 		{
+			if (InPushState == EAsyncPushWidgetState::OnCreatedBeforePush)
+			{
+				SetGameHUDOpacity(0.f);
+			}
+
 			if (InPushState == EAsyncPushWidgetState::AfterPush)
 			{
 				PlayerHUD = PushedWidget;
+				SetGameHUDOpacity(0.f);
+
+				if (bGameHUDFadeRequested)
+				{
+					StartGameHUDFade();
+				}
 			}
 		}
 	);
@@ -125,6 +144,78 @@ void USL_UISubsystem::RemovePlayerHUD()
 	
 	PlayerHUD = nullptr;
 	bPlayerHUDPushRequested = false;
+}
+
+void USL_UISubsystem::FadeGameHUD(float TargetOpacity, float Duration)
+{
+	GameHUDFadeTargetOpacity = FMath::Clamp(TargetOpacity, 0.f, 1.f);
+	GameHUDFadeDuration = FMath::Max(Duration, 0.f);
+	bGameHUDFadeRequested = true;
+
+	if (!GetGameHUDStack()) return;
+
+	StartGameHUDFade();
+}
+
+void USL_UISubsystem::RegisterCreatedPrimaryLayoutWidget(USL_Widget_PrimaryLayout* InCreatedWidget)
+{
+	check(InCreatedWidget);
+	
+	CreatedPrimaryLayout = InCreatedWidget;
+}
+
+void USL_UISubsystem::SetGameHUDOpacity(float Opacity)
+{
+	if (UCommonActivatableWidgetContainerBase* WidgetStack = GetGameHUDStack())
+	{
+		WidgetStack->SetRenderOpacity(Opacity);
+	}
+}
+
+void USL_UISubsystem::StartGameHUDFade()
+{
+	UCommonActivatableWidgetContainerBase* WidgetStack = GetGameHUDStack();
+	UWorld* World = WidgetStack ? WidgetStack->GetWorld() : nullptr;
+	
+	if (!WidgetStack || !World) return;
+
+	World->GetTimerManager().ClearTimer(GameHUDFadeTimer);
+
+	if (GameHUDFadeDuration <= 0.f)
+	{
+		WidgetStack->SetRenderOpacity(GameHUDFadeTargetOpacity);
+		
+		return;
+	}
+
+	GameHUDFadeStartOpacity = WidgetStack->GetRenderOpacity();
+	GameHUDFadeStartTime = World->GetTimeSeconds();
+
+	World->GetTimerManager().SetTimer(
+		GameHUDFadeTimer,
+		this,
+		&USL_UISubsystem::TickGameHUDFade,
+		1.f / 60.f,
+		true
+	);
+}
+
+UCommonActivatableWidgetContainerBase* USL_UISubsystem::GetGameHUDStack() const
+{
+	if (!HasPrimaryLayout()) return nullptr;
+
+	return CreatedPrimaryLayout->FindWidgetStackByTag(SL_GameplayTags::UI_WidgetStack_GameHUD);
+}
+
+void USL_UISubsystem::ClearGameHUDFade()
+{
+	if (CreatedPrimaryLayout)
+	{
+		if (UWorld* World = CreatedPrimaryLayout->GetWorld())
+		{
+			World->GetTimerManager().ClearTimer(GameHUDFadeTimer);
+		}
+	}
 }
 
 void USL_UISubsystem::PushSoftWidgetToStackAsync(
@@ -210,9 +301,25 @@ void USL_UISubsystem::PushConfirmScreenToModalStackAsync(ESL_ConfirmScreenType I
 	);
 }
 
-void USL_UISubsystem::RegisterCreatedPrimaryLayoutWidget(USL_Widget_PrimaryLayout* InCreatedWidget)
+void USL_UISubsystem::TickGameHUDFade()
 {
-	check(InCreatedWidget);
+	UCommonActivatableWidgetContainerBase* WidgetStack = GetGameHUDStack();
+	UWorld* World = WidgetStack ? WidgetStack->GetWorld() : nullptr;
 	
-	CreatedPrimaryLayout = InCreatedWidget;
+	if (!WidgetStack || !World)
+	{
+		ClearGameHUDFade();
+		
+		return;
+	}
+
+	const float Alpha = FMath::Clamp((World->GetTimeSeconds() - GameHUDFadeStartTime) / GameHUDFadeDuration, 0.f, 1.f);
+	const float EasedAlpha = Alpha * Alpha * (3.f - 2.f * Alpha);
+
+	WidgetStack->SetRenderOpacity(FMath::Lerp(GameHUDFadeStartOpacity, GameHUDFadeTargetOpacity, EasedAlpha));
+
+	if (Alpha >= 1.f)
+	{
+		World->GetTimerManager().ClearTimer(GameHUDFadeTimer);
+	}
 }
