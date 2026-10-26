@@ -98,6 +98,13 @@ void ASL_EnemyCharacter::BeginPlay()
 
 		const float PlayRate = 1.0f / FMath::Max(TotalEntryRestoreTime, 0.1f);
 		EntryRestoreTimeline.SetPlayRate(PlayRate);
+
+		FOnTimelineEvent EntryRestoreFinishedDelegate;
+		EntryRestoreFinishedDelegate.BindUFunction(this, FName("HandleEntryRestoreFinished"));
+		EntryRestoreTimeline.SetTimelineFinishedFunc(EntryRestoreFinishedDelegate);
+
+		bEntryRestoreFinished = false;
+		CurrentEntryDissolveAmount = 1.f;
 		EntryRestoreTimeline.ReverseFromEnd();
 
 		SetActorTickEnabled(true);
@@ -338,6 +345,8 @@ void ASL_EnemyCharacter::HandleDissolveFinished()
 
 void ASL_EnemyCharacter::HandleEntryRestoreUpdate(float Value)
 {
+	CurrentEntryDissolveAmount = Value;
+
 	if (GetMesh())
 	{
 		GetMesh()->SetScalarParameterValueOnMaterials(DissolveParameterName, Value);
@@ -353,4 +362,25 @@ void ASL_EnemyCharacter::HandleEntryRestoreUpdate(float Value)
 			}
 		}
 	}
+}
+
+void ASL_EnemyCharacter::HandleEntryRestoreFinished()
+{
+	bEntryRestoreFinished = true;
+	HandleEntryRestoreUpdate(0.f);
+}
+
+float ASL_EnemyCharacter::GetSpawnedWeaponDissolveAmount() const
+{
+	if (!EntryRestoreCurve || bEntryRestoreFinished)
+	{
+		return 0.f;
+	}
+
+	if (EntryRestoreTimeline.IsPlaying())
+	{
+		return CurrentEntryDissolveAmount;
+	}
+
+	return 1.f;
 }
