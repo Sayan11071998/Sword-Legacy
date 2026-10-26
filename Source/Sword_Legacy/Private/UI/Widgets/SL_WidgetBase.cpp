@@ -1,5 +1,6 @@
 #include "UI/Widgets/SL_WidgetBase.h"
 #include "Components/UI/SL_EnemyUIComponent.h"
+#include "Components/UI/SL_PlayerUIComponent.h"
 #include "Interfaces/SL_PawnUIInterface.h"
 
 void USL_WidgetBase::InitEnemyCreatedWidget(AActor* OwningEnemyActor)
@@ -22,6 +23,7 @@ void USL_WidgetBase::NativeOnInitialized()
 		if (USL_PlayerUIComponent* PlayerUIComponent = PawnUIInterface->GetPlayerUIComponent())
 		{
 			BP_OnOwningPlayerUIComponentInitialized(PlayerUIComponent);
+			PlayerUIComponent->BroadcastCurrentHealthAndRage();
 		}
 	}
 }

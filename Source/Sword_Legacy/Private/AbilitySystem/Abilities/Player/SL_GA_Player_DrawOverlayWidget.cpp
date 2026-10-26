@@ -2,6 +2,8 @@
 #include "Blueprint/UserWidget.h"
 #include "Controllers/SL_PlayerController.h"
 #include "Components/UI/SL_PlayerUIComponent.h"
+#include "GameplayTags/SL_GameplayTags.h"
+#include "Settings/SL_DeveloperSettings.h"
 
 void USL_GA_Player_DrawOverlayWidget::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
@@ -9,7 +11,10 @@ void USL_GA_Player_DrawOverlayWidget::ActivateAbility(const FGameplayAbilitySpec
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
-	if (OverlayWidgetClass)
+	const USL_DeveloperSettings* DeveloperSettings = GetDefault<USL_DeveloperSettings>();
+	const bool bPlayerHUDOnStack = DeveloperSettings && !DeveloperSettings->GameWidgetMap.FindRef(SL_GameplayTags::UI_Widget_PlayerHUD).IsNull();
+
+	if (!bPlayerHUDOnStack && OverlayWidgetClass)
 	{
 		if (ASL_PlayerController* PlayerController = GetPlayerControllerFromActorInfo())
 		{

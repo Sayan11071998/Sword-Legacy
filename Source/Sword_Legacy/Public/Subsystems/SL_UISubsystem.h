@@ -51,6 +51,10 @@ public:
 	bool HasPrimaryLayout() const;
 
 	void RemoveWidgetFromStack(const FGameplayTag& InWidgetStackTag, USL_Widget_Activatable_Base* WidgetToRemove);
+
+	void PushPlayerHUD(TSoftClassPtr<USL_Widget_Activatable_Base> PlayerHUDClass);
+
+	void RemovePlayerHUD();
 	
 	UPROPERTY(BlueprintAssignable)
 	FOnButtonDescriptionTextUpdatedDelegate OnButtonDescriptionTextUpdated;
@@ -60,4 +64,9 @@ private:
 
 	UPROPERTY(Transient)
 	TObjectPtr<USL_Widget_PrimaryLayout> CreatedPrimaryLayout;
+
+	UPROPERTY(Transient)
+	TObjectPtr<USL_Widget_Activatable_Base> PlayerHUD;
+
+	bool bPlayerHUDPushRequested = false;
 };

@@ -116,6 +116,16 @@ void ASL_PlayerController::SetupGameplayUI()
 	EnsurePrimaryLayoutCreated();
 	
 	ApplyGameplayInputConfig();
+
+	if (USL_UISubsystem* UISubsystem = USL_UISubsystem::Get(this))
+	{
+		const USL_DeveloperSettings* DeveloperSettings = GetDefault<USL_DeveloperSettings>();
+		const TSoftClassPtr<USL_Widget_Activatable_Base> PlayerHUDClass = DeveloperSettings
+			? DeveloperSettings->GameWidgetMap.FindRef(SL_GameplayTags::UI_Widget_PlayerHUD)
+			: TSoftClassPtr<USL_Widget_Activatable_Base>();
+
+		UISubsystem->PushPlayerHUD(PlayerHUDClass);
+	}
 }
 
 void ASL_PlayerController::ShowGameLoseScreen()

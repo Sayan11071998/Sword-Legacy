@@ -2,6 +2,7 @@
 #include "Engine/AssetManager.h"
 #include "Engine/World.h"
 #include "UI/Widgets/SL_Widget_Activatable_Base.h"
+#include "UI/Widgets/SL_Widget_PlayerHUD.h"
 #include "UI/Widgets/SL_Widget_PrimaryLayout.h"
 #include "Widgets/CommonActivatableWidgetContainer.h"
 #include "UI/Widgets/Screens/SL_Widget_ConfirmScreen.h"
@@ -44,7 +45,10 @@ void USL_UISubsystem::Initialize(FSubsystemCollectionBase& Collection)
 void USL_UISubsystem::Deinitialize()
 {
 	FWorldDelegates::OnWorldBeginTearDown.RemoveAll(this);
+	
 	CreatedPrimaryLayout = nullptr;
+	PlayerHUD = nullptr;
+	bPlayerHUDPushRequested = false;
 	
 	Super::Deinitialize();
 }
@@ -69,7 +73,58 @@ void USL_UISubsystem::HandleWorldBeginTearDown(UWorld* World)
 	if (CreatedPrimaryLayout && CreatedPrimaryLayout->GetWorld() == World)
 	{
 		CreatedPrimaryLayout = nullptr;
+		PlayerHUD = nullptr;
+		bPlayerHUDPushRequested = false;
 	}
+}
+
+void USL_UISubsystem::PushPlayerHUD(TSoftClassPtr<USL_Widget_Activatable_Base> PlayerHUDClass)
+{
+	if (bPlayerHUDPushRequested || IsValid(PlayerHUD)) return;
+	if (PlayerHUDClass.IsNull() || !HasPrimaryLayout()) return;
+
+	UClass* LoadedClass = PlayerHUDClass.LoadSynchronous();
+	
+	if (!LoadedClass || !LoadedClass->IsChildOf(USL_Widget_PlayerHUD::StaticClass()))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Player HUD widget must use SL_Widget_PlayerHUD as its parent."));
+		
+		return;
+	}
+
+	if (UCommonActivatableWidgetContainerBase* WidgetStack = CreatedPrimaryLayout->FindWidgetStackByTag(SL_GameplayTags::UI_WidgetStack_GameHUD))
+	{
+		WidgetStack->SetTransitionDuration(0.f);
+	}
+
+	bPlayerHUDPushRequested = true;
+
+	PushSoftWidgetToStackAsync(
+		SL_GameplayTags::UI_WidgetStack_GameHUD,
+		PlayerHUDClass,
+		[this](EAsyncPushWidgetState InPushState, TObjectPtr<USL_Widget_Activatable_Base> PushedWidget)
+		{
+			if (InPushState == EAsyncPushWidgetState::AfterPush)
+			{
+				PlayerHUD = PushedWidget;
+			}
+		}
+	);
+}
+
+void USL_UISubsystem::RemovePlayerHUD()
+{
+	if (!IsValid(PlayerHUD))
+	{
+		PlayerHUD = nullptr;
+		
+		return;
+	}
+
+	RemoveWidgetFromStack(SL_GameplayTags::UI_WidgetStack_GameHUD, PlayerHUD);
+	
+	PlayerHUD = nullptr;
+	bPlayerHUDPushRequested = false;
 }
 
 void USL_UISubsystem::PushSoftWidgetToStackAsync(
