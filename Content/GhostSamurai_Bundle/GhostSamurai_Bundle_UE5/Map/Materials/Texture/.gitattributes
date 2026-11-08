@@ -1,3 +1,0 @@
-T_Ground_BaseColor.uasset filter=lfs diff=lfs merge=lfs -text
-T_Ground_Normal.uasset filter=lfs diff=lfs merge=lfs -text
-T_Ground_ORD.uasset filter=lfs diff=lfs merge=lfs -text
