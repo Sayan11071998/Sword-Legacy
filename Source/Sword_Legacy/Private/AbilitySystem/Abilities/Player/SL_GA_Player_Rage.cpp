@@ -6,6 +6,8 @@
 #include "GameplayTags/SL_GameplayTags.h"
 #include "Utilities/SL_FunctionLibrary.h"
 #include "Characters/SL_PlayerCharacter.h"
+#include "Components/Combat/SL_PlayerCombatComponent.h"
+#include "Items/Weapons/SL_PlayerWeapon.h"
 
 USL_GA_Player_Rage::USL_GA_Player_Rage()
 {
@@ -58,6 +60,16 @@ void USL_GA_Player_Rage::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 	);
 	WaitToggleOffTask->EventReceived.AddDynamic(this, &USL_GA_Player_Rage::OnActivateRageEventReceived);
 	WaitToggleOffTask->ReadyForActivation();
+
+	UAbilityTask_WaitGameplayEvent* WaitAttachWeaponTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+		this,
+		SL_GameplayTags::Player_Event_Rage_AttachWeapon,
+		nullptr,
+		true,
+		true
+	);
+	WaitAttachWeaponTask->EventReceived.AddDynamic(this, &USL_GA_Player_Rage::OnAttachWeaponEventReceived);
+	WaitAttachWeaponTask->ReadyForActivation();
 	
 	UAbilityTask_WaitGameplayTagAdded* WaitRageDepletedTask = UAbilityTask_WaitGameplayTagAdded::WaitGameplayTagAdd(
 		this,
@@ -81,6 +93,8 @@ void USL_GA_Player_Rage::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 
 void USL_GA_Player_Rage::OnMontageFinished()
 {
+	RestoreEquippedWeaponSocket();
+
 	ASL_PlayerCharacter* PlayerCharacter = GetPlayerCharacterFromActorInfo();
 	if (PlayerCharacter)
 	{
@@ -103,15 +117,56 @@ void USL_GA_Player_Rage::OnActivateRageEventReceived(FGameplayEventData Payload)
 	);
 }
 
+void USL_GA_Player_Rage::OnAttachWeaponEventReceived(FGameplayEventData Payload)
+{
+	if (AttachEquippedWeaponToSocket(RageSocketName))
+	{
+		bWeaponAttachedToRageSocket = true;
+	}
+}
+
 void USL_GA_Player_Rage::OnRageNoneTagAdded()
 {
 	CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
+}
+
+bool USL_GA_Player_Rage::AttachEquippedWeaponToSocket(FName SocketName)
+{
+	if (SocketName.IsNone()) return false;
+
+	USL_PlayerCombatComponent* CombatComponent = GetPlayerCombatComponentFromActorInfo();
+	if (!CombatComponent) return false;
+
+	ASL_PlayerWeapon* Weapon = CombatComponent->GetPlayerCurrentEquippedWeapon();
+	if (!Weapon) return false;
+
+	USkeletalMeshComponent* SkeletalMesh = GetActorInfo().SkeletalMeshComponent.Get();
+	if (!SkeletalMesh) return false;
+
+	const FAttachmentTransformRules AttachRules(
+		EAttachmentRule::SnapToTarget,
+		EAttachmentRule::SnapToTarget,
+		EAttachmentRule::KeepWorld,
+		true
+	);
+
+	return Weapon->AttachToComponent(SkeletalMesh, AttachRules, SocketName);
+}
+
+void USL_GA_Player_Rage::RestoreEquippedWeaponSocket()
+{
+	if (!bWeaponAttachedToRageSocket) return;
+
+	bWeaponAttachedToRageSocket = false;
+	AttachEquippedWeaponToSocket(EquippedSocketName);
 }
 
 void USL_GA_Player_Rage::EndAbility(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	bool bReplicateEndAbility, bool bWasCancelled)
 {
+	RestoreEquippedWeaponSocket();
+
 	if (AppliedRageCostEffectHandle.IsValid())
 	{
 		if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
