@@ -18,6 +18,14 @@ void USL_GA_Player_LightAttackMaster::ActivateAbility(const FGameplayAbilitySpec
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
+	bComboWindowOpen = false;
+	bComboInputBuffered = false;
+	bComboChainRequested = false;
+	bMontageEndHandled = false;
+	PlayingMontage = nullptr;
+
+	UnbindActiveMontageTask();
+
 	if (ComboCountResetTimerHandle.IsValid())
 	{
 		GetWorld()->GetTimerManager().ClearTimer(ComboCountResetTimerHandle);
@@ -64,6 +72,10 @@ void USL_GA_Player_LightAttackMaster::ActivateAbility(const FGameplayAbilitySpec
 		*MontageToPlay,
 		1.0f
 	);
+
+	PlayingMontage = *MontageToPlay;
+	ActiveMontageTask = PlayMontageTask;
+
 	PlayMontageTask->OnCompleted.AddDynamic(this, &USL_GA_Player_LightAttackMaster::OnMontageCompleted);
 	PlayMontageTask->OnBlendOut.AddDynamic(this, &USL_GA_Player_LightAttackMaster::OnMontageCompleted);
 	PlayMontageTask->OnInterrupted.AddDynamic(this, &USL_GA_Player_LightAttackMaster::OnMontageCompleted);
@@ -149,17 +161,100 @@ void USL_GA_Player_LightAttackMaster::ResetLightAttackComboCount()
 	}
 }
 
-void USL_GA_Player_LightAttackMaster::OnMontageCompleted()
+void USL_GA_Player_LightAttackMaster::ReceiveComboInput()
 {
+	if (!IsActive() || bComboChainRequested) return;
+
+	bComboInputBuffered = true;
+
+	if (bComboWindowOpen)
+	{
+		RequestComboChain();
+	}
+}
+
+void USL_GA_Player_LightAttackMaster::OpenComboWindow(UAnimMontage* SourceMontage)
+{
+	if (!IsActive() || bComboChainRequested || SourceMontage != PlayingMontage) return;
+
+	bComboWindowOpen = true;
+
+	if (bComboInputBuffered)
+	{
+		RequestComboChain();
+	}
+}
+
+void USL_GA_Player_LightAttackMaster::CloseComboWindow(UAnimMontage* SourceMontage)
+{
+	if (SourceMontage != PlayingMontage) return;
+
+	bComboWindowOpen = false;
+}
+
+void USL_GA_Player_LightAttackMaster::RequestComboChain()
+{
+	if (!IsActive() || bComboChainRequested) return;
+
+	bComboChainRequested = true;
+	bComboWindowOpen = false;
+	bComboInputBuffered = false;
+	bMontageEndHandled = true;
+
+	UnbindActiveMontageTask();
+
+	UAbilitySystemComponent* AbilitySystemComponent = GetAbilitySystemComponentFromActorInfo();
+
+	UWorld* World = GetWorld();
+
+	const FGameplayAbilitySpecHandle Handle = CurrentSpecHandle;
+
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 
-	GetWorld()->GetTimerManager().SetTimer(
+	if (AbilitySystemComponent && AbilitySystemComponent->TryActivateAbility(Handle)) return;
+
+	StartComboResetTimer(World);
+}
+
+void USL_GA_Player_LightAttackMaster::UnbindActiveMontageTask()
+{
+	if (!ActiveMontageTask) return;
+
+	ActiveMontageTask->OnCompleted.RemoveDynamic(this, &USL_GA_Player_LightAttackMaster::OnMontageCompleted);
+	ActiveMontageTask->OnBlendOut.RemoveDynamic(this, &USL_GA_Player_LightAttackMaster::OnMontageCompleted);
+	ActiveMontageTask->OnInterrupted.RemoveDynamic(this, &USL_GA_Player_LightAttackMaster::OnMontageCompleted);
+	ActiveMontageTask->OnCancelled.RemoveDynamic(this, &USL_GA_Player_LightAttackMaster::OnMontageCompleted);
+	ActiveMontageTask = nullptr;
+}
+
+void USL_GA_Player_LightAttackMaster::StartComboResetTimer(UWorld* World)
+{
+	if (!World) return;
+
+	World->GetTimerManager().SetTimer(
 		ComboCountResetTimerHandle,
 		this,
 		&USL_GA_Player_LightAttackMaster::ResetLightAttackComboCount,
 		ComboResetTime,
 		false
 	);
+}
+
+void USL_GA_Player_LightAttackMaster::OnMontageCompleted()
+{
+	if (bMontageEndHandled || bComboChainRequested) return;
+
+	bMontageEndHandled = true;
+
+	if (bComboInputBuffered)
+	{
+		RequestComboChain();
+		return;
+	}
+
+	UWorld* World = GetWorld();
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+	StartComboResetTimer(World);
 }
 
 void USL_GA_Player_LightAttackMaster::WhileRageActive_Implementation() { }

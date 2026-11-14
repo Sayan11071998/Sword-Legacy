@@ -1,4 +1,5 @@
 #include "AbilitySystem/SL_AbilitySystemComponent.h"
+#include "AbilitySystem/Abilities/Player/SL_GA_Player_LightAttackMaster.h"
 #include "AbilitySystem/Abilities/SL_PlayerGameplayAbility.h"
 #include "GameplayTags/SL_GameplayTags.h"
 
@@ -13,6 +14,17 @@ void USL_AbilitySystemComponent::OnAbilityInputPressed(const FGameplayTag& InInp
 		if (InInputTag.MatchesTag(SL_GameplayTags::InputTag_Toggleable) && AbilitySpec.IsActive())
 		{
 			CancelAbilityHandle(AbilitySpec.Handle);
+		}
+		else if (USL_GA_Player_LightAttackMaster* LightAttack = Cast<USL_GA_Player_LightAttackMaster>(AbilitySpec.GetPrimaryInstance()))
+		{
+			if (AbilitySpec.IsActive())
+			{
+				LightAttack->ReceiveComboInput();
+			}
+			else
+			{
+				TryActivateAbility(AbilitySpec.Handle);
+			}
 		}
 		else
 		{
