@@ -37,6 +37,18 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	float ComboResetTime = 0.3f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|MotionWarp")
+	FName HeavyAttackWarpTargetName = TEXT("HeavyAttackTarget");
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|MotionWarp", meta = (ClampMin = "0"))
+	float HeavyAttackWarpDistance = 350.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|MotionWarp", meta = (ClampMin = "0"))
+	float HeavyAttackStopDistance = 200.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|MotionWarp", meta = (ClampMin = "0", ClampMax = "180"))
+	float HeavyAttackWarpHalfAngle = 70.f;
+
 	UFUNCTION(BlueprintNativeEvent, Category = "Combat")
 	void WhileRageActive();
 	
@@ -47,6 +59,13 @@ private:
 	UFUNCTION()
 	void OnMontageCompleted();
 
+	void SetupHeavyAttackMotionWarp();
+
+	TObjectPtr<AActor> FindHeavyAttackWarpTarget(const TObjectPtr<ASL_PlayerCharacter> Player) const;
+	TObjectPtr<AActor> FindLockedTarget() const;
+	
+	bool IsEnemyInWarpRange(const ASL_PlayerCharacter* Player, AActor* Enemy) const;
+	
 	void ResetHeavyAttackComboCount();
 	
 	int32 CurrentHeavyAttackComboCount = 1;
