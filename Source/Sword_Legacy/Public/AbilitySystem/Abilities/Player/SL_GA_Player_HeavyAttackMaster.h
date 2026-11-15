@@ -1,11 +1,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/Abilities/SL_PlayerGameplayAbility.h"
+#include "AbilitySystem/Abilities/Player/SL_GA_Player_ComboAttack.h"
 #include "SL_GA_Player_HeavyAttackMaster.generated.h"
 
 UCLASS()
-class SWORD_LEGACY_API USL_GA_Player_HeavyAttackMaster : public USL_PlayerGameplayAbility
+class SWORD_LEGACY_API USL_GA_Player_HeavyAttackMaster : public USL_GA_Player_ComboAttack
 {
 	GENERATED_BODY()
 	
@@ -34,9 +34,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	FGameplayTag WeaponHitSoundGameplayCueTag;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Combat")
-	float ComboResetTime = 0.3f;
-
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|MotionWarp")
 	FName HeavyAttackWarpTargetName = TEXT("HeavyAttackTarget");
 
@@ -51,13 +48,12 @@ protected:
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Combat")
 	void WhileRageActive();
+
+	virtual void ResetComboCount() override;
 	
 private:
 	UFUNCTION()
 	void OnMeleeHitEventReceived(FGameplayEventData Payload);
-	
-	UFUNCTION()
-	void OnMontageCompleted();
 
 	void SetupHeavyAttackMotionWarp();
 
@@ -66,11 +62,7 @@ private:
 	
 	bool IsEnemyInWarpRange(const ASL_PlayerCharacter* Player, AActor* Enemy) const;
 	
-	void ResetHeavyAttackComboCount();
-	
 	int32 CurrentHeavyAttackComboCount = 1;
 	int32 UsedComboCount = 1;
 	float LastAttackTime = 0.f;
-
-	FTimerHandle ComboCountResetTimerHandle;
 };

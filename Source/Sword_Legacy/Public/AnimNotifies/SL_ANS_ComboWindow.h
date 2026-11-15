@@ -2,10 +2,12 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotifyState.h"
-#include "SL_ANS_LightComboWindow.generated.h"
+#include "SL_ANS_ComboWindow.generated.h"
 
-UCLASS(meta = (DisplayName = "Light Combo Window"))
-class SWORD_LEGACY_API USL_ANS_LightComboWindow : public UAnimNotifyState
+class USL_GA_Player_ComboAttack;
+
+UCLASS(meta = (DisplayName = "Combo Window"))
+class SWORD_LEGACY_API USL_ANS_ComboWindow : public UAnimNotifyState
 {
 	GENERATED_BODY()
 
@@ -24,4 +26,7 @@ public:
 		const FAnimNotifyEventReference& EventReference
 	) override;
 	// ~ End UAnimNotifyState Interface
+
+private:
+	void ApplyComboWindow(const USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, bool bOpen) const;
 };

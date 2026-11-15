@@ -23,11 +23,8 @@ void USL_GA_Player_HeavyAttackMaster::ActivateAbility(const FGameplayAbilitySpec
     const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-	
-	if (ComboCountResetTimerHandle.IsValid())
-	{
-		GetWorld()->GetTimerManager().ClearTimer(ComboCountResetTimerHandle);
-	}
+
+	PrepareComboAttack();
 	
 	AActor* AvatarActor = GetAvatarActorFromActorInfo();
 	const bool bJumpToFinisher = AvatarActor &&
@@ -69,17 +66,14 @@ void USL_GA_Player_HeavyAttackMaster::ActivateAbility(const FGameplayAbilitySpec
 	UAbilityTask_PlayMontageAndWait* PlayMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 		this, NAME_None, *MontageToPlay, 1.0f
 	);
-	PlayMontageTask->OnCompleted.AddDynamic(this, &USL_GA_Player_HeavyAttackMaster::OnMontageCompleted);
-	PlayMontageTask->OnBlendOut.AddDynamic(this, &USL_GA_Player_HeavyAttackMaster::OnMontageCompleted);
-	PlayMontageTask->OnInterrupted.AddDynamic(this, &USL_GA_Player_HeavyAttackMaster::OnMontageCompleted);
-	PlayMontageTask->OnCancelled.AddDynamic(this, &USL_GA_Player_HeavyAttackMaster::OnMontageCompleted);
+	BindComboMontage(PlayMontageTask, *MontageToPlay);
 	PlayMontageTask->ReadyForActivation();
 	
 	const int32 TotalMontages = HeavyAttackMontagesMap.Num();
 
 	if (CurrentHeavyAttackComboCount == TotalMontages)
 	{
-		ResetHeavyAttackComboCount();
+		ResetComboCount();
 	}
 	else
 	{
@@ -263,7 +257,7 @@ bool USL_GA_Player_HeavyAttackMaster::IsEnemyInWarpRange(const ASL_PlayerCharact
 	return FVector::Dist2D(Player->GetActorLocation(), EnemyCharacter->GetActorLocation()) <= HeavyAttackWarpDistance;
 }
 
-void USL_GA_Player_HeavyAttackMaster::ResetHeavyAttackComboCount()
+void USL_GA_Player_HeavyAttackMaster::ResetComboCount()
 {
 	CurrentHeavyAttackComboCount = 1;
 
@@ -272,19 +266,6 @@ void USL_GA_Player_HeavyAttackMaster::ResetHeavyAttackComboCount()
 	{
 		USL_FunctionLibrary::RemoveGameplayTagFromActorIfFound(AvatarActor, SL_GameplayTags::Player_Status_JumpToFinisher);
 	}
-}
-
-void USL_GA_Player_HeavyAttackMaster::OnMontageCompleted()
-{
-	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
-	
-	GetWorld()->GetTimerManager().SetTimer(
-		ComboCountResetTimerHandle,
-		this,
-		&USL_GA_Player_HeavyAttackMaster::ResetHeavyAttackComboCount,
-		ComboResetTime,
-		false
-	);
 }
 
 void USL_GA_Player_HeavyAttackMaster::WhileRageActive_Implementation() { }
