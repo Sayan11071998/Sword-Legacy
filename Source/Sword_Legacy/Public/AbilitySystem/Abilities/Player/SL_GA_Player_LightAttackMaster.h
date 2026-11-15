@@ -46,6 +46,18 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	float ComboResetTime = 0.3f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|MotionWarp")
+	FName LightAttackWarpTargetName = TEXT("LightAttackTarget");
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|MotionWarp", meta = (ClampMin = "0"))
+	float LightAttackWarpDistance = 350.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|MotionWarp", meta = (ClampMin = "0"))
+	float LightAttackStopDistance = 140.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|MotionWarp", meta = (ClampMin = "0", ClampMax = "180"))
+	float LightAttackWarpHalfAngle = 70.f;
+
 	UFUNCTION(BlueprintNativeEvent, Category = "Combat")
 	void WhileRageActive();
 	
@@ -62,6 +74,13 @@ private:
 	UPROPERTY()
 	TObjectPtr<UAnimMontage> PlayingMontage = nullptr;
 
+	void SetupLightAttackMotionWarp();
+	
+	TObjectPtr<AActor> FindLightAttackWarpTarget(const TObjectPtr<ASL_PlayerCharacter> Player) const;
+	TObjectPtr<AActor> FindLockedTarget() const;
+	
+	bool IsEnemyInWarpRange(const class ASL_PlayerCharacter* Player, AActor* Enemy) const;
+	
 	void ResetLightAttackComboCount();
 	void RequestComboChain();
 	void UnbindActiveMontageTask();
