@@ -5,6 +5,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "Characters/SL_PlayerCharacter.h"
+#include "AbilitySystem/SL_AbilitySystemComponent.h"
 #include "Animation/AnimInstance.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Items/Weapons/SL_PlayerWeapon.h"
@@ -92,21 +93,76 @@ void USL_GA_Player_Block::EndAbility(const FGameplayAbilitySpecHandle Handle,
 		}
 	}
 
+	if (bPlayBlockEnd && AnimInstance)
+	{
+		HoldBlockPoseForEndMontage();
+	}
+
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 
 	if (bPlayBlockEnd && AnimInstance)
 	{
-		AnimInstance->Montage_Play(BlockEndMontage, 1.f);
+		const float PlayedLength = AnimInstance->Montage_Play(BlockEndMontage, 1.f);
+		if (PlayedLength <= 0.f)
+		{
+			ReleaseBlockEndTag();
+		}
+		else
+		{
+			FOnMontageBlendingOutStarted BlendOutDelegate;
+			BlendOutDelegate.BindUObject(this, &USL_GA_Player_Block::OnBlockEndMontageBlendingOut);
+			AnimInstance->Montage_SetBlendingOutDelegate(BlendOutDelegate, BlockEndMontage);
+
+			FOnMontageEnded EndDelegate;
+			EndDelegate.BindUObject(this, &USL_GA_Player_Block::OnBlockEndMontageBlendingOut);
+			AnimInstance->Montage_SetEndDelegate(EndDelegate, BlockEndMontage);
+		}
 	}
+}
+
+void USL_GA_Player_Block::HoldBlockPoseForEndMontage()
+{
+	ASL_PlayerCharacter* PlayerCharacter = GetPlayerCharacterFromActorInfo();
+
+	if (!PlayerCharacter) return;
+
+	if (USL_AbilitySystemComponent* AbilitySystemComponent = PlayerCharacter->GetCharacterAbilitySystemComponent())
+	{
+		AbilitySystemComponent->AddLooseGameplayTag(SL_GameplayTags::Player_Status_Blocking);
+		++BlockEndTagHolds;
+	}
+}
+
+void USL_GA_Player_Block::ReleaseBlockEndTag()
+{
+	if (BlockEndTagHolds <= 0) return;
+
+	--BlockEndTagHolds;
+
+	ASL_PlayerCharacter* PlayerCharacter = GetPlayerCharacterFromActorInfo();
+	
+	if (!PlayerCharacter) return;
+
+	if (USL_AbilitySystemComponent* AbilitySystemComponent = PlayerCharacter->GetCharacterAbilitySystemComponent())
+	{
+		AbilitySystemComponent->RemoveLooseGameplayTag(SL_GameplayTags::Player_Status_Blocking);
+	}
+}
+
+void USL_GA_Player_Block::OnBlockEndMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted)
+{
+	ReleaseBlockEndTag();
 }
 
 FGameplayCueParameters USL_GA_Player_Block::MakeBlockGameplayCueParams() const
 {
 	FGameplayCueParameters Params;
+
 	if (const FGameplayAbilityActorInfo* ActorInfo = GetCurrentActorInfo())
 	{
 		Params.TargetAttachComponent = ActorInfo->SkeletalMeshComponent.Get();
 	}
+
 	return Params;
 }
 
