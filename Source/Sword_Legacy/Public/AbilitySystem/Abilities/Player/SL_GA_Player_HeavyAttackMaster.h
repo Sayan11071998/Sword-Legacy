@@ -48,8 +48,6 @@ protected:
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Combat")
 	void WhileRageActive();
-
-	virtual void ResetComboCount() override;
 	
 private:
 	UFUNCTION()
@@ -62,7 +60,6 @@ private:
 	
 	bool IsEnemyInWarpRange(const ASL_PlayerCharacter* Player, AActor* Enemy) const;
 	
-	int32 CurrentHeavyAttackComboCount = 1;
 	int32 UsedComboCount = 1;
 	float LastAttackTime = 0.f;
 };

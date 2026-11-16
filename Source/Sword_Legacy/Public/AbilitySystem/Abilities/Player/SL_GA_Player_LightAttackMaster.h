@@ -49,8 +49,6 @@ protected:
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Combat")
 	void WhileRageActive();
-	
-	virtual void ResetComboCount() override;
 
 private:
 	UFUNCTION()
@@ -62,7 +60,6 @@ private:
 	TObjectPtr<AActor> FindLockedTarget() const;
 	
 	bool IsEnemyInWarpRange(const class ASL_PlayerCharacter* Player, AActor* Enemy) const;
-	
-	int32 CurrentLightAttackComboCount = 1;
+
 	int32 UsedComboCount = 1;
 };

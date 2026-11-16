@@ -1,7 +1,10 @@
 #include "AbilitySystem/Abilities/Player/SL_GA_Player_ComboAttack.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "AbilitySystemComponent.h"
+#include "Characters/SL_PlayerCharacter.h"
 #include "Engine/World.h"
+#include "GameplayTags/SL_GameplayTags.h"
+#include "Utilities/SL_FunctionLibrary.h"
 
 void USL_GA_Player_ComboAttack::PrepareComboAttack()
 {
@@ -10,12 +13,44 @@ void USL_GA_Player_ComboAttack::PrepareComboAttack()
 	bComboChainRequested = false;
 	bMontageEndHandled = false;
 	PlayingMontage = nullptr;
+	BufferedComboHandle = FGameplayAbilitySpecHandle();
 
 	UnbindActiveMontageTask();
 
-	if (ComboCountResetTimerHandle.IsValid())
+	if (const UAbilitySystemComponent* AbilitySystemComponent = GetAbilitySystemComponentFromActorInfo())
 	{
-		GetWorld()->GetTimerManager().ClearTimer(ComboCountResetTimerHandle);
+		for (const FGameplayAbilitySpec& AbilitySpec : AbilitySystemComponent->GetActivatableAbilities())
+		{
+			if (USL_GA_Player_ComboAttack* ComboAttack = Cast<USL_GA_Player_ComboAttack>(AbilitySpec.GetPrimaryInstance()))
+			{
+				ComboAttack->ClearComboResetTimer();
+			}
+		}
+	}
+}
+
+int32 USL_GA_Player_ComboAttack::GetComboCount() const
+{
+	const ASL_PlayerCharacter* Player = Cast<ASL_PlayerCharacter>(GetAvatarActorFromActorInfo());
+	
+	return Player ? Player->GetMeleeComboCount() : 1;
+}
+
+void USL_GA_Player_ComboAttack::SetComboCount(int32 NewComboCount)
+{
+	if (ASL_PlayerCharacter* Player = Cast<ASL_PlayerCharacter>(GetAvatarActorFromActorInfo()))
+	{
+		Player->SetMeleeComboCount(NewComboCount);
+	}
+}
+
+void USL_GA_Player_ComboAttack::ClearComboResetTimer()
+{
+	if (!ComboCountResetTimerHandle.IsValid()) return;
+
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(ComboCountResetTimerHandle);
 	}
 }
 
@@ -32,12 +67,23 @@ void USL_GA_Player_ComboAttack::BindComboMontage(UAbilityTask_PlayMontageAndWait
 	MontageTask->OnCancelled.AddDynamic(this, &USL_GA_Player_ComboAttack::OnComboMontageCompleted);
 }
 
-void USL_GA_Player_ComboAttack::ResetComboCount() { }
-
-void USL_GA_Player_ComboAttack::ReceiveComboInput()
+void USL_GA_Player_ComboAttack::ResetComboCount()
 {
-	if (!IsActive() || bComboChainRequested) return;
+	SetComboCount(1);
 
+	AActor* AvatarActor = GetAvatarActorFromActorInfo();
+
+	if (AvatarActor)
+	{
+		USL_FunctionLibrary::RemoveGameplayTagFromActorIfFound(AvatarActor, SL_GameplayTags::Player_Status_JumpToFinisher);
+	}
+}
+
+void USL_GA_Player_ComboAttack::ReceiveComboInput(FGameplayAbilitySpecHandle NextHandle)
+{
+	if (!IsActive() || bComboChainRequested || !NextHandle.IsValid()) return;
+
+	BufferedComboHandle = NextHandle;
 	bComboInputBuffered = true;
 
 	if (bComboWindowOpen)
@@ -80,7 +126,8 @@ void USL_GA_Player_ComboAttack::RequestComboChain()
 
 	UWorld* World = GetWorld();
 
-	const FGameplayAbilitySpecHandle Handle = CurrentSpecHandle;
+	const FGameplayAbilitySpecHandle Handle = BufferedComboHandle.IsValid() ? BufferedComboHandle : CurrentSpecHandle;
+	BufferedComboHandle = FGameplayAbilitySpecHandle();
 
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 

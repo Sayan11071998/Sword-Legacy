@@ -30,19 +30,21 @@ void USL_GA_Player_LightAttackMaster::ActivateAbility(const FGameplayAbilitySpec
 	const bool bJumpToFinisher = AvatarActor &&
 		USL_FunctionLibrary::NativeDoesActorHaveTag(AvatarActor, SL_GameplayTags::Player_Status_JumpToFinisher);
 
+	int32 ComboCount = GetComboCount();
+
 	if (bJumpToFinisher)
 	{
-		CurrentLightAttackComboCount = LightAttackMontagesMap.Num();
+		ComboCount = LightAttackMontagesMap.Num();
 	}
 
-	UsedComboCount = CurrentLightAttackComboCount;
+	UsedComboCount = ComboCount;
 
-	TObjectPtr<UAnimMontage>* MontageToPlay = LightAttackMontagesMap.Find(CurrentLightAttackComboCount);
+	TObjectPtr<UAnimMontage>* MontageToPlay = LightAttackMontagesMap.Find(ComboCount);
 
 	if (!MontageToPlay || !(*MontageToPlay))
 	{
-		CurrentLightAttackComboCount = 1;
-		MontageToPlay = LightAttackMontagesMap.Find(CurrentLightAttackComboCount);
+		ComboCount = 1;
+		MontageToPlay = LightAttackMontagesMap.Find(ComboCount);
 		
 		if (!MontageToPlay || !(*MontageToPlay))
 		{
@@ -75,13 +77,13 @@ void USL_GA_Player_LightAttackMaster::ActivateAbility(const FGameplayAbilitySpec
 	
 	const int32 TotalMontages = LightAttackMontagesMap.Num();
 
-	if (CurrentLightAttackComboCount == TotalMontages)
+	if (ComboCount == TotalMontages)
 	{
 		ResetComboCount();
 	}
 	else
 	{
-		CurrentLightAttackComboCount++;
+		SetComboCount(ComboCount + 1);
 	}
 
 	if (AvatarActor && USL_FunctionLibrary::NativeDoesActorHaveTag(AvatarActor, SL_GameplayTags::Player_Status_Rage_Active))
@@ -269,17 +271,6 @@ bool USL_GA_Player_LightAttackMaster::IsEnemyInWarpRange(const ASL_PlayerCharact
 	if (USL_FunctionLibrary::NativeDoesActorHaveTag(EnemyCharacter, SL_GameplayTags::Shared_Status_Death)) return false;
 
 	return FVector::Dist2D(Player->GetActorLocation(), EnemyCharacter->GetActorLocation()) <= LightAttackWarpDistance;
-}
-
-void USL_GA_Player_LightAttackMaster::ResetComboCount()
-{
-	CurrentLightAttackComboCount = 1;
-
-	AActor* AvatarActor = GetAvatarActorFromActorInfo();
-	if (AvatarActor)
-	{
-		USL_FunctionLibrary::RemoveGameplayTagFromActorIfFound(AvatarActor, SL_GameplayTags::Player_Status_JumpToFinisher);
-	}
 }
 
 void USL_GA_Player_LightAttackMaster::WhileRageActive_Implementation() { }

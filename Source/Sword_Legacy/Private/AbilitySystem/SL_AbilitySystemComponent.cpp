@@ -19,11 +19,30 @@ void USL_AbilitySystemComponent::OnAbilityInputPressed(const FGameplayTag& InInp
 		{
 			if (AbilitySpec.IsActive())
 			{
-				ComboAttack->ReceiveComboInput();
+				ComboAttack->ReceiveComboInput(AbilitySpec.Handle);
 			}
 			else
 			{
-				TryActivateAbility(AbilitySpec.Handle);
+				USL_GA_Player_ComboAttack* ActiveComboAttack = nullptr;
+
+				for (const FGameplayAbilitySpec& OtherSpec : GetActivatableAbilities())
+				{
+					USL_GA_Player_ComboAttack* OtherComboAttack = Cast<USL_GA_Player_ComboAttack>(OtherSpec.GetPrimaryInstance());
+					if (OtherComboAttack && OtherSpec.IsActive())
+					{
+						ActiveComboAttack = OtherComboAttack;
+						break;
+					}
+				}
+
+				if (ActiveComboAttack)
+				{
+					ActiveComboAttack->ReceiveComboInput(AbilitySpec.Handle);
+				}
+				else
+				{
+					TryActivateAbility(AbilitySpec.Handle);
+				}
 			}
 		}
 		else

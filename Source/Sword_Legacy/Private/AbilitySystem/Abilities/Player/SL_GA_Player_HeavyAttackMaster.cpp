@@ -30,19 +30,21 @@ void USL_GA_Player_HeavyAttackMaster::ActivateAbility(const FGameplayAbilitySpec
 	const bool bJumpToFinisher = AvatarActor &&
 		USL_FunctionLibrary::NativeDoesActorHaveTag(AvatarActor, SL_GameplayTags::Player_Status_JumpToFinisher);
 
+	int32 ComboCount = GetComboCount();
+
 	if (bJumpToFinisher)
 	{
-		CurrentHeavyAttackComboCount = HeavyAttackMontagesMap.Num();
+		ComboCount = HeavyAttackMontagesMap.Num();
 	}
 
-	UsedComboCount = CurrentHeavyAttackComboCount;
+	UsedComboCount = ComboCount;
 	
-	TObjectPtr<UAnimMontage>* MontageToPlay = HeavyAttackMontagesMap.Find(CurrentHeavyAttackComboCount);
+	TObjectPtr<UAnimMontage>* MontageToPlay = HeavyAttackMontagesMap.Find(ComboCount);
 
 	if (!MontageToPlay || !(*MontageToPlay))
 	{
-		CurrentHeavyAttackComboCount = 1;
-		MontageToPlay = HeavyAttackMontagesMap.Find(CurrentHeavyAttackComboCount);
+		ComboCount = 1;
+		MontageToPlay = HeavyAttackMontagesMap.Find(ComboCount);
 
 		if (!MontageToPlay || !(*MontageToPlay))
 		{
@@ -71,13 +73,13 @@ void USL_GA_Player_HeavyAttackMaster::ActivateAbility(const FGameplayAbilitySpec
 	
 	const int32 TotalMontages = HeavyAttackMontagesMap.Num();
 
-	if (CurrentHeavyAttackComboCount == TotalMontages)
+	if (ComboCount == TotalMontages)
 	{
 		ResetComboCount();
 	}
 	else
 	{
-		CurrentHeavyAttackComboCount++;
+		SetComboCount(ComboCount + 1);
 	}
 
 	if (AvatarActor && USL_FunctionLibrary::NativeDoesActorHaveTag(AvatarActor, SL_GameplayTags::Player_Status_Rage_Active))
@@ -255,17 +257,6 @@ bool USL_GA_Player_HeavyAttackMaster::IsEnemyInWarpRange(const ASL_PlayerCharact
 	if (USL_FunctionLibrary::NativeDoesActorHaveTag(EnemyCharacter, SL_GameplayTags::Shared_Status_Death)) return false;
 
 	return FVector::Dist2D(Player->GetActorLocation(), EnemyCharacter->GetActorLocation()) <= HeavyAttackWarpDistance;
-}
-
-void USL_GA_Player_HeavyAttackMaster::ResetComboCount()
-{
-	CurrentHeavyAttackComboCount = 1;
-
-	AActor* AvatarActor = GetAvatarActorFromActorInfo();
-	if (AvatarActor)
-	{
-		USL_FunctionLibrary::RemoveGameplayTagFromActorIfFound(AvatarActor, SL_GameplayTags::Player_Status_JumpToFinisher);
-	}
 }
 
 void USL_GA_Player_HeavyAttackMaster::WhileRageActive_Implementation() { }
