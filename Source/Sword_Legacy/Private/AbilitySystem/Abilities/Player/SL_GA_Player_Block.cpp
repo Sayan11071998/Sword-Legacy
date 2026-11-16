@@ -5,6 +5,8 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "Characters/SL_PlayerCharacter.h"
+#include "Animation/AnimInstance.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Items/Weapons/SL_PlayerWeapon.h"
 #include "GameplayTags/SL_GameplayTags.h"
 #include "Utilities/SL_FunctionLibrary.h"
@@ -12,6 +14,7 @@
 USL_GA_Player_Block::USL_GA_Player_Block()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+	ActivationOwnedTags.AddTag(SL_GameplayTags::Player_Status_Blocking);
 	
 	SuccessfulBlockEventTag = SL_GameplayTags::Player_Event_SuccessfulBlock;
 	SuccessfulBlockGameplayCueTag = SL_GameplayTags::GameplayCue_Effects_Katana_SuccessfulBlock;
@@ -25,6 +28,8 @@ void USL_GA_Player_Block::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 	
 	PlayerBlockActivatedTime = GetWorld()->GetTimeSeconds();
 	bIsPerfectBlock = false;
+	bBlockEndHandled = false;
+	bEndedByMontageInterrupt = false;
 	
 	UAbilityTask_WaitGameplayEvent* WaitGameplayEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 		this,
@@ -40,21 +45,17 @@ void USL_GA_Player_Block::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 		WaitGameplayEventTask->ReadyForActivation();
 	}
 
-	if (BlockMontage)
+	if (BlockStartMontage)
 	{
 		UAbilityTask_PlayMontageAndWait* PlayMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 			this,
 			NAME_None,
-			BlockMontage
+			BlockStartMontage
 		);
 		
 		PlayMontageTask->OnInterrupted.AddDynamic(this, &USL_GA_Player_Block::OnBlockFinished);
 		PlayMontageTask->OnCancelled.AddDynamic(this, &USL_GA_Player_Block::OnBlockFinished);
 		PlayMontageTask->ReadyForActivation();
-	}
-	else
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 	}
 }
 
@@ -62,6 +63,15 @@ void USL_GA_Player_Block::EndAbility(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	bool bReplicateEndAbility, bool bWasCancelled)
 {
+	if (bBlockEndHandled)
+	{
+		Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+		return;
+	}
+
+	bBlockEndHandled = true;
+	const bool bPlayBlockEnd = !bEndedByMontageInterrupt && BlockEndMontage;
+
 	if (UGameplayStatics::GetGlobalTimeDilation(GetWorld()) != 1.0f)
 	{
 		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.0f);
@@ -73,7 +83,21 @@ void USL_GA_Player_Block::EndAbility(const FGameplayAbilitySpecHandle Handle,
 		GetWorld()->GetTimerManager().ClearTimer(ResetJumpToFinisherTimerHandle);
 	}
 
+	UAnimInstance* AnimInstance = nullptr;
+	if (const ASL_PlayerCharacter* PlayerCharacter = GetPlayerCharacterFromActorInfo())
+	{
+		if (USkeletalMeshComponent* Mesh = PlayerCharacter->GetMesh())
+		{
+			AnimInstance = Mesh->GetAnimInstance();
+		}
+	}
+
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+
+	if (bPlayBlockEnd && AnimInstance)
+	{
+		AnimInstance->Montage_Play(BlockEndMontage, 1.f);
+	}
 }
 
 FGameplayCueParameters USL_GA_Player_Block::MakeBlockGameplayCueParams() const
@@ -176,5 +200,8 @@ void USL_GA_Player_Block::ResetJumpToFinisherState()
 
 void USL_GA_Player_Block::OnBlockFinished()
 {
-	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+	if (bBlockEndHandled) return;
+
+	bEndedByMontageInterrupt = true;
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 }

@@ -96,6 +96,8 @@ private:
 	void Input_AbilityInputPressed(FGameplayTag InInputTag);
 	void Input_AbilityInputRelease(FGameplayTag InInputTag);
 
+	void OnBlockingTagChanged(const FGameplayTag Tag, int32 NewCount);
+
 	int32 MeleeComboCount = 1;
 	
 #pragma endregion

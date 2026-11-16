@@ -32,6 +32,12 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Block")
 	TObjectPtr<UAnimMontage> BlockMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Block")
+	TObjectPtr<UAnimMontage> BlockStartMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Block")
+	TObjectPtr<UAnimMontage> BlockEndMontage;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Block|Successful Block")
 	float KnockbackStrength = 80.f;
@@ -73,6 +79,8 @@ private:
 	
 	float PlayerBlockActivatedTime = 0.f;
 	bool bIsPerfectBlock = false;
+	bool bBlockEndHandled = false;
+	bool bEndedByMontageInterrupt = false;
 
 	FTimerHandle TimeDilationTimerHandle;
 	FTimerHandle ResetJumpToFinisherTimerHandle;
