@@ -31,7 +31,7 @@ bool USL_FunctionLibrary::NativeDoesActorHaveTag(TObjectPtr<AActor> InActor, FGa
 TObjectPtr<USL_PawnCombatComponent> USL_FunctionLibrary::NativeGetPawnCombatComponentFromActor(
 	TObjectPtr<AActor> InActor)
 {
-	check(InActor);
+	if (!InActor) return nullptr;
 	
 	if (ISL_PawnCombatInterface* PawnCombatInterface = Cast<ISL_PawnCombatInterface>(InActor))
 	{

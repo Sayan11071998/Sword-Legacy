@@ -46,6 +46,18 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	FGameplayTag AbilityInputTag;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|MotionWarp")
+	FName SpecialLightWarpTargetName = TEXT("SpecialLightAttackTarget");
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|MotionWarp", meta = (ClampMin = "0"))
+	float SpecialLightWarpDistance = 350.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|MotionWarp", meta = (ClampMin = "0"))
+	float SpecialLightStopDistance = 140.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|MotionWarp", meta = (ClampMin = "0", ClampMax = "180"))
+	float SpecialLightWarpHalfAngle = 70.f;
+
 private:
 	UFUNCTION()
 	void OnMontageCompleted();

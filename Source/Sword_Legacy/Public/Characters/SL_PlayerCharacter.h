@@ -31,6 +31,10 @@ public:
 	// ~ End APawn Interface
 
 	void ApplyCameraDistanceMultiplier(float InMultiplier);
+
+	int32 GetMeleeComboCount() const { return MeleeComboCount; }
+
+	void SetMeleeComboCount(int32 InComboCount) { MeleeComboCount = InComboCount; }
 	
 	TObjectPtr<UInputAction> GetNativeInputActionByTag(const FGameplayTag& InInputTag) const;
 	
@@ -91,6 +95,10 @@ private:
 	
 	void Input_AbilityInputPressed(FGameplayTag InInputTag);
 	void Input_AbilityInputRelease(FGameplayTag InInputTag);
+
+	void OnBlockingTagChanged(const FGameplayTag Tag, int32 NewCount);
+
+	int32 MeleeComboCount = 1;
 	
 #pragma endregion
 	
