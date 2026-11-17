@@ -54,12 +54,5 @@ private:
 	UFUNCTION()
 	void OnMeleeHitEventReceived(FGameplayEventData Payload);
 
-	void SetupLightAttackMotionWarp();
-	
-	TObjectPtr<AActor> FindLightAttackWarpTarget(const TObjectPtr<ASL_PlayerCharacter> Player) const;
-	TObjectPtr<AActor> FindLockedTarget() const;
-	
-	bool IsEnemyInWarpRange(const class ASL_PlayerCharacter* Player, AActor* Enemy) const;
-
 	int32 UsedComboCount = 1;
 };

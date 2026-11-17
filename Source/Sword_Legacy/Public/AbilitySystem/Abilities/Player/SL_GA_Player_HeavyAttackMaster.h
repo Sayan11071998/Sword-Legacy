@@ -53,13 +53,6 @@ private:
 	UFUNCTION()
 	void OnMeleeHitEventReceived(FGameplayEventData Payload);
 
-	void SetupHeavyAttackMotionWarp();
-
-	TObjectPtr<AActor> FindHeavyAttackWarpTarget(const TObjectPtr<ASL_PlayerCharacter> Player) const;
-	TObjectPtr<AActor> FindLockedTarget() const;
-	
-	bool IsEnemyInWarpRange(const ASL_PlayerCharacter* Player, AActor* Enemy) const;
-	
 	int32 UsedComboCount = 1;
 	float LastAttackTime = 0.f;
 };

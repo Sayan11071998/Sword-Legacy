@@ -37,8 +37,15 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Player|Ability")
 	bool GetAbilityRemainingCooldownByTag(FGameplayTag InCooldownTag, float& TotalCooldownTime, float& RemainingCooldownTime);
-	
+
+protected:
+	void SetupMeleeMotionWarp(FName WarpTargetName, float WarpDistance, float StopDistance, float HalfAngle);
+
 private:
+	TObjectPtr<AActor> FindMeleeWarpTarget(const ASL_PlayerCharacter* Player, float WarpDistance, float HalfAngle) const;
+	TObjectPtr<AActor> FindLockedWarpTarget() const;
+	bool IsEnemyInMeleeWarpRange(const ASL_PlayerCharacter* Player, AActor* Enemy, float WarpDistance) const;
+
 	TWeakObjectPtr<ASL_PlayerCharacter> CachedPlayerCharacter;
 	TWeakObjectPtr<ASL_PlayerController> CachedPlayerController;
 };

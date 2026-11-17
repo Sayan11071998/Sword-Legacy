@@ -1,13 +1,7 @@
 #include "AbilitySystem/Abilities/Player/SL_GA_Player_LightAttackMaster.h"
-#include "AbilitySystem/Abilities/Player/SL_GA_Player_TargetLock.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
-#include "Characters/SL_EnemyCharacter.h"
-#include "Characters/SL_PlayerCharacter.h"
 #include "Components/Combat/SL_PlayerCombatComponent.h"
-#include "MotionWarpingComponent.h"
-#include "Engine/OverlapResult.h"
-#include "Engine/World.h"
 #include "Utilities/SL_FunctionLibrary.h"
 #include "GameplayTags/SL_GameplayTags.h"
 #include "AbilitySystemBlueprintLibrary.h"
@@ -53,7 +47,7 @@ void USL_GA_Player_LightAttackMaster::ActivateAbility(const FGameplayAbilitySpec
 		}
 	}
 
-	SetupLightAttackMotionWarp();
+	SetupMeleeMotionWarp(LightAttackWarpTargetName, LightAttackWarpDistance, LightAttackStopDistance, LightAttackWarpHalfAngle);
 	
 	UAbilityTask_WaitGameplayEvent* WaitMeleeHitTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 		this,
@@ -141,136 +135,6 @@ void USL_GA_Player_LightAttackMaster::OnMeleeHitEventReceived(FGameplayEventData
 			}
 		}
 	}
-}
-
-void USL_GA_Player_LightAttackMaster::SetupLightAttackMotionWarp()
-{
-	ASL_PlayerCharacter* Player = GetPlayerCharacterFromActorInfo();
-
-	if (!Player || LightAttackWarpTargetName.IsNone()) return;
-
-	UMotionWarpingComponent* MotionWarping = Player->GetMotionWarpingComponent();
-
-	if (!MotionWarping) return;
-
-	AActor* Target = FindLightAttackWarpTarget(Player);
-
-	if (!Target)
-	{
-		MotionWarping->RemoveWarpTarget(LightAttackWarpTargetName);
-		return;
-	}
-
-	const FVector PlayerLocation = Player->GetActorLocation();
-
-	FVector ToTarget = Target->GetActorLocation() - PlayerLocation;
-
-	ToTarget.Z = 0.f;
-
-	const FVector Direction = ToTarget.GetSafeNormal();
-
-	if (Direction.IsNearlyZero())
-	{
-		MotionWarping->RemoveWarpTarget(LightAttackWarpTargetName);
-		return;
-	}
-
-	FVector WarpLocation = Target->GetActorLocation() - Direction * LightAttackStopDistance;
-	WarpLocation.Z = PlayerLocation.Z;
-
-	const FRotator WarpRotation(0.f, Direction.Rotation().Yaw, 0.f);
-	MotionWarping->AddOrUpdateWarpTargetFromLocationAndRotation(LightAttackWarpTargetName, WarpLocation, WarpRotation);
-}
-
-TObjectPtr<AActor> USL_GA_Player_LightAttackMaster::FindLightAttackWarpTarget(const TObjectPtr<ASL_PlayerCharacter> Player) const
-{
-	if (!Player) return nullptr;
-
-	if (AActor* LockedTarget = FindLockedTarget())
-	{
-		if (IsEnemyInWarpRange(Player, LockedTarget))
-		{
-			return LockedTarget;
-		}
-	}
-
-	UWorld* World = Player->GetWorld();
-	
-	if (!World) return nullptr;
-
-	TArray<FOverlapResult> Overlaps;
-
-	FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(LightAttackWarp), false, Player);
-	FCollisionObjectQueryParams ObjectParams;
-	
-	ObjectParams.AddObjectTypesToQuery(ECC_Pawn);
-
-	World->OverlapMultiByObjectType(
-		Overlaps,
-		Player->GetActorLocation(),
-		FQuat::Identity,
-		ObjectParams,
-		FCollisionShape::MakeSphere(LightAttackWarpDistance),
-		QueryParams
-	);
-
-	const FVector Forward = Player->GetActorForwardVector().GetSafeNormal2D();
-	const float MinDot = FMath::Cos(FMath::DegreesToRadians(LightAttackWarpHalfAngle));
-
-	AActor* BestEnemy = nullptr;
-	float BestDistanceSq = TNumericLimits<float>::Max();
-
-	for (const FOverlapResult& Overlap : Overlaps)
-	{
-		AActor* Enemy = Overlap.GetActor();
-		if (!IsEnemyInWarpRange(Player, Enemy)) continue;
-
-		const FVector ToEnemy = (Enemy->GetActorLocation() - Player->GetActorLocation()).GetSafeNormal2D();
-		if (FVector::DotProduct(Forward, ToEnemy) < MinDot) continue;
-
-		const float DistanceSq = FVector::DistSquared2D(Player->GetActorLocation(), Enemy->GetActorLocation());
-		if (DistanceSq < BestDistanceSq)
-		{
-			BestDistanceSq = DistanceSq;
-			BestEnemy = Enemy;
-		}
-	}
-
-	return BestEnemy;
-}
-
-TObjectPtr<AActor> USL_GA_Player_LightAttackMaster::FindLockedTarget() const
-{
-	const UAbilitySystemComponent* AbilitySystemComponent = GetAbilitySystemComponentFromActorInfo();
-
-	if (!AbilitySystemComponent) return nullptr;
-
-	for (const FGameplayAbilitySpec& AbilitySpec : AbilitySystemComponent->GetActivatableAbilities())
-	{
-		if (!AbilitySpec.IsActive()) continue;
-
-		for (const UGameplayAbility* Instance : AbilitySpec.GetAbilityInstances())
-		{
-			const USL_GA_Player_TargetLock* TargetLock = Cast<USL_GA_Player_TargetLock>(Instance);
-
-			if (!TargetLock || !TargetLock->IsActive()) continue;
-
-			return TargetLock->GetCurrentLockedActor();
-		}
-	}
-
-	return nullptr;
-}
-
-bool USL_GA_Player_LightAttackMaster::IsEnemyInWarpRange(const ASL_PlayerCharacter* Player, AActor* Enemy) const
-{
-	ASL_EnemyCharacter* EnemyCharacter = Cast<ASL_EnemyCharacter>(Enemy);
-
-	if (!Player || !EnemyCharacter) return false;
-
-	if (USL_FunctionLibrary::NativeDoesActorHaveTag(EnemyCharacter, SL_GameplayTags::Shared_Status_Death)) return false;
-
-	return FVector::Dist2D(Player->GetActorLocation(), EnemyCharacter->GetActorLocation()) <= LightAttackWarpDistance;
 }
 
 void USL_GA_Player_LightAttackMaster::WhileRageActive_Implementation() { }
