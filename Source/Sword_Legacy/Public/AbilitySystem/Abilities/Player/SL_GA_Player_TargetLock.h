@@ -14,6 +14,8 @@ class SWORD_LEGACY_API USL_GA_Player_TargetLock : public USL_PlayerGameplayAbili
 	
 public:
 	USL_GA_Player_TargetLock();
+
+	TObjectPtr<AActor> GetCurrentLockedActor() const { return CurrentLockedActor; }
 	
 protected:
 	// ~ Begin UGameplayAbility Interface

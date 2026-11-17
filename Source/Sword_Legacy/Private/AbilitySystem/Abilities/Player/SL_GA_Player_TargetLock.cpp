@@ -284,8 +284,7 @@ void USL_GA_Player_TargetLock::OnTargetLockTick(float DeltaTime)
 	SetTargetLockWidgetPosition();
 	
 	const bool bShouldOverrideRotation =
-		!USL_FunctionLibrary::NativeDoesActorHaveTag(GetPlayerCharacterFromActorInfo(), SL_GameplayTags::Player_Status_Rolling) &&
-			!USL_FunctionLibrary::NativeDoesActorHaveTag(GetPlayerCharacterFromActorInfo(), SL_GameplayTags::Player_Status_Blocking);
+		!USL_FunctionLibrary::NativeDoesActorHaveTag(GetPlayerCharacterFromActorInfo(), SL_GameplayTags::Player_Status_Rolling);
 	
 	if (bShouldOverrideRotation)
 	{

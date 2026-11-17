@@ -18,28 +18,27 @@ void USL_GA_Player_LightAttackMaster::ActivateAbility(const FGameplayAbilitySpec
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	if (ComboCountResetTimerHandle.IsValid())
-	{
-		GetWorld()->GetTimerManager().ClearTimer(ComboCountResetTimerHandle);
-	}
+	PrepareComboAttack();
 
 	AActor* AvatarActor = GetAvatarActorFromActorInfo();
 	const bool bJumpToFinisher = AvatarActor &&
 		USL_FunctionLibrary::NativeDoesActorHaveTag(AvatarActor, SL_GameplayTags::Player_Status_JumpToFinisher);
 
+	int32 ComboCount = GetComboCount();
+
 	if (bJumpToFinisher)
 	{
-		CurrentLightAttackComboCount = LightAttackMontagesMap.Num();
+		ComboCount = LightAttackMontagesMap.Num();
 	}
 
-	UsedComboCount = CurrentLightAttackComboCount;
+	UsedComboCount = ComboCount;
 
-	TObjectPtr<UAnimMontage>* MontageToPlay = LightAttackMontagesMap.Find(CurrentLightAttackComboCount);
+	TObjectPtr<UAnimMontage>* MontageToPlay = LightAttackMontagesMap.Find(ComboCount);
 
 	if (!MontageToPlay || !(*MontageToPlay))
 	{
-		CurrentLightAttackComboCount = 1;
-		MontageToPlay = LightAttackMontagesMap.Find(CurrentLightAttackComboCount);
+		ComboCount = 1;
+		MontageToPlay = LightAttackMontagesMap.Find(ComboCount);
 		
 		if (!MontageToPlay || !(*MontageToPlay))
 		{
@@ -47,6 +46,8 @@ void USL_GA_Player_LightAttackMaster::ActivateAbility(const FGameplayAbilitySpec
 			return;
 		}
 	}
+
+	SetupMeleeMotionWarp(LightAttackWarpTargetName, LightAttackWarpDistance, LightAttackStopDistance, LightAttackWarpHalfAngle);
 	
 	UAbilityTask_WaitGameplayEvent* WaitMeleeHitTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 		this,
@@ -64,21 +65,19 @@ void USL_GA_Player_LightAttackMaster::ActivateAbility(const FGameplayAbilitySpec
 		*MontageToPlay,
 		1.0f
 	);
-	PlayMontageTask->OnCompleted.AddDynamic(this, &USL_GA_Player_LightAttackMaster::OnMontageCompleted);
-	PlayMontageTask->OnBlendOut.AddDynamic(this, &USL_GA_Player_LightAttackMaster::OnMontageCompleted);
-	PlayMontageTask->OnInterrupted.AddDynamic(this, &USL_GA_Player_LightAttackMaster::OnMontageCompleted);
-	PlayMontageTask->OnCancelled.AddDynamic(this, &USL_GA_Player_LightAttackMaster::OnMontageCompleted);
+
+	BindComboMontage(PlayMontageTask, *MontageToPlay);
 	PlayMontageTask->ReadyForActivation();
 	
 	const int32 TotalMontages = LightAttackMontagesMap.Num();
 
-	if (CurrentLightAttackComboCount == TotalMontages)
+	if (ComboCount == TotalMontages)
 	{
-		ResetLightAttackComboCount();
+		ResetComboCount();
 	}
 	else
 	{
-		CurrentLightAttackComboCount++;
+		SetComboCount(ComboCount + 1);
 	}
 
 	if (AvatarActor && USL_FunctionLibrary::NativeDoesActorHaveTag(AvatarActor, SL_GameplayTags::Player_Status_Rage_Active))
@@ -136,30 +135,6 @@ void USL_GA_Player_LightAttackMaster::OnMeleeHitEventReceived(FGameplayEventData
 			}
 		}
 	}
-}
-
-void USL_GA_Player_LightAttackMaster::ResetLightAttackComboCount()
-{
-	CurrentLightAttackComboCount = 1;
-
-	AActor* AvatarActor = GetAvatarActorFromActorInfo();
-	if (AvatarActor)
-	{
-		USL_FunctionLibrary::RemoveGameplayTagFromActorIfFound(AvatarActor, SL_GameplayTags::Player_Status_JumpToFinisher);
-	}
-}
-
-void USL_GA_Player_LightAttackMaster::OnMontageCompleted()
-{
-	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
-
-	GetWorld()->GetTimerManager().SetTimer(
-		ComboCountResetTimerHandle,
-		this,
-		&USL_GA_Player_LightAttackMaster::ResetLightAttackComboCount,
-		ComboResetTime,
-		false
-	);
 }
 
 void USL_GA_Player_LightAttackMaster::WhileRageActive_Implementation() { }

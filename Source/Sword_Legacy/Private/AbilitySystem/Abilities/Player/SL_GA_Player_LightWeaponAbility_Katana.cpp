@@ -39,6 +39,8 @@ void USL_GA_Player_LightWeaponAbility_Katana::ActivateAbility(const FGameplayAbi
 		UIComponent->OnAbilityCooldownBegin.Broadcast(AbilityInputTag, TotalDuration, RemainingTime);
 	}
 
+	SetupMeleeMotionWarp(SpecialLightWarpTargetName, SpecialLightWarpDistance, SpecialLightStopDistance, SpecialLightWarpHalfAngle);
+
 	UAbilityTask_PlayMontageAndWait* PlayMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 		this,
 		NAME_None,

@@ -55,6 +55,18 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	FGameplayTag AbilityCooldownTag;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|MotionWarp")
+	FName SpecialHeavyWarpTargetName = TEXT("SpecialHeavyAttackTarget");
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|MotionWarp", meta = (ClampMin = "0"))
+	float SpecialHeavyWarpDistance = 350.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|MotionWarp", meta = (ClampMin = "0"))
+	float SpecialHeavyStopDistance = 200.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|MotionWarp", meta = (ClampMin = "0", ClampMax = "180"))
+	float SpecialHeavyWarpHalfAngle = 70.f;
+
 private:
 	UFUNCTION()
 	void OnMontageCompleted();

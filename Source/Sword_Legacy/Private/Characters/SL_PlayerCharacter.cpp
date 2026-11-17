@@ -108,6 +108,29 @@ void ASL_PlayerCharacter::PossessedBy(AController* NewController)
 	{
 		ApplyCameraDistanceMultiplier(GameUserSettings->GetCameraDistance());
 	}
+
+	if (USL_AbilitySystemComponent* AbilitySystemComponent = GetCharacterAbilitySystemComponent())
+	{
+		AbilitySystemComponent->RegisterGameplayTagEvent(
+			SL_GameplayTags::Player_Status_Blocking,
+			EGameplayTagEventType::NewOrRemoved
+		).AddUObject(this, &ASL_PlayerCharacter::OnBlockingTagChanged);
+	}
+}
+
+void ASL_PlayerCharacter::OnBlockingTagChanged(const FGameplayTag Tag, int32 NewCount)
+{
+	const bool bIsBlocking = NewCount > 0;
+	const bool bIsTargetLocked = USL_FunctionLibrary::NativeDoesActorHaveTag(this, SL_GameplayTags::Player_Status_TargetLock);
+	
+	if (bIsTargetLocked) return;
+
+	bUseControllerRotationYaw = bIsBlocking;
+
+	if (UCharacterMovementComponent* Movement = GetCharacterMovement())
+	{
+		Movement->bOrientRotationToMovement = !bIsBlocking;
+	}
 }
 
 TObjectPtr<UInputAction> ASL_PlayerCharacter::GetNativeInputActionByTag(const FGameplayTag& InInputTag) const

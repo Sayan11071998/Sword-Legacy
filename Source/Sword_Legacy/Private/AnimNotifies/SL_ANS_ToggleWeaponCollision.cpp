@@ -1,11 +1,24 @@
 #include "AnimNotifies/SL_ANS_ToggleWeaponCollision.h"
 #include "Components/Combat/SL_PawnCombatComponent.h"
 #include "Utilities/SL_FunctionLibrary.h"
+#include "Engine/World.h"
+
+namespace
+{
+	bool IsCombatNotifyInGameWorld(const USkeletalMeshComponent* MeshComp)
+	{
+		const UWorld* World = MeshComp ? MeshComp->GetWorld() : nullptr;
+		
+		return World && World->IsGameWorld();
+	}
+}
 
 void USL_ANS_ToggleWeaponCollision::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
 	float TotalDuration, const FAnimNotifyEventReference& EventReference)
 {
 	Super::NotifyBegin(MeshComp, Animation, TotalDuration, EventReference);
+
+	if (!IsCombatNotifyInGameWorld(MeshComp)) return;
 	
 	if (USL_PawnCombatComponent* CombatComponent = USL_FunctionLibrary::NativeGetPawnCombatComponentFromActor(MeshComp->GetOwner()))
 	{
@@ -17,6 +30,8 @@ void USL_ANS_ToggleWeaponCollision::NotifyEnd(USkeletalMeshComponent* MeshComp, 
 	const FAnimNotifyEventReference& EventReference)
 {
 	Super::NotifyEnd(MeshComp, Animation, EventReference);
+
+	if (!IsCombatNotifyInGameWorld(MeshComp)) return;
 	
 	if (USL_PawnCombatComponent* CombatComponent = USL_FunctionLibrary::NativeGetPawnCombatComponentFromActor(MeshComp->GetOwner()))
 	{

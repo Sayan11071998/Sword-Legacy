@@ -1,4 +1,5 @@
 #include "AbilitySystem/SL_AbilitySystemComponent.h"
+#include "AbilitySystem/Abilities/Player/SL_GA_Player_ComboAttack.h"
 #include "AbilitySystem/Abilities/SL_PlayerGameplayAbility.h"
 #include "GameplayTags/SL_GameplayTags.h"
 
@@ -13,6 +14,36 @@ void USL_AbilitySystemComponent::OnAbilityInputPressed(const FGameplayTag& InInp
 		if (InInputTag.MatchesTag(SL_GameplayTags::InputTag_Toggleable) && AbilitySpec.IsActive())
 		{
 			CancelAbilityHandle(AbilitySpec.Handle);
+		}
+		else if (USL_GA_Player_ComboAttack* ComboAttack = Cast<USL_GA_Player_ComboAttack>(AbilitySpec.GetPrimaryInstance()))
+		{
+			if (AbilitySpec.IsActive())
+			{
+				ComboAttack->ReceiveComboInput(AbilitySpec.Handle);
+			}
+			else
+			{
+				USL_GA_Player_ComboAttack* ActiveComboAttack = nullptr;
+
+				for (const FGameplayAbilitySpec& OtherSpec : GetActivatableAbilities())
+				{
+					USL_GA_Player_ComboAttack* OtherComboAttack = Cast<USL_GA_Player_ComboAttack>(OtherSpec.GetPrimaryInstance());
+					if (OtherComboAttack && OtherSpec.IsActive())
+					{
+						ActiveComboAttack = OtherComboAttack;
+						break;
+					}
+				}
+
+				if (ActiveComboAttack)
+				{
+					ActiveComboAttack->ReceiveComboInput(AbilitySpec.Handle);
+				}
+				else
+				{
+					TryActivateAbility(AbilitySpec.Handle);
+				}
+			}
 		}
 		else
 		{

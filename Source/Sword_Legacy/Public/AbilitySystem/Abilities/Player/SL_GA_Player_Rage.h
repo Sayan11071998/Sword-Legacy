@@ -36,15 +36,28 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Rage")
 	TSubclassOf<UGameplayEffect> RageCostEffectClass;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Rage|Weapon")
+	FName RageSocketName = TEXT("KatanaRageSocket");
+
+	UPROPERTY(EditDefaultsOnly, Category = "Rage|Weapon")
+	FName EquippedSocketName = TEXT("KatanaEquippedSocket");
+
 private:
+	bool AttachEquippedWeaponToSocket(FName SocketName);
+	void RestoreEquippedWeaponSocket();
+
 	UFUNCTION()
 	void OnMontageFinished();
 
 	UFUNCTION()
 	void OnActivateRageEventReceived(FGameplayEventData Payload);
+
+	UFUNCTION()
+	void OnAttachWeaponEventReceived(FGameplayEventData Payload);
 	
 	UFUNCTION()
 	void OnRageNoneTagAdded();
 
 	FActiveGameplayEffectHandle AppliedRageCostEffectHandle;
+	bool bWeaponAttachedToRageSocket = false;
 };

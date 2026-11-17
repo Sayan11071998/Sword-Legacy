@@ -21,6 +21,8 @@ void USL_GA_Player_HeavyWeaponAbility_Katana::ActivateAbility(const FGameplayAbi
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
+	SetupMeleeMotionWarp(SpecialHeavyWarpTargetName, SpecialHeavyWarpDistance, SpecialHeavyStopDistance, SpecialHeavyWarpHalfAngle);
+
 	UAbilityTask_PlayMontageAndWait* PlayMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 		this,
 		NAME_None,
