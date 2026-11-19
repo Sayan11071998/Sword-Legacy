@@ -4,7 +4,6 @@
 #include "Items/Weapons/SL_PlayerWeapon.h"
 #include "Characters/SL_PlayerCharacter.h"
 #include "Items/Projectiles/SL_ProjectileBase.h"
-#include "Components/MeshComponent.h"
 #include "GameplayTags/SL_GameplayTags.h"
 
 USL_GA_Player_LightAttack_Katana::USL_GA_Player_LightAttack_Katana()
@@ -38,7 +37,7 @@ void USL_GA_Player_LightAttack_Katana::OnSpawnProjectileEventReceived(FGameplayE
 	ASL_PlayerWeapon* EquippedWeapon = CombatComponent->GetPlayerCurrentEquippedWeapon();
 	if (!EquippedWeapon) return;
 
-	UMeshComponent* WeaponMesh = EquippedWeapon->GetWeaponMesh();
+	UStaticMeshComponent* WeaponMesh = EquippedWeapon->GetWeaponMesh();
 	if (!WeaponMesh) return;
 	
 	FTransform SocketTransform = WeaponMesh->GetSocketTransform(ProjectileSpawnSocketName);
