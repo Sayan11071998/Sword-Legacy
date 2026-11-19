@@ -2,6 +2,7 @@
 #include "Items/Weapons/SL_WeaponBase.h"
 #include "Components/Combat/SL_PawnCombatComponent.h"
 #include "Characters/SL_EnemyCharacter.h"
+#include "Components/MeshComponent.h"
 
 void USL_GA_Shared_SpawnWeapon_Base::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
@@ -39,7 +40,7 @@ void USL_GA_Shared_SpawnWeapon_Base::ActivateAbility(const FGameplayAbilitySpecH
 			CombatComponent->RegisterSpawnedWeapon(WeaponTagToRegister, SpawnedWeapon, bRegisterAsEquippedWeapon);
 		}
 
-		if (UStaticMeshComponent* WeaponMesh = SpawnedWeapon->GetWeaponMesh())
+		if (UMeshComponent* WeaponMesh = SpawnedWeapon->GetWeaponMesh())
 		{
 			float DissolveAmount = 1.f;
 
