@@ -9,6 +9,7 @@
 USL_GA_Enemy_MeleeAttack_Base::USL_GA_Enemy_MeleeAttack_Base()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+	ActivationOwnedTags.AddTag(SL_GameplayTags::Enemy_Status_Attacking);
 	UnblockableAttackWarningSpawnOffset = 100.0f;
 }
 
