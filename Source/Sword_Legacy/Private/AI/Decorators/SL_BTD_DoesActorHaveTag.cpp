@@ -1,4 +1,5 @@
 #include "AI/Decorators/SL_BTD_DoesActorHaveTag.h"
+#include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/BlackboardData.h"
 #include "AbilitySystemBlueprintLibrary.h"
@@ -9,6 +10,7 @@ USL_BTD_DoesActorHaveTag::USL_BTD_DoesActorHaveTag()
 	NodeName = TEXT("Does Actor Have Tag");
 	
 	bInverseConditionCheck = false;
+	INIT_DECORATOR_NODE_NOTIFY_FLAGS();
 
 	InActorKeyToCheck.AddObjectFilter(this, GET_MEMBER_NAME_CHECKED(ThisClass, InActorKeyToCheck), AActor::StaticClass());
 }
@@ -51,4 +53,11 @@ bool USL_BTD_DoesActorHaveTag::CalculateRawConditionValue(UBehaviorTreeComponent
 	}
 
 	return bInverseConditionCheck ? !bHasTag : bHasTag;
+}
+
+void USL_BTD_DoesActorHaveTag::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
+{
+	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
+
+	ConditionalFlowAbort(OwnerComp, EBTDecoratorAbortRequest::ConditionResultChanged);
 }

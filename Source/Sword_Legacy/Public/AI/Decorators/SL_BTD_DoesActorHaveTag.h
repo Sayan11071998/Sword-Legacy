@@ -15,6 +15,7 @@ public:
 	// ~ Begin UBTNode Interface
 	virtual void InitializeFromAsset(UBehaviorTree& Asset) override;
 	virtual FString GetStaticDescription() const override;
+	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 	// ~ End UBTNode Interface
 	
 protected:
