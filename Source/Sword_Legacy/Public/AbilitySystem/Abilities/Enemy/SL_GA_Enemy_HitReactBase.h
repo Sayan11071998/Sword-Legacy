@@ -31,6 +31,18 @@ protected:
 	// ~ End UGameplayAbility Interface
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Hit React")
+	TObjectPtr<UAnimMontage> FrontHitReactMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Hit React")
+	TObjectPtr<UAnimMontage> LeftHitReactMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Hit React")
+	TObjectPtr<UAnimMontage> RightHitReactMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Hit React")
+	TObjectPtr<UAnimMontage> BackHitReactMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Hit React")
 	TArray<TObjectPtr<UAnimMontage>> MontagesToPlay;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Hit React")
@@ -51,6 +63,10 @@ protected:
 private:
 	UFUNCTION()
 	void OnHitReactFinished();
+
+	UAnimMontage* SelectHitReactMontage(AActor* Attacker) const;
+
+	bool IsDirectionalHitReactMontage(const UAnimMontage* Montage) const;
 	
 	FTimerHandle HitReactFallbackTimerHandle;
 	

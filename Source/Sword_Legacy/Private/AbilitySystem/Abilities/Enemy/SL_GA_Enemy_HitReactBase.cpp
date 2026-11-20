@@ -4,6 +4,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Characters/SL_EnemyCharacter.h"
 #include "GameplayTags/SL_GameplayTags.h"
+#include "Utilities/SL_FunctionLibrary.h"
 
 USL_GA_Enemy_HitReactBase::USL_GA_Enemy_HitReactBase()
 {
@@ -20,14 +21,17 @@ void USL_GA_Enemy_HitReactBase::ActivateAbility(const FGameplayAbilitySpecHandle
 	const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-	
-	if (bFaceAttacker && TriggerEventData && TriggerEventData->Instigator)
+
+	AActor* Attacker = TriggerEventData ? const_cast<AActor*>(TriggerEventData->Instigator.Get()) : nullptr;
+	UAnimMontage* SelectedMontage = SelectHitReactMontage(Attacker);
+
+	if (bFaceAttacker && Attacker && !IsDirectionalHitReactMontage(SelectedMontage))
 	{
 		if (ASL_EnemyCharacter* EnemyCharacter = GetEnemyCharacterFromActorInfo())
 		{
 			const FRotator LookAtRot = UKismetMathLibrary::FindLookAtRotation(
 				EnemyCharacter->GetActorLocation(), 
-				TriggerEventData->Instigator->GetActorLocation()
+				Attacker->GetActorLocation()
 			);
 			const FRotator NewRot = FRotator(0.f, LookAtRot.Yaw, 0.f);
 			EnemyCharacter->SetActorRotation(NewRot);
@@ -56,25 +60,19 @@ void USL_GA_Enemy_HitReactBase::ActivateAbility(const FGameplayAbilitySpecHandle
 		}
 	}
 	
-	if (!MontagesToPlay.IsEmpty())
+	if (SelectedMontage)
 	{
-		const int32 RandomIndex = FMath::RandRange(0, MontagesToPlay.Num() - 1);
-		
-		if (UAnimMontage* SelectedMontage = MontagesToPlay[RandomIndex])
-		{
-			UAbilityTask_PlayMontageAndWait* PlayMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-				this,
-				NAME_None,
-				SelectedMontage
-			);
-			PlayMontageTask->OnCompleted.AddDynamic(this, &USL_GA_Enemy_HitReactBase::OnHitReactFinished);
-			PlayMontageTask->OnBlendOut.AddDynamic(this, &USL_GA_Enemy_HitReactBase::OnHitReactFinished);
-			PlayMontageTask->OnInterrupted.AddDynamic(this, &USL_GA_Enemy_HitReactBase::OnHitReactFinished);
-			PlayMontageTask->OnCancelled.AddDynamic(this, &USL_GA_Enemy_HitReactBase::OnHitReactFinished);
-			PlayMontageTask->ReadyForActivation();
-			
-			return;
-		}
+		UAbilityTask_PlayMontageAndWait* PlayMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+			this,
+			NAME_None,
+			SelectedMontage
+		);
+		PlayMontageTask->OnCompleted.AddDynamic(this, &USL_GA_Enemy_HitReactBase::OnHitReactFinished);
+		PlayMontageTask->OnBlendOut.AddDynamic(this, &USL_GA_Enemy_HitReactBase::OnHitReactFinished);
+		PlayMontageTask->OnInterrupted.AddDynamic(this, &USL_GA_Enemy_HitReactBase::OnHitReactFinished);
+		PlayMontageTask->OnCancelled.AddDynamic(this, &USL_GA_Enemy_HitReactBase::OnHitReactFinished);
+		PlayMontageTask->ReadyForActivation();
+		return;
 	}
 	
 	GetWorld()->GetTimerManager().SetTimer(
@@ -112,4 +110,55 @@ void USL_GA_Enemy_HitReactBase::EndAbility(const FGameplayAbilitySpecHandle Hand
 void USL_GA_Enemy_HitReactBase::OnHitReactFinished()
 {
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+}
+
+UAnimMontage* USL_GA_Enemy_HitReactBase::SelectHitReactMontage(AActor* Attacker) const
+{
+	AActor* Victim = GetAvatarActorFromActorInfo();
+
+	if (Attacker && Victim)
+	{
+		float AngleDifference = 0.f;
+
+		const FGameplayTag DirectionTag = USL_FunctionLibrary::ComputeHitReactDirectionTag(Attacker, Victim, AngleDifference);
+
+		UAnimMontage* DirectionMontage = FrontHitReactMontage;
+
+		if (DirectionTag.MatchesTagExact(SL_GameplayTags::Shared_Status_HitReact_Left))
+		{
+			DirectionMontage = LeftHitReactMontage;
+		}
+		else if (DirectionTag.MatchesTagExact(SL_GameplayTags::Shared_Status_HitReact_Right))
+		{
+			DirectionMontage = RightHitReactMontage;
+		}
+		else if (DirectionTag.MatchesTagExact(SL_GameplayTags::Shared_Status_HitReact_Back))
+		{
+			DirectionMontage = BackHitReactMontage;
+		}
+
+		if (DirectionMontage)
+		{
+			return DirectionMontage;
+		}
+
+		if (FrontHitReactMontage)
+		{
+			return FrontHitReactMontage;
+		}
+	}
+
+	if (!MontagesToPlay.IsEmpty())
+	{
+		const int32 RandomIndex = FMath::RandRange(0, MontagesToPlay.Num() - 1);
+		return MontagesToPlay[RandomIndex];
+	}
+
+	return nullptr;
+}
+
+bool USL_GA_Enemy_HitReactBase::IsDirectionalHitReactMontage(const UAnimMontage* Montage) const
+{
+	return Montage && (Montage == FrontHitReactMontage || Montage == LeftHitReactMontage
+		|| Montage == RightHitReactMontage || Montage == BackHitReactMontage);
 }
