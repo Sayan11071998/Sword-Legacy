@@ -56,6 +56,12 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Hit React")
 	float HitReactFallbackDuration = 0.2f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Hit React|Pushback", meta = (ClampMin = "0"))
+	float HitReactPushbackStrength = 200.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Hit React|Pushback", meta = (ClampMin = "0"))
+	float HitReactPushbackDuration = 0.25f;
 	
 private:
 	UFUNCTION()
@@ -64,6 +70,8 @@ private:
 	UAnimMontage* SelectHitReactMontage(AActor* Attacker) const;
 
 	bool IsDirectionalHitReactMontage(const UAnimMontage* Montage) const;
+
+	void ApplyHitReactPushback(AActor* Attacker);
 	
 	FTimerHandle HitReactFallbackTimerHandle;
 	

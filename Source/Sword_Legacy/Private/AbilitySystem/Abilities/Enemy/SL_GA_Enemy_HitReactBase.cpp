@@ -1,4 +1,5 @@
 #include "AbilitySystem/Abilities/Enemy/SL_GA_Enemy_HitReactBase.h"
+#include "Abilities/Tasks/AbilityTask_ApplyRootMotionConstantForce.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "AbilitySystem/SL_AbilitySystemComponent.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -72,6 +73,7 @@ void USL_GA_Enemy_HitReactBase::ActivateAbility(const FGameplayAbilitySpecHandle
 		PlayMontageTask->OnInterrupted.AddDynamic(this, &USL_GA_Enemy_HitReactBase::OnHitReactFinished);
 		PlayMontageTask->OnCancelled.AddDynamic(this, &USL_GA_Enemy_HitReactBase::OnHitReactFinished);
 		PlayMontageTask->ReadyForActivation();
+		ApplyHitReactPushback(Attacker);
 		return;
 	}
 	
@@ -155,4 +157,43 @@ bool USL_GA_Enemy_HitReactBase::IsDirectionalHitReactMontage(const UAnimMontage*
 {
 	return Montage && (Montage == FrontHitReactMontage || Montage == LeftHitReactMontage
 		|| Montage == RightHitReactMontage || Montage == BackHitReactMontage);
+}
+
+void USL_GA_Enemy_HitReactBase::ApplyHitReactPushback(AActor* Attacker)
+{
+	if (HitReactPushbackStrength <= 0.f || HitReactPushbackDuration <= 0.f) return;
+
+	AActor* Victim = GetAvatarActorFromActorInfo();
+	if (!Victim) return;
+
+	FVector PushDirection = Attacker
+		? Victim->GetActorLocation() - Attacker->GetActorLocation()
+		: -Victim->GetActorForwardVector();
+	
+	PushDirection.Z = 0.f;
+	PushDirection = PushDirection.GetSafeNormal();
+	
+	if (PushDirection.IsNearlyZero())
+	{
+		PushDirection = -Victim->GetActorForwardVector();
+	}
+
+	UAbilityTask_ApplyRootMotionConstantForce* ApplyRootMotionTask = UAbilityTask_ApplyRootMotionConstantForce::ApplyRootMotionConstantForce(
+		this,
+		NAME_None,
+		PushDirection,
+		HitReactPushbackStrength,
+		HitReactPushbackDuration,
+		true,
+		nullptr,
+		ERootMotionFinishVelocityMode::SetVelocity,
+		FVector::ZeroVector,
+		0.f,
+		true
+	);
+
+	if (ApplyRootMotionTask)
+	{
+		ApplyRootMotionTask->ReadyForActivation();
+	}
 }
