@@ -148,12 +148,6 @@ UAnimMontage* USL_GA_Enemy_HitReactBase::SelectHitReactMontage(AActor* Attacker)
 		}
 	}
 
-	if (!MontagesToPlay.IsEmpty())
-	{
-		const int32 RandomIndex = FMath::RandRange(0, MontagesToPlay.Num() - 1);
-		return MontagesToPlay[RandomIndex];
-	}
-
 	return nullptr;
 }
 
