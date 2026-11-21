@@ -1,5 +1,7 @@
 #include "Items/Weapons/SL_WeaponBase.h"
 #include "Components/BoxComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Utilities/SL_FunctionLibrary.h"
 
 ASL_WeaponBase::ASL_WeaponBase()
@@ -11,6 +13,13 @@ ASL_WeaponBase::ASL_WeaponBase()
 	WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
 	WeaponMesh->SetCollisionResponseToChannel(ECC_Camera, ECollisionResponse::ECR_Ignore);
 	WeaponMesh->SetCollisionResponseToChannel(ECC_Pawn, ECollisionResponse::ECR_Ignore);
+
+	WeaponSkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponSkeletalMesh"));
+	WeaponSkeletalMesh->SetupAttachment(GetRootComponent());
+	WeaponSkeletalMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
+	WeaponSkeletalMesh->SetCollisionResponseToChannel(ECC_Camera, ECollisionResponse::ECR_Ignore);
+	WeaponSkeletalMesh->SetCollisionResponseToChannel(ECC_Pawn, ECollisionResponse::ECR_Ignore);
+	WeaponSkeletalMesh->SetComponentTickEnabled(false);
 	
 	WeaponCollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("WeaponCollisionBox"));
 	WeaponCollisionBox->SetupAttachment(GetRootComponent());
@@ -18,6 +27,56 @@ ASL_WeaponBase::ASL_WeaponBase()
 	WeaponCollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	WeaponCollisionBox->OnComponentBeginOverlap.AddUniqueDynamic(this, &ASL_WeaponBase::OnCollisionBoxBeginOverlap);
 	WeaponCollisionBox->OnComponentEndOverlap.AddUniqueDynamic(this, &ASL_WeaponBase::OnCollisionBoxEndOverlap);
+}
+
+void ASL_WeaponBase::OnConstruction(const FTransform& Transform)
+{
+	Super::OnConstruction(Transform);
+
+	ApplyActiveWeaponMesh();
+}
+
+void ASL_WeaponBase::BeginPlay()
+{
+	Super::BeginPlay();
+
+	ApplyActiveWeaponMesh();
+}
+
+void ASL_WeaponBase::ApplyActiveWeaponMesh()
+{
+	const bool bUseSkeletalMesh = WeaponSkeletalMesh && WeaponSkeletalMesh->GetSkeletalMeshAsset() != nullptr;
+
+	if (WeaponMesh)
+	{
+		WeaponMesh->SetVisibility(!bUseSkeletalMesh);
+
+		if (bUseSkeletalMesh)
+		{
+			WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		}
+	}
+
+	if (!WeaponSkeletalMesh) return;
+
+	WeaponSkeletalMesh->SetVisibility(bUseSkeletalMesh);
+	if (!bUseSkeletalMesh)
+	{
+		WeaponSkeletalMesh->SetComponentTickEnabled(false);
+		return;
+	}
+
+	WeaponSkeletalMesh->SetComponentTickEnabled(WeaponSkeletalMesh->GetAnimClass() != nullptr);
+}
+
+UMeshComponent* ASL_WeaponBase::GetWeaponMesh() const
+{
+	if (WeaponSkeletalMesh && WeaponSkeletalMesh->GetSkeletalMeshAsset())
+	{
+		return WeaponSkeletalMesh;
+	}
+
+	return WeaponMesh;
 }
 
 void ASL_WeaponBase::OnCollisionBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
