@@ -370,6 +370,36 @@ void ASL_EnemyCharacter::HandleEntryRestoreFinished()
 	HandleEntryRestoreUpdate(0.f);
 }
 
+bool ASL_EnemyCharacter::WantsToBlockIncomingAttack(const AActor* Attacker) const
+{
+	if (!Attacker || BlockChance <= 0.f) return false;
+
+	if (USL_FunctionLibrary::NativeDoesActorHaveTag(const_cast<ASL_EnemyCharacter*>(this), SL_GameplayTags::Shared_Status_Death)) return false;
+
+	if (FVector::Dist2D(GetActorLocation(), Attacker->GetActorLocation()) > DefenseDistance) return false;
+
+	return FMath::FRand() <= BlockChance;
+}
+
+bool ASL_EnemyCharacter::RespondToIncomingAttack(const AActor* Attacker)
+{
+	if (!WantsToBlockIncomingAttack(Attacker)) return false;
+
+	USL_AbilitySystemComponent* AbilitySystemComponent = GetCharacterAbilitySystemComponent();
+	if (!AbilitySystemComponent) return false;
+
+	FGameplayTagContainer AttackTags;
+	AttackTags.AddTag(SL_GameplayTags::Enemy_Ability_Melee);
+	AttackTags.AddTag(SL_GameplayTags::Enemy_Ability_HeavyMelee);
+	AbilitySystemComponent->CancelAbilities(&AttackTags);
+
+	if (!AbilitySystemComponent->TryActivateAbilityByTag(SL_GameplayTags::Enemy_Ability_Block)) return false;
+
+	USL_FunctionLibrary::AddGameplayTagToActorIfNone(this, SL_GameplayTags::Enemy_Status_IncomingAttack);
+
+	return true;
+}
+
 float ASL_EnemyCharacter::GetSpawnedWeaponDissolveAmount() const
 {
 	if (!EntryRestoreCurve || bEntryRestoreFinished)

@@ -76,6 +76,12 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat")
 	FName RightHandCollisionBoxAttachBoneName;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Defense", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+	float BlockChance = 0.5f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Defense", meta = (ClampMin = "0.0"))
+	float DefenseDistance = 250.f;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
 	TObjectPtr<USL_EnemyUIComponent> EnemyUIComponent;
@@ -144,6 +150,10 @@ private:
 	
 public:
 	float GetSpawnedWeaponDissolveAmount() const;
+
+	bool WantsToBlockIncomingAttack(const AActor* Attacker) const;
+
+	bool RespondToIncomingAttack(const AActor* Attacker);
 
 	FORCEINLINE TObjectPtr<USL_EnemyCombatComponent> GetEnemyCombatComponent() const { return EnemyCombatComponent; }
 	FORCEINLINE TObjectPtr<UBoxComponent> GetLeftHandCollisionBox() const { return LeftHandCollisionBox; }

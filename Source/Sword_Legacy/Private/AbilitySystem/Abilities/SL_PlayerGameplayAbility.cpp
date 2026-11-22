@@ -96,6 +96,47 @@ bool USL_PlayerGameplayAbility::GetAbilityRemainingCooldownByTag(FGameplayTag In
 	return RemainingCooldownTime > 0.f;
 }
 
+void USL_PlayerGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+	bool bReplicateEndAbility, bool bWasCancelled)
+{
+	ClearIncomingAttackWarnings();
+
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+
+void USL_PlayerGameplayAbility::WarnEnemyOfIncomingAttack(AActor* Enemy)
+{
+	if (!Enemy) return;
+
+	if (USL_FunctionLibrary::NativeDoesActorHaveTag(Enemy, SL_GameplayTags::Shared_Status_Death)) return;
+
+	USL_FunctionLibrary::AddGameplayTagToActorIfNone(Enemy, SL_GameplayTags::Enemy_Status_IncomingAttack);
+
+	for (const TWeakObjectPtr<AActor>& WarnedEnemy : WarnedEnemies)
+	{
+		if (WarnedEnemy.Get() == Enemy) return;
+	}
+
+	WarnedEnemies.Add(Enemy);
+}
+
+void USL_PlayerGameplayAbility::ClearIncomingAttackWarnings()
+{
+	for (const TWeakObjectPtr<AActor>& WarnedEnemy : WarnedEnemies)
+	{
+		AActor* Enemy = WarnedEnemy.Get();
+
+		if (!Enemy) continue;
+
+		if (USL_FunctionLibrary::NativeDoesActorHaveTag(Enemy, SL_GameplayTags::Enemy_Status_Blocking)) continue;
+
+		USL_FunctionLibrary::RemoveGameplayTagFromActorIfFound(Enemy, SL_GameplayTags::Enemy_Status_IncomingAttack);
+	}
+
+	WarnedEnemies.Reset();
+}
+
 void USL_PlayerGameplayAbility::SetupMeleeMotionWarp(FName WarpTargetName, float WarpDistance, float StopDistance, float HalfAngle)
 {
 	ASL_PlayerCharacter* Player = GetPlayerCharacterFromActorInfo();

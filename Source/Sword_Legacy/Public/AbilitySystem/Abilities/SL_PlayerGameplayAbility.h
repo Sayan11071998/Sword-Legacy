@@ -38,13 +38,29 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Player|Ability")
 	bool GetAbilityRemainingCooldownByTag(FGameplayTag InCooldownTag, float& TotalCooldownTime, float& RemainingCooldownTime);
 
+	void WarnEnemyOfIncomingAttack(AActor* Enemy);
+
 protected:
+	// ~ Begin UGameplayAbility Interface
+	virtual void EndAbility(
+		const FGameplayAbilitySpecHandle Handle,
+		const FGameplayAbilityActorInfo* ActorInfo,
+		const FGameplayAbilityActivationInfo ActivationInfo,
+		bool bReplicateEndAbility,
+		bool bWasCancelled
+	) override;
+	// ~ End UGameplayAbility Interface
+
 	void SetupMeleeMotionWarp(FName WarpTargetName, float WarpDistance, float StopDistance, float HalfAngle);
 
 private:
+	void ClearIncomingAttackWarnings();
+
 	TObjectPtr<AActor> FindMeleeWarpTarget(const ASL_PlayerCharacter* Player, float WarpDistance, float HalfAngle) const;
 	TObjectPtr<AActor> FindLockedWarpTarget() const;
 	bool IsEnemyInMeleeWarpRange(const ASL_PlayerCharacter* Player, AActor* Enemy, float WarpDistance) const;
+
+	TArray<TWeakObjectPtr<AActor>> WarnedEnemies;
 
 	TWeakObjectPtr<ASL_PlayerCharacter> CachedPlayerCharacter;
 	TWeakObjectPtr<ASL_PlayerController> CachedPlayerController;

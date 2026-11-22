@@ -97,6 +97,9 @@ void USL_GA_Player_HeavyAttackMaster::OnMeleeHitEventReceived(FGameplayEventData
 	);
 
 	AActor* TargetActor = const_cast<AActor*>(Payload.Target.Get());
+
+	if (USL_FunctionLibrary::NotifyEnemyBlockedAttack(GetAvatarActorFromActorInfo(), TargetActor)) return;
+
 	if (TargetActor && DamageSpecHandle.IsValid())
 	{
 		if (WeaponHitSoundGameplayCueTag.IsValid())

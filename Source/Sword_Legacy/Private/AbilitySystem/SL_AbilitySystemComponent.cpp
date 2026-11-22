@@ -145,8 +145,10 @@ bool USL_AbilitySystemComponent::TryActivateAbilityByTag(FGameplayTag AbilityTag
 		
 		FGameplayAbilitySpec* SpecToActivate = FoundAbilitiesSpecs[AbilityIndex];
 		
-		if (SpecToActivate && !SpecToActivate->IsActive())
+		if (SpecToActivate)
 		{
+			if (SpecToActivate->IsActive()) return true;
+
 			return TryActivateAbility(SpecToActivate->Handle);
 		}
 	}

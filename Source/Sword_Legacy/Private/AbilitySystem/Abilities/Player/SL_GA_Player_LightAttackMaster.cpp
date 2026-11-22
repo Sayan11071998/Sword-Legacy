@@ -103,6 +103,8 @@ void USL_GA_Player_LightAttackMaster::OnMeleeHitEventReceived(FGameplayEventData
 	AActor* TargetActor = const_cast<AActor*>(Payload.Target.Get());
 	if (!TargetActor || !DamageSpecHandle.IsValid()) return;
 
+	if (USL_FunctionLibrary::NotifyEnemyBlockedAttack(GetAvatarActorFromActorInfo(), TargetActor)) return;
+
 	if (WeaponHitSoundGameplayCueTag.IsValid())
 	{
 		FGameplayEffectContextHandle ContextHandle = DamageSpecHandle.Data->GetContext();

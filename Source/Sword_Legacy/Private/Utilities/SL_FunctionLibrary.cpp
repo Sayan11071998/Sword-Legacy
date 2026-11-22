@@ -41,6 +41,20 @@ TObjectPtr<USL_PawnCombatComponent> USL_FunctionLibrary::NativeGetPawnCombatComp
 	return nullptr;
 }
 
+bool USL_FunctionLibrary::NotifyEnemyBlockedAttack(AActor* InAttacker, AActor* InDefender)
+{
+	if (!IsEnemyBlockingAttack(InAttacker, InDefender)) return false;
+
+	FGameplayEventData EventData;
+	EventData.Instigator = InAttacker;
+	EventData.Target = InDefender;
+	EventData.EventTag = SL_GameplayTags::Enemy_Event_SuccessfulBlock;
+
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(InDefender, SL_GameplayTags::Enemy_Event_SuccessfulBlock, EventData);
+
+	return true;
+}
+
 int32 USL_FunctionLibrary::GetCurrentGameDifficultyAbilityLevel()
 {
 	if (const USL_GameUserSettings* GameUserSettings = USL_GameUserSettings::Get())
@@ -154,6 +168,15 @@ bool USL_FunctionLibrary::IsValidBlock(AActor* InAttacker, AActor* InDefender, f
 	);
 	
 	return DotResult < BlockFacingDotThreshold;
+}
+
+bool USL_FunctionLibrary::IsEnemyBlockingAttack(AActor* InAttacker, AActor* InDefender)
+{
+	if (!InAttacker || !InDefender) return false;
+
+	if (!NativeDoesActorHaveTag(InDefender, SL_GameplayTags::Enemy_Status_Blocking)) return false;
+
+	return IsValidBlock(InAttacker, InDefender);
 }
 
 bool USL_FunctionLibrary::ApplyGameplayEffectSpecHandleToTargetActor(AActor* InInstigator, AActor* InTargetActor,
