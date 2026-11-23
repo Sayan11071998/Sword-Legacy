@@ -391,6 +391,7 @@ bool ASL_EnemyCharacter::RespondToIncomingAttack(const AActor* Attacker)
 	FGameplayTagContainer AttackTags;
 	AttackTags.AddTag(SL_GameplayTags::Enemy_Ability_Melee);
 	AttackTags.AddTag(SL_GameplayTags::Enemy_Ability_HeavyMelee);
+	AttackTags.AddTag(SL_GameplayTags::Enemy_Ability_Combo);
 	AbilitySystemComponent->CancelAbilities(&AttackTags);
 
 	if (!AbilitySystemComponent->TryActivateAbilityByTag(SL_GameplayTags::Enemy_Ability_Block)) return false;
