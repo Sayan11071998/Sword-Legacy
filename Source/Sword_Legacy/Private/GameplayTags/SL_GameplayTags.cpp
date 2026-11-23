@@ -75,6 +75,7 @@ namespace SL_GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Enemy_Ability_SpawnStone, "Enemy.Ability.SpawnStone");
 	UE_DEFINE_GAMEPLAY_TAG(Enemy_Ability_Block, "Enemy.Ability.Block");
 	UE_DEFINE_GAMEPLAY_TAG(Enemy_Ability_SideDodge, "Enemy.Ability.SideDodge");
+	UE_DEFINE_GAMEPLAY_TAG(Enemy_Ability_DashAttack, "Enemy.Ability.DashAttack");
 	
 	UE_DEFINE_GAMEPLAY_TAG(Enemy_Weapon, "Enemy.Weapon");
 	
@@ -89,6 +90,7 @@ namespace SL_GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Enemy_Status_IncomingAttack, "Enemy.Status.IncomingAttack");
 	UE_DEFINE_GAMEPLAY_TAG(Enemy_Status_Dodging, "Enemy.Status.Dodging");
 	UE_DEFINE_GAMEPLAY_TAG(Enemy_Cooldown_Dodge, "Enemy.Cooldown.Dodge");
+	UE_DEFINE_GAMEPLAY_TAG(Enemy_Cooldown_DashAttack, "Enemy.Cooldown.DashAttack");
 	
 	/** Shared Tags **/
 	UE_DEFINE_GAMEPLAY_TAG(Shared_Ability_HitReact, "Shared.Ability.HitReact");
