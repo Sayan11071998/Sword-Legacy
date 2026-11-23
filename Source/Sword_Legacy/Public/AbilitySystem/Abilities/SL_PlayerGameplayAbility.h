@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/Abilities/SL_GameplayAbility.h"
+#include "Engine/EngineTypes.h"
 #include "SL_PlayerGameplayAbility.generated.h"
 
 class USL_PlayerUIComponent;
@@ -54,13 +55,25 @@ protected:
 	void SetupMeleeMotionWarp(FName WarpTargetName, float WarpDistance, float StopDistance, float HalfAngle);
 
 private:
+	void ApplyMeleeMotionWarp();
+	void ClearMeleeMotionWarp();
 	void ClearIncomingAttackWarnings();
+	void MaintainMeleeSpacing();
+
+	UFUNCTION()
+	void OnMeleeMovementUpdated(float DeltaSeconds, FVector OldLocation, FVector OldVelocity);
 
 	TObjectPtr<AActor> FindMeleeWarpTarget(const ASL_PlayerCharacter* Player, float WarpDistance, float HalfAngle) const;
 	TObjectPtr<AActor> FindLockedWarpTarget() const;
 	bool IsEnemyInMeleeWarpRange(const ASL_PlayerCharacter* Player, AActor* Enemy, float WarpDistance) const;
 
 	TArray<TWeakObjectPtr<AActor>> WarnedEnemies;
+
+	FTimerHandle MeleeWarpTimer;
+	FName ActiveWarpTargetName = NAME_None;
+	float ActiveWarpDistance = 0.f;
+	float ActiveWarpStopDistance = 0.f;
+	float ActiveWarpHalfAngle = 0.f;
 
 	TWeakObjectPtr<ASL_PlayerCharacter> CachedPlayerCharacter;
 	TWeakObjectPtr<ASL_PlayerController> CachedPlayerController;

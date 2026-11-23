@@ -9,6 +9,7 @@
 #include "Engine/World.h"
 #include "GameplayTags/SL_GameplayTags.h"
 #include "MotionWarpingComponent.h"
+#include "TimerManager.h"
 #include "Utilities/SL_FunctionLibrary.h"
 
 ASL_PlayerCharacter* USL_PlayerGameplayAbility::GetPlayerCharacterFromActorInfo()
@@ -100,6 +101,7 @@ void USL_PlayerGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Hand
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	bool bReplicateEndAbility, bool bWasCancelled)
 {
+	ClearMeleeMotionWarp();
 	ClearIncomingAttackWarnings();
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
@@ -139,17 +141,116 @@ void USL_PlayerGameplayAbility::ClearIncomingAttackWarnings()
 
 void USL_PlayerGameplayAbility::SetupMeleeMotionWarp(FName WarpTargetName, float WarpDistance, float StopDistance, float HalfAngle)
 {
+	if (WarpTargetName.IsNone()) return;
+
+	ActiveWarpTargetName = WarpTargetName;
+	ActiveWarpDistance = WarpDistance;
+	ActiveWarpStopDistance = StopDistance;
+	ActiveWarpHalfAngle = HalfAngle;
+
+	ApplyMeleeMotionWarp();
+	MaintainMeleeSpacing();
+
+	if (ASL_PlayerCharacter* Player = GetPlayerCharacterFromActorInfo())
+	{
+		Player->OnCharacterMovementUpdated.RemoveDynamic(this, &USL_PlayerGameplayAbility::OnMeleeMovementUpdated);
+		Player->OnCharacterMovementUpdated.AddDynamic(this, &USL_PlayerGameplayAbility::OnMeleeMovementUpdated);
+	}
+
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().SetTimer(
+			MeleeWarpTimer,
+			FTimerDelegate::CreateUObject(this, &USL_PlayerGameplayAbility::ApplyMeleeMotionWarp),
+			0.016f,
+			true
+		);
+	}
+}
+
+void USL_PlayerGameplayAbility::ClearMeleeMotionWarp()
+{
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(MeleeWarpTimer);
+	}
+
+	if (ASL_PlayerCharacter* Player = GetPlayerCharacterFromActorInfo())
+	{
+		Player->OnCharacterMovementUpdated.RemoveDynamic(this, &USL_PlayerGameplayAbility::OnMeleeMovementUpdated);
+		Player->SetAnimRootMotionTranslationScale(1.f);
+
+		if (!ActiveWarpTargetName.IsNone())
+		{
+			if (UMotionWarpingComponent* MotionWarping = Player->GetMotionWarpingComponent())
+			{
+				MotionWarping->RemoveWarpTarget(ActiveWarpTargetName);
+			}
+		}
+	}
+
+	ActiveWarpTargetName = NAME_None;
+}
+
+void USL_PlayerGameplayAbility::OnMeleeMovementUpdated(float /*DeltaSeconds*/, FVector /*OldLocation*/, FVector /*OldVelocity*/)
+{
+	MaintainMeleeSpacing();
+}
+
+void USL_PlayerGameplayAbility::MaintainMeleeSpacing()
+{
 	ASL_PlayerCharacter* Player = GetPlayerCharacterFromActorInfo();
-	if (!Player || WarpTargetName.IsNone()) return;
+	if (!Player || ActiveWarpTargetName.IsNone() || ActiveWarpStopDistance <= 0.f) return;
+
+	AActor* Target = FindMeleeWarpTarget(Player, ActiveWarpDistance, ActiveWarpHalfAngle);
+	if (!Target)
+	{
+		Player->SetAnimRootMotionTranslationScale(1.f);
+		return;
+	}
+
+	const FVector PlayerLocation = Player->GetActorLocation();
+	FVector ToTarget = Target->GetActorLocation() - PlayerLocation;
+	ToTarget.Z = 0.f;
+
+	const float Distance = ToTarget.Size();
+	if (Distance > ActiveWarpStopDistance + 2.f)
+	{
+		Player->SetAnimRootMotionTranslationScale(1.f);
+		return;
+	}
+
+	if (Distance < ActiveWarpStopDistance)
+	{
+		FVector Direction = ToTarget.GetSafeNormal();
+		if (Direction.IsNearlyZero())
+		{
+			Direction = Player->GetActorForwardVector().GetSafeNormal2D();
+		}
+
+		if (!Direction.IsNearlyZero())
+		{
+			FVector HoldLocation = PlayerLocation - Direction * (ActiveWarpStopDistance - Distance);
+			HoldLocation.Z = PlayerLocation.Z;
+			Player->SetActorLocation(HoldLocation, false);
+		}
+	}
+
+	Player->SetAnimRootMotionTranslationScale(0.f);
+}
+
+void USL_PlayerGameplayAbility::ApplyMeleeMotionWarp()
+{
+	ASL_PlayerCharacter* Player = GetPlayerCharacterFromActorInfo();
+	if (!Player || ActiveWarpTargetName.IsNone()) return;
 
 	UMotionWarpingComponent* MotionWarping = Player->GetMotionWarpingComponent();
 	if (!MotionWarping) return;
 
-	AActor* Target = FindMeleeWarpTarget(Player, WarpDistance, HalfAngle);
-
+	AActor* Target = FindMeleeWarpTarget(Player, ActiveWarpDistance, ActiveWarpHalfAngle);
 	if (!Target)
 	{
-		MotionWarping->RemoveWarpTarget(WarpTargetName);
+		MotionWarping->RemoveWarpTarget(ActiveWarpTargetName);
 		return;
 	}
 
@@ -162,16 +263,16 @@ void USL_PlayerGameplayAbility::SetupMeleeMotionWarp(FName WarpTargetName, float
 
 	if (Direction.IsNearlyZero())
 	{
-		MotionWarping->RemoveWarpTarget(WarpTargetName);
+		MotionWarping->RemoveWarpTarget(ActiveWarpTargetName);
 		return;
 	}
 
-	FVector WarpLocation = Target->GetActorLocation() - Direction * StopDistance;
+	FVector WarpLocation = Target->GetActorLocation() - Direction * ActiveWarpStopDistance;
 	WarpLocation.Z = PlayerLocation.Z;
 
 	const FRotator WarpRotation(0.f, Direction.Rotation().Yaw, 0.f);
-	
-	MotionWarping->AddOrUpdateWarpTargetFromLocationAndRotation(WarpTargetName, WarpLocation, WarpRotation);
+
+	MotionWarping->AddOrUpdateWarpTargetFromLocationAndRotation(ActiveWarpTargetName, WarpLocation, WarpRotation);
 }
 
 TObjectPtr<AActor> USL_PlayerGameplayAbility::FindMeleeWarpTarget(const ASL_PlayerCharacter* Player, float WarpDistance, float HalfAngle) const

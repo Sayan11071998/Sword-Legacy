@@ -1,6 +1,8 @@
 #include "Components/Combat/SL_PawnCombatComponent.h"
 #include "Items/Weapons/SL_WeaponBase.h"
 #include "Components/BoxComponent.h"
+#include "GameFramework/Pawn.h"
+#include "Utilities/SL_FunctionLibrary.h"
 
 void USL_PawnCombatComponent::RegisterSpawnedWeapon(FGameplayTag InWeaponTagToRegister,
 	ASL_WeaponBase* InWeaponToRegister, bool bRegisterAsEquippedWeapon)
@@ -56,13 +58,34 @@ void USL_PawnCombatComponent::ToggleCurrentEquippedWeaponCollision(bool bShouldE
 	ASL_WeaponBase* WeaponToToggle = GetCharacterCurrentEquippedWeapon();
 	check(WeaponToToggle);
 		
+	UBoxComponent* CollisionBox = WeaponToToggle->GetWeaponCollisionBox();
+	if (!CollisionBox) return;
+
 	if (bShouldEnable)
 	{
-		WeaponToToggle->GetWeaponCollisionBox()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		CollisionBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		CollisionBox->UpdateOverlaps();
+
+		APawn* OwnerPawn = GetOwningPawn();
+		if (!OwnerPawn) return;
+
+		TArray<AActor*> AlreadyOverlapping;
+		CollisionBox->GetOverlappingActors(AlreadyOverlapping);
+
+		for (AActor* Actor : AlreadyOverlapping)
+		{
+			APawn* HitPawn = Cast<APawn>(Actor);
+
+			if (!HitPawn || HitPawn == OwnerPawn) continue;
+
+			if (!USL_FunctionLibrary::IsTargetPawnHostile(OwnerPawn, HitPawn)) continue;
+
+			OnHitTargetActor(HitPawn);
+		}
 	}
 	else
 	{
-		WeaponToToggle->GetWeaponCollisionBox()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		CollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		OverlappedActors.Empty();
 	}
 }

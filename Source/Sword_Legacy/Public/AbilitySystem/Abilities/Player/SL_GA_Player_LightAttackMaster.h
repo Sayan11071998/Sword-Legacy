@@ -39,13 +39,13 @@ protected:
 	FName LightAttackWarpTargetName = TEXT("LightAttackTarget");
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|MotionWarp", meta = (ClampMin = "0"))
-	float LightAttackWarpDistance = 350.f;
+	float LightAttackWarpDistance = 200.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|MotionWarp", meta = (ClampMin = "0"))
-	float LightAttackStopDistance = 140.f;
+	float LightAttackStopDistance = 130.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|MotionWarp", meta = (ClampMin = "0", ClampMax = "180"))
-	float LightAttackWarpHalfAngle = 70.f;
+	float LightAttackWarpHalfAngle = 80.f;
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Combat")
 	void WhileRageActive();
