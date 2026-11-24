@@ -5,7 +5,6 @@
 #include "BehaviorTree/BlackboardData.h"
 #include "AIController.h"
 #include "Characters/SL_EnemyCharacter.h"
-#include "MotionWarpingComponent.h"
 
 USL_BTS_UpdateMotionWarpTarget::USL_BTS_UpdateMotionWarpTarget()
 {
@@ -62,11 +61,6 @@ void USL_BTS_UpdateMotionWarpTarget::TickNode(UBehaviorTreeComponent& OwnerComp,
 						return;
 					}
 				}
-			}
-
-			if (UMotionWarpingComponent* MotionWarpComp = EnemyCharacter->GetMotionWarpingComponent())
-			{
-				MotionWarpComp->AddOrUpdateWarpTargetFromLocation(FName("AttackTarget"), TargetActor->GetActorLocation());
 			}
 		}
 	}

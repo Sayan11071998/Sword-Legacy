@@ -22,6 +22,14 @@ protected:
 		const FGameplayAbilityActivationInfo ActivationInfo,
 		const FGameplayEventData* TriggerEventData	
 	) override;
+
+	virtual void EndAbility(
+		const FGameplayAbilitySpecHandle Handle,
+		const FGameplayAbilityActorInfo* ActorInfo,
+		const FGameplayAbilityActivationInfo ActivationInfo,
+		bool bReplicateEndAbility,
+		bool bWasCancelled
+	) override;
 	// ~ End UGameplayAbility Interface
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Melee Attack")
@@ -59,10 +67,15 @@ protected:
 	
 private:
 	AActor* GetBlackboardAttackTarget() const;
-	bool IsTargetInWarpRange(const AActor* Enemy, const AActor* Target) const;
+	void RefreshMeleeMotionWarp();
+	void ClearWarpModifiers() const;
+
 	UFUNCTION()
 	void PlayMeleeAttackMontage();
 
 	UFUNCTION()
 	void OnMeleeAttackFinished();
+
+	FTimerHandle MeleeWarpTimer;
+	FVector LastWarpDirection = FVector::ZeroVector;
 };

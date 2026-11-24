@@ -9,6 +9,8 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "MotionWarpingComponent.h"
+#include "RootMotionModifier.h"
+#include "TimerManager.h"
 
 USL_GA_Enemy_MeleeAttack_Base::USL_GA_Enemy_MeleeAttack_Base()
 {
@@ -64,7 +66,18 @@ void USL_GA_Enemy_MeleeAttack_Base::ActivateAbility(const FGameplayAbilitySpecHa
 
 void USL_GA_Enemy_MeleeAttack_Base::PlayMeleeAttackMontage()
 {
+	ClearWarpModifiers();
 	SetupMeleeMotionWarp(GetBlackboardAttackTarget());
+
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().SetTimer(
+			MeleeWarpTimer,
+			FTimerDelegate::CreateUObject(this, &USL_GA_Enemy_MeleeAttack_Base::RefreshMeleeMotionWarp),
+			0.016f,
+			true
+		);
+	}
 
 	if (MontageToPlay)
 	{
@@ -120,32 +133,90 @@ void USL_GA_Enemy_MeleeAttack_Base::OnMeleeAttackFinished()
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
 
+void USL_GA_Enemy_MeleeAttack_Base::EndAbility(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+	bool bReplicateEndAbility, bool bWasCancelled)
+{
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(MeleeWarpTimer);
+	}
+
+	ClearWarpModifiers();
+
+	if (const ASL_BaseCharacter* Enemy = Cast<ASL_BaseCharacter>(GetAvatarActorFromActorInfo()))
+	{
+		if (UMotionWarpingComponent* MotionWarping = Enemy->GetMotionWarpingComponent())
+		{
+			MotionWarping->RemoveWarpTarget(AttackWarpTargetName);
+		}
+	}
+
+	LastWarpDirection = FVector::ZeroVector;
+
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+
+void USL_GA_Enemy_MeleeAttack_Base::RefreshMeleeMotionWarp()
+{
+	SetupMeleeMotionWarp(GetBlackboardAttackTarget());
+}
+
+void USL_GA_Enemy_MeleeAttack_Base::ClearWarpModifiers() const
+{
+	const ASL_BaseCharacter* Enemy = Cast<ASL_BaseCharacter>(GetAvatarActorFromActorInfo());
+	if (!Enemy) return;
+
+	UMotionWarpingComponent* MotionWarping = Enemy->GetMotionWarpingComponent();
+	if (!MotionWarping) return;
+
+	for (URootMotionModifier* Modifier : MotionWarping->GetModifiers())
+	{
+		if (!Modifier) continue;
+
+		Modifier->Animation = nullptr;
+		Modifier->StartTime = -1.f;
+		Modifier->EndTime = -1.f;
+		Modifier->SetState(ERootMotionModifierState::MarkedForRemoval);
+	}
+}
+
 void USL_GA_Enemy_MeleeAttack_Base::SetupMeleeMotionWarp(AActor* Target)
 {
 	const ASL_BaseCharacter* Enemy = Cast<ASL_BaseCharacter>(GetAvatarActorFromActorInfo());
 	if (!Enemy || AttackWarpTargetName.IsNone()) return;
 
 	UMotionWarpingComponent* MotionWarping = Enemy->GetMotionWarpingComponent();
-	if (!MotionWarping) return;
-
-	if (!IsTargetInWarpRange(Enemy, Target))
-	{
-		MotionWarping->RemoveWarpTarget(AttackWarpTargetName);
-		return;
-	}
+	if (!MotionWarping || !Target || Target == Enemy) return;
 
 	const FVector EnemyLocation = Enemy->GetActorLocation();
 	FVector ToTarget = Target->GetActorLocation() - EnemyLocation;
 	ToTarget.Z = 0.f;
 
-	const FVector Direction = ToTarget.GetSafeNormal();
+	FVector Direction = ToTarget.GetSafeNormal();
 	if (Direction.IsNearlyZero())
 	{
-		MotionWarping->RemoveWarpTarget(AttackWarpTargetName);
-		return;
+		Direction = LastWarpDirection;
+	}
+	else
+	{
+		LastWarpDirection = Direction;
 	}
 
-	FVector WarpLocation = Target->GetActorLocation() - Direction * AttackStopDistance;
+	if (Direction.IsNearlyZero()) return;
+
+	const float Distance = ToTarget.Size();
+	FVector WarpLocation;
+	if (Distance > AttackStopDistance)
+	{
+		WarpLocation = Target->GetActorLocation() - Direction * AttackStopDistance;
+	}
+	else
+	{
+		const float LookDistance = FMath::Max(Distance, 30.f);
+		WarpLocation = EnemyLocation + Direction * LookDistance;
+	}
+
 	WarpLocation.Z = EnemyLocation.Z;
 
 	const FRotator WarpRotation(0.f, Direction.Rotation().Yaw, 0.f);
@@ -161,19 +232,4 @@ AActor* USL_GA_Enemy_MeleeAttack_Base::GetBlackboardAttackTarget() const
 	if (!Blackboard) return nullptr;
 
 	return Cast<AActor>(Blackboard->GetValueAsObject(TEXT("TargetActor")));
-}
-
-bool USL_GA_Enemy_MeleeAttack_Base::IsTargetInWarpRange(const AActor* Enemy, const AActor* Target) const
-{
-	if (!Enemy || !Target || Target == Enemy) return false;
-
-	if (FVector::DistSquared2D(Enemy->GetActorLocation(), Target->GetActorLocation()) > FMath::Square(AttackWarpDistance))
-	{
-		return false;
-	}
-
-	const FVector Forward = Enemy->GetActorForwardVector().GetSafeNormal2D();
-	const FVector ToTarget = (Target->GetActorLocation() - Enemy->GetActorLocation()).GetSafeNormal2D();
-	const float MinDot = FMath::Cos(FMath::DegreesToRadians(AttackWarpHalfAngle));
-	return FVector::DotProduct(Forward, ToTarget) >= MinDot;
 }
