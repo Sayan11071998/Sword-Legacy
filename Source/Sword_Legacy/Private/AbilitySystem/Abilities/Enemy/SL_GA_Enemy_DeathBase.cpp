@@ -1,6 +1,10 @@
 #include "AbilitySystem/Abilities/Enemy/SL_GA_Enemy_DeathBase.h"
 #include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "AIController.h"
+#include "BrainComponent.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Interfaces/SL_EnemyDeathInterface.h"
 #include "GameplayTags/SL_GameplayTags.h"
 
@@ -18,6 +22,27 @@ void USL_GA_Enemy_DeathBase::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
+	if (APawn* Pawn = Cast<APawn>(GetAvatarActorFromActorInfo()))
+	{
+		if (AAIController* AIController = Cast<AAIController>(Pawn->GetController()))
+		{
+			if (UBrainComponent* Brain = AIController->GetBrainComponent())
+			{
+				Brain->StopLogic(TEXT("Death"));
+			}
+
+			AIController->StopMovement();
+		}
+
+		if (ACharacter* Character = Cast<ACharacter>(Pawn))
+		{
+			if (UCharacterMovementComponent* Movement = Character->GetCharacterMovement())
+			{
+				Movement->StopMovementImmediately();
+			}
+		}
+	}
+
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
 	if (!MontagesToPlay.IsEmpty())
