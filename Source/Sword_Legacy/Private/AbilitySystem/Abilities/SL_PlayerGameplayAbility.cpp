@@ -9,6 +9,8 @@
 #include "Engine/World.h"
 #include "GameplayTags/SL_GameplayTags.h"
 #include "MotionWarpingComponent.h"
+#include "MotionWarpingAdapter.h"
+#include "Animation/AnimMontage.h"
 #include "TimerManager.h"
 #include "Utilities/SL_FunctionLibrary.h"
 
@@ -155,6 +157,12 @@ void USL_PlayerGameplayAbility::SetupMeleeMotionWarp(FName WarpTargetName, float
 	{
 		Player->OnCharacterMovementUpdated.RemoveDynamic(this, &USL_PlayerGameplayAbility::OnMeleeMovementUpdated);
 		Player->OnCharacterMovementUpdated.AddDynamic(this, &USL_PlayerGameplayAbility::OnMeleeMovementUpdated);
+
+		if (UMotionWarpingComponent* MotionWarping = Player->GetMotionWarpingComponent())
+		{
+			MotionWarping->OnPreUpdate.RemoveDynamic(this, &USL_PlayerGameplayAbility::OnMeleeWarpPreUpdate);
+			MotionWarping->OnPreUpdate.AddDynamic(this, &USL_PlayerGameplayAbility::OnMeleeWarpPreUpdate);
+		}
 	}
 
 	if (UWorld* World = GetWorld())
@@ -180,6 +188,11 @@ void USL_PlayerGameplayAbility::ClearMeleeMotionWarp()
 		Player->OnCharacterMovementUpdated.RemoveDynamic(this, &USL_PlayerGameplayAbility::OnMeleeMovementUpdated);
 		Player->SetAnimRootMotionTranslationScale(1.f);
 
+		if (UMotionWarpingComponent* MotionWarping = Player->GetMotionWarpingComponent())
+		{
+			MotionWarping->OnPreUpdate.RemoveDynamic(this, &USL_PlayerGameplayAbility::OnMeleeWarpPreUpdate);
+		}
+
 		if (!ActiveWarpTargetName.IsNone())
 		{
 			if (UMotionWarpingComponent* MotionWarping = Player->GetMotionWarpingComponent())
@@ -187,6 +200,13 @@ void USL_PlayerGameplayAbility::ClearMeleeMotionWarp()
 				MotionWarping->RemoveWarpTarget(ActiveWarpTargetName);
 			}
 		}
+	}
+
+	if (SpacingModifier.IsValid())
+	{
+		SpacingModifier->SourceAbility = nullptr;
+		SpacingModifier->SetState(ERootMotionModifierState::MarkedForRemoval);
+		SpacingModifier = nullptr;
 	}
 
 	ActiveWarpTargetName = NAME_None;
@@ -197,12 +217,122 @@ void USL_PlayerGameplayAbility::OnMeleeMovementUpdated(float /*DeltaSeconds*/, F
 	MaintainMeleeSpacing();
 }
 
+void USL_PlayerGameplayAbility::OnMeleeWarpPreUpdate(UMotionWarpingComponent* MotionWarping)
+{
+	if (!MotionWarping || ActiveWarpTargetName.IsNone() || ActiveWarpStopDistance <= 0.f) return;
+
+	const ASL_PlayerCharacter* Player = GetPlayerCharacterFromActorInfo();
+
+	if (!Player || !Player->GetRootMotionAnimMontageInstance()) return;
+
+	if (SpacingModifier.IsValid())
+	{
+		SpacingModifier->SourceAbility = nullptr;
+		SpacingModifier->SetState(ERootMotionModifierState::MarkedForRemoval);
+	}
+
+	USL_RootMotionModifier_MeleeSpacing* NewModifier = NewObject<USL_RootMotionModifier_MeleeSpacing>(MotionWarping);
+	NewModifier->SourceAbility = this;
+	NewModifier->StartTime = 0.f;
+	NewModifier->EndTime = 1000.f;
+
+	if (const FAnimMontageInstance* MontageInstance = Player->GetRootMotionAnimMontageInstance())
+	{
+		NewModifier->Animation = MontageInstance->Montage;
+	}
+
+	MotionWarping->AddModifier(NewModifier);
+	SpacingModifier = NewModifier;
+}
+
+AActor* USL_PlayerGameplayAbility::GetMeleeSpacingTarget()
+{
+	const ASL_PlayerCharacter* Player = GetPlayerCharacterFromActorInfo();
+
+	if (!Player || ActiveWarpTargetName.IsNone()) return nullptr;
+
+	return FindMeleeWarpTarget(Player, ActiveWarpDistance, ActiveWarpHalfAngle);
+}
+
+void USL_RootMotionModifier_MeleeSpacing::Update(const FMotionWarpingUpdateContext& Context)
+{
+	if (!SourceAbility.IsValid())
+	{
+		SetState(ERootMotionModifierState::MarkedForRemoval);
+		return;
+	}
+
+	PreviousPosition = Context.PreviousPosition;
+	CurrentPosition = Context.CurrentPosition;
+	Weight = Context.Weight;
+	PlayRate = Context.PlayRate;
+
+	if (GetState() != ERootMotionModifierState::Active)
+	{
+		SetState(ERootMotionModifierState::Active);
+	}
+}
+
+FTransform USL_RootMotionModifier_MeleeSpacing::ProcessRootMotion(const FTransform& InRootMotion, float /*DeltaSeconds*/)
+{
+	USL_PlayerGameplayAbility* Ability = SourceAbility.Get();
+
+	const UMotionWarpingBaseAdapter* Adapter = GetOwnerAdapter();
+
+	AActor* Actor = GetActorOwner();
+
+	if (!Ability || !Adapter || !Actor) return InRootMotion;
+
+	AActor* Target = Ability->GetMeleeSpacingTarget();
+	if (!Target) return InRootMotion;
+
+	const float StopDistance = Ability->GetActiveMeleeStopDistance();
+	if (StopDistance <= 0.f) return InRootMotion;
+
+	const FTransform MeshTransform = FTransform(Adapter->GetBaseVisualRotationOffset(), Adapter->GetBaseVisualTranslationOffset()) * Actor->GetActorTransform();
+	FVector ToTarget = MeshTransform.InverseTransformPositionNoScale(Target->GetActorLocation());
+	ToTarget.Z = 0.f;
+
+	const float Distance = ToTarget.Size();
+
+	FVector Direction = ToTarget.GetSafeNormal();
+
+	if (Direction.IsNearlyZero())
+	{
+		FVector LocalForward = MeshTransform.InverseTransformVectorNoScale(Actor->GetActorForwardVector());
+		LocalForward.Z = 0.f;
+		Direction = LocalForward.GetSafeNormal();
+	}
+
+	if (Direction.IsNearlyZero()) return InRootMotion;
+
+	FVector Delta = InRootMotion.GetTranslation();
+	FVector Horizontal = Delta;
+	Horizontal.Z = 0.f;
+
+	const float Inward = FVector::DotProduct(Horizontal, Direction);
+	const float AllowedInward = FMath::Max(0.f, Distance - StopDistance);
+
+	if (Inward <= AllowedInward) return InRootMotion;
+
+	Horizontal -= Direction * (Inward - AllowedInward);
+	Delta.X = Horizontal.X;
+	Delta.Y = Horizontal.Y;
+
+	FTransform ClampedRootMotion = InRootMotion;
+	ClampedRootMotion.SetTranslation(Delta);
+
+	return ClampedRootMotion;
+}
+
 void USL_PlayerGameplayAbility::MaintainMeleeSpacing()
 {
 	ASL_PlayerCharacter* Player = GetPlayerCharacterFromActorInfo();
+
 	if (!Player || ActiveWarpTargetName.IsNone() || ActiveWarpStopDistance <= 0.f) return;
 
 	AActor* Target = FindMeleeWarpTarget(Player, ActiveWarpDistance, ActiveWarpHalfAngle);
+
 	if (!Target)
 	{
 		Player->SetAnimRootMotionTranslationScale(1.f);

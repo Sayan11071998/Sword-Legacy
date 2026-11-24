@@ -3,12 +3,29 @@
 #include "CoreMinimal.h"
 #include "AbilitySystem/Abilities/SL_GameplayAbility.h"
 #include "Engine/EngineTypes.h"
+#include "RootMotionModifier.h"
 #include "SL_PlayerGameplayAbility.generated.h"
 
 class USL_PlayerUIComponent;
 class USL_PlayerCombatComponent;
 class ASL_PlayerController;
 class ASL_PlayerCharacter;
+class UMotionWarpingComponent;
+
+UCLASS()
+class SWORD_LEGACY_API USL_RootMotionModifier_MeleeSpacing : public URootMotionModifier
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+	TWeakObjectPtr<USL_PlayerGameplayAbility> SourceAbility;
+
+	// ~ Begin URootMotionModifier Interface
+	virtual void Update(const FMotionWarpingUpdateContext& Context) override;
+	virtual FTransform ProcessRootMotion(const FTransform& InRootMotion, float DeltaSeconds) override;
+	// ~ End URootMotionModifier Interface
+};
 
 UCLASS()
 class SWORD_LEGACY_API USL_PlayerGameplayAbility : public USL_GameplayAbility
@@ -41,6 +58,9 @@ public:
 
 	void WarnEnemyOfIncomingAttack(AActor* Enemy);
 
+	AActor* GetMeleeSpacingTarget();
+	float GetActiveMeleeStopDistance() const { return ActiveWarpStopDistance; }
+
 protected:
 	// ~ Begin UGameplayAbility Interface
 	virtual void EndAbility(
@@ -63,11 +83,16 @@ private:
 	UFUNCTION()
 	void OnMeleeMovementUpdated(float DeltaSeconds, FVector OldLocation, FVector OldVelocity);
 
+	UFUNCTION()
+	void OnMeleeWarpPreUpdate(UMotionWarpingComponent* MotionWarping);
+
 	TObjectPtr<AActor> FindMeleeWarpTarget(const ASL_PlayerCharacter* Player, float WarpDistance, float HalfAngle) const;
 	TObjectPtr<AActor> FindLockedWarpTarget() const;
 	bool IsEnemyInMeleeWarpRange(const ASL_PlayerCharacter* Player, AActor* Enemy, float WarpDistance) const;
 
 	TArray<TWeakObjectPtr<AActor>> WarnedEnemies;
+
+	TWeakObjectPtr<USL_RootMotionModifier_MeleeSpacing> SpacingModifier;
 
 	FTimerHandle MeleeWarpTimer;
 	FName ActiveWarpTargetName = NAME_None;

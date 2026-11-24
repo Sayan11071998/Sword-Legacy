@@ -50,13 +50,13 @@ protected:
 	FName SpecialLightWarpTargetName = TEXT("SpecialLightAttackTarget");
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|MotionWarp", meta = (ClampMin = "0"))
-	float SpecialLightWarpDistance = 350.f;
+	float SpecialLightWarpDistance = 600.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|MotionWarp", meta = (ClampMin = "0"))
-	float SpecialLightStopDistance = 140.f;
+	float SpecialLightStopDistance = 130.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|MotionWarp", meta = (ClampMin = "0", ClampMax = "180"))
-	float SpecialLightWarpHalfAngle = 70.f;
+	float SpecialLightWarpHalfAngle = 80.f;
 
 private:
 	UFUNCTION()
