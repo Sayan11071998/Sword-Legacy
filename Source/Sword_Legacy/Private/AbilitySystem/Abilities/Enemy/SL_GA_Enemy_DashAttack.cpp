@@ -26,7 +26,9 @@ void USL_GA_Enemy_DashAttack::EndAbility(const FGameplayAbilitySpecHandle Handle
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	bool bReplicateEndAbility, bool bWasCancelled)
 {
-	if (MontageToPlay && DashCooldown > 0.f && !bCooldownStarted)
+	const bool bStartCooldown = MontageToPlay && DashCooldown > 0.f && !bCooldownStarted;
+
+	if (bStartCooldown)
 	{
 		bCooldownStarted = true;
 
@@ -34,14 +36,17 @@ void USL_GA_Enemy_DashAttack::EndAbility(const FGameplayAbilitySpecHandle Handle
 		{
 			USL_FunctionLibrary::AddGameplayTagToActorIfNone(Avatar, SL_GameplayTags::Enemy_Cooldown_DashAttack);
 		}
+	}
 
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+
+	if (bStartCooldown)
+	{
 		if (UWorld* World = GetWorld())
 		{
 			World->GetTimerManager().SetTimer(DashCooldownTimer, this, &USL_GA_Enemy_DashAttack::ClearDashCooldown, DashCooldown, false);
 		}
 	}
-
-	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
 void USL_GA_Enemy_DashAttack::ClearDashCooldown()

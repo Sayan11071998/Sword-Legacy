@@ -22,7 +22,9 @@ void USL_GA_Enemy_ComboAttack::EndAbility(const FGameplayAbilitySpecHandle Handl
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	bool bReplicateEndAbility, bool bWasCancelled)
 {
-	if (MontageToPlay && ComboCooldown > 0.f && !bCooldownStarted)
+	const bool bStartCooldown = MontageToPlay && ComboCooldown > 0.f && !bCooldownStarted;
+
+	if (bStartCooldown)
 	{
 		bCooldownStarted = true;
 
@@ -30,14 +32,17 @@ void USL_GA_Enemy_ComboAttack::EndAbility(const FGameplayAbilitySpecHandle Handl
 		{
 			USL_FunctionLibrary::AddGameplayTagToActorIfNone(Avatar, SL_GameplayTags::Enemy_Cooldown_Combo);
 		}
+	}
 
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+
+	if (bStartCooldown)
+	{
 		if (UWorld* World = GetWorld())
 		{
 			World->GetTimerManager().SetTimer(ComboCooldownTimer, this, &USL_GA_Enemy_ComboAttack::ClearComboCooldown, ComboCooldown, false);
 		}
 	}
-
-	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
 void USL_GA_Enemy_ComboAttack::ClearComboCooldown()
