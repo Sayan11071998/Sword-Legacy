@@ -2,7 +2,6 @@
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Components/Combat/SL_PlayerCombatComponent.h"
-#include "Utilities/SL_FunctionLibrary.h"
 #include "GameplayTags/SL_GameplayTags.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
@@ -79,8 +78,6 @@ void USL_GA_Player_LightWeaponAbility_Katana::OnMeleeHitEventReceived(FGameplayE
 	AActor* TargetActor = const_cast<AActor*>(Payload.Target.Get());
 	if (!TargetActor || !DamageSpecHandle.IsValid()) return;
 
-	if (USL_FunctionLibrary::NotifyEnemyBlockedAttack(GetAvatarActorFromActorInfo(), TargetActor)) return;
-
 	const FActiveGameplayEffectHandle ActiveEffectHandle = NativeApplyEffectSpecHandleToTarget(TargetActor, DamageSpecHandle);
 
 	if (ActiveEffectHandle.WasSuccessfullyApplied())
@@ -97,7 +94,7 @@ void USL_GA_Player_LightWeaponAbility_Katana::OnMeleeHitEventReceived(FGameplayE
 
 		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
 			TargetActor,
-			SL_GameplayTags::Shared_Event_HitReact,
+			SL_GameplayTags::Shared_Event_UnblockableHitReact,
 			HitReactPayload
 		);
 	}

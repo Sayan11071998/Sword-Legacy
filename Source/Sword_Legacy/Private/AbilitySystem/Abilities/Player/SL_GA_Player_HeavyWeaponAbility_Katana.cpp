@@ -3,6 +3,7 @@
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Components/Combat/SL_PlayerCombatComponent.h"
 #include "GameplayTags/SL_GameplayTags.h"
+#include "Utilities/SL_FunctionLibrary.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "Components/UI/SL_PlayerUIComponent.h"
@@ -105,5 +106,24 @@ void USL_GA_Player_HeavyWeaponAbility_Katana::OnAOEEventReceived(FGameplayEventD
 		true
 	);
 
-	ApplyGameplayEffectSpecHandleToHitResults(DamageSpecHandle, OutHits);
+	for (const FHitResult& Hit : OutHits)
+	{
+		APawn* HitPawn = Cast<APawn>(Hit.GetActor());
+
+		if (!HitPawn || !USL_FunctionLibrary::IsTargetPawnHostile(PlayerCharacter, HitPawn)) continue;
+
+		const FActiveGameplayEffectHandle ActiveEffectHandle = NativeApplyEffectSpecHandleToTarget(HitPawn, DamageSpecHandle);
+
+		if (!ActiveEffectHandle.WasSuccessfullyApplied()) continue;
+
+		FGameplayEventData HitReactPayload;
+		HitReactPayload.Instigator = PlayerCharacter;
+		HitReactPayload.Target = HitPawn;
+
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+			HitPawn,
+			SL_GameplayTags::Shared_Event_UnblockableHitReact,
+			HitReactPayload
+		);
+	}
 }

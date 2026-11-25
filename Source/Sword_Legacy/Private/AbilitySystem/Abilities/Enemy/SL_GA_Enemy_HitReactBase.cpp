@@ -15,6 +15,8 @@ USL_GA_Enemy_HitReactBase::USL_GA_Enemy_HitReactBase()
 	TriggerData.TriggerTag = SL_GameplayTags::Shared_Event_HitReact;
 	TriggerData.TriggerSource = EGameplayAbilityTriggerSource::GameplayEvent;
 	AbilityTriggers.Add(TriggerData);
+
+	CancelAbilitiesWithTag.AddTag(SL_GameplayTags::Enemy_Ability_Block);
 }
 
 void USL_GA_Enemy_HitReactBase::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
