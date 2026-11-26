@@ -147,6 +147,10 @@ private:
 
 	float CurrentEntryDissolveAmount = 1.f;
 	bool bEntryRestoreFinished = false;
+
+	void ReleaseParryReboundLock();
+
+	FTimerHandle ParryReboundLockTimer;
 	
 public:
 	float GetSpawnedWeaponDissolveAmount() const;
@@ -154,6 +158,8 @@ public:
 	bool WantsToBlockIncomingAttack(const AActor* Attacker) const;
 
 	bool RespondToIncomingAttack(const AActor* Attacker);
+
+	void ForceParryRebound(AActor* InstigatorActor);
 
 	FORCEINLINE TObjectPtr<USL_EnemyCombatComponent> GetEnemyCombatComponent() const { return EnemyCombatComponent; }
 	FORCEINLINE TObjectPtr<UBoxComponent> GetLeftHandCollisionBox() const { return LeftHandCollisionBox; }

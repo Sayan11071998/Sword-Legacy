@@ -25,22 +25,42 @@ void USL_GA_Player_LightAttackMaster::ActivateAbility(const FGameplayAbilitySpec
 		USL_FunctionLibrary::NativeDoesActorHaveTag(AvatarActor, SL_GameplayTags::Player_Status_JumpToFinisher);
 
 	int32 ComboCount = GetComboCount();
+	UAnimMontage* ChosenMontage = nullptr;
 
-	if (bJumpToFinisher)
+	if (bJumpToFinisher && ParryCounterMontage)
 	{
-		ComboCount = LightAttackMontagesMap.Num();
+		ChosenMontage = ParryCounterMontage;
+		UsedComboCount = ParryCounterDamageCount;
+
+		ResetComboCount();
+	}
+	else
+	{
+		if (bJumpToFinisher)
+		{
+			ComboCount = LightAttackMontagesMap.Num();
+		}
+
+		UsedComboCount = ComboCount;
+
+		if (TObjectPtr<UAnimMontage>* FoundMontage = LightAttackMontagesMap.Find(ComboCount))
+		{
+			ChosenMontage = FoundMontage->Get();
+		}
 	}
 
-	UsedComboCount = ComboCount;
+	UAnimMontage* MontageToPlay = ChosenMontage;
+	const bool bPlayedParryCounter = bJumpToFinisher && ParryCounterMontage;
 
-	TObjectPtr<UAnimMontage>* MontageToPlay = LightAttackMontagesMap.Find(ComboCount);
-
-	if (!MontageToPlay || !(*MontageToPlay))
+	if (!MontageToPlay)
 	{
 		ComboCount = 1;
-		MontageToPlay = LightAttackMontagesMap.Find(ComboCount);
-		
-		if (!MontageToPlay || !(*MontageToPlay))
+		if (TObjectPtr<UAnimMontage>* FoundMontage = LightAttackMontagesMap.Find(ComboCount))
+		{
+			MontageToPlay = FoundMontage->Get();
+		}
+
+		if (!MontageToPlay)
 		{
 			EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 			return;
@@ -62,22 +82,26 @@ void USL_GA_Player_LightAttackMaster::ActivateAbility(const FGameplayAbilitySpec
 	UAbilityTask_PlayMontageAndWait* PlayMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 		this,
 		NAME_None,
-		*MontageToPlay,
+		MontageToPlay,
 		1.0f
 	);
 
-	BindComboMontage(PlayMontageTask, *MontageToPlay);
-	PlayMontageTask->ReadyForActivation();
-	
-	const int32 TotalMontages = LightAttackMontagesMap.Num();
+	BindComboMontage(PlayMontageTask, MontageToPlay);
 
-	if (ComboCount == TotalMontages)
+	PlayMontageTask->ReadyForActivation();
+
+	if (!bPlayedParryCounter)
 	{
-		ResetComboCount();
-	}
-	else
-	{
-		SetComboCount(ComboCount + 1);
+		const int32 TotalMontages = LightAttackMontagesMap.Num();
+
+		if (ComboCount == TotalMontages)
+		{
+			ResetComboCount();
+		}
+		else
+		{
+			SetComboCount(ComboCount + 1);
+		}
 	}
 
 	if (AvatarActor && USL_FunctionLibrary::NativeDoesActorHaveTag(AvatarActor, SL_GameplayTags::Player_Status_Rage_Active))

@@ -5,10 +5,12 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "Characters/SL_PlayerCharacter.h"
+#include "Characters/SL_EnemyCharacter.h"
 #include "AbilitySystem/SL_AbilitySystemComponent.h"
 #include "Animation/AnimInstance.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Items/Weapons/SL_PlayerWeapon.h"
+#include "AbilitySystemBlueprintLibrary.h"
 #include "GameplayTags/SL_GameplayTags.h"
 #include "Utilities/SL_FunctionLibrary.h"
 
@@ -29,6 +31,7 @@ void USL_GA_Player_Block::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 	
 	PlayerBlockActivatedTime = GetWorld()->GetTimeSeconds();
 	bIsPerfectBlock = false;
+	bPlayingParry = false;
 	bBlockEndHandled = false;
 	bEndedByMontageInterrupt = false;
 	
@@ -71,7 +74,7 @@ void USL_GA_Player_Block::EndAbility(const FGameplayAbilitySpecHandle Handle,
 	}
 
 	bBlockEndHandled = true;
-	const bool bPlayBlockEnd = !bEndedByMontageInterrupt && BlockEndMontage;
+	const bool bPlayBlockEnd = !bEndedByMontageInterrupt && !bPlayingParry && BlockEndMontage;
 
 	if (UGameplayStatics::GetGlobalTimeDilation(GetWorld()) != 1.0f)
 	{
@@ -184,7 +187,24 @@ void USL_GA_Player_Block::OnSuccessfulBlockEventReceived(FGameplayEventData Payl
 	const FRotator NewRot = FRotator(0.f, LookAtRot.Yaw, 0.f);
 	PlayerCharacter->SetActorRotation(NewRot);
 
-	UAbilityTask_ApplyRootMotionConstantForce* ApplyRootMotionTask = UAbilityTask_ApplyRootMotionConstantForce::ApplyRootMotionConstantForce(
+	if (bIsPerfectBlock)
+	{
+		bPlayingParry = true;
+
+		FGameplayEventData ParryEvent;
+		ParryEvent.Instigator = PlayerCharacter;
+		ParryEvent.Target = Attacker;
+
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(PlayerCharacter, SL_GameplayTags::Player_Event_Parry, ParryEvent);
+
+		if (ASL_EnemyCharacter* EnemyCharacter = Cast<ASL_EnemyCharacter>(Attacker))
+		{
+			EnemyCharacter->ForceParryRebound(PlayerCharacter);
+		}
+	}
+
+	UAbilityTask_ApplyRootMotionConstantForce* ApplyRootMotionTask = !bPlayingParry
+		? UAbilityTask_ApplyRootMotionConstantForce::ApplyRootMotionConstantForce(
 		this,
 		NAME_None,
 		PlayerCharacter->GetActorForwardVector() * -1.f,
@@ -196,7 +216,8 @@ void USL_GA_Player_Block::OnSuccessfulBlockEventReceived(FGameplayEventData Payl
 		FVector::ZeroVector,
 		0.f,
 		true
-	);
+	)
+		: nullptr;
 	
 	if (ApplyRootMotionTask)
 	{
@@ -256,7 +277,7 @@ void USL_GA_Player_Block::ResetJumpToFinisherState()
 
 void USL_GA_Player_Block::OnBlockFinished()
 {
-	if (bBlockEndHandled) return;
+	if (bPlayingParry || bBlockEndHandled) return;
 
 	bEndedByMontageInterrupt = true;
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);

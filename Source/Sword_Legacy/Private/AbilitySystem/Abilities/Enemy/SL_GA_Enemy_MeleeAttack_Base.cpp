@@ -6,6 +6,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Characters/SL_BaseCharacter.h"
 #include "GameplayTags/SL_GameplayTags.h"
+#include "Utilities/SL_FunctionLibrary.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "MotionWarpingComponent.h"
@@ -24,6 +25,16 @@ void USL_GA_Enemy_MeleeAttack_Base::ActivateAbility(const FGameplayAbilitySpecHa
 	const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+
+	if (AActor* AvatarActor = GetAvatarActorFromActorInfo())
+	{
+		if (USL_FunctionLibrary::NativeDoesActorHaveTag(AvatarActor, SL_GameplayTags::Enemy_Status_Rebounding)
+			|| USL_FunctionLibrary::NativeDoesActorHaveTag(AvatarActor, SL_GameplayTags::Enemy_Status_UnderAttack))
+		{
+			EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+			return;
+		}
+	}
 	
 	UAbilityTask_WaitGameplayEvent* WaitGameplayEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 		this,

@@ -17,6 +17,7 @@ USL_GA_Enemy_HitReactBase::USL_GA_Enemy_HitReactBase()
 	AbilityTriggers.Add(TriggerData);
 
 	CancelAbilitiesWithTag.AddTag(SL_GameplayTags::Enemy_Ability_Block);
+	CancelAbilitiesWithTag.AddTag(SL_GameplayTags::Enemy_Ability_ParryRebound);
 }
 
 void USL_GA_Enemy_HitReactBase::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
