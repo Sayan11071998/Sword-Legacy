@@ -26,6 +26,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	TMap<int32, TObjectPtr<UAnimMontage>> LightAttackMontagesMap;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Parry")
+	TObjectPtr<UAnimMontage> ParryCounterMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Parry", meta = (ClampMin = "1"))
+	int32 ParryCounterDamageCount = 1;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
 

@@ -35,7 +35,7 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Block")
 	TObjectPtr<UAnimMontage> BlockEndMontage;
-	
+
 	UPROPERTY(EditDefaultsOnly, Category = "Block|Successful Block")
 	float KnockbackStrength = 80.f;
 	
@@ -49,10 +49,10 @@ protected:
 	float PerfectBlockTimeDilation = 0.2f;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Block|Perfect Block")
-	float PerfectBlockDilationDuration = 0.08f;
+	float PerfectBlockDilationDuration = 0.35f;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Block|Perfect Block")
-	float JumpToFinisherTagDuration = 0.3f;
+	float JumpToFinisherTagDuration = 1.f;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Block|Successful Block")
 	FGameplayTag SuccessfulBlockEventTag;
@@ -79,6 +79,7 @@ private:
 	
 	float PlayerBlockActivatedTime = 0.f;
 	bool bIsPerfectBlock = false;
+	bool bPlayingParry = false;
 	bool bBlockEndHandled = false;
 	bool bEndedByMontageInterrupt = false;
 	int32 BlockEndTagHolds = 0;
