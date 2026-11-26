@@ -30,6 +30,7 @@ namespace SL_GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Unequip_Katana, "Player.Ability.Unequip.Katana");
 	UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Roll, "Player.Ability.Roll");
 	UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Block, "Player.Ability.Block");
+	UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Parry, "Player.Ability.Parry");
 	UE_DEFINE_GAMEPLAY_TAG(Player_Ability_TargetLock, "Player.Ability.TargetLock");
 	UE_DEFINE_GAMEPLAY_TAG(Player_Ability_HitPause, "Player.Ability.HitPause");
 	UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Rage, "Player.Ability.Rage");
@@ -48,6 +49,7 @@ namespace SL_GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Player_Event_Unequip_Katana, "Player.Event.Unequip.Katana");
 	UE_DEFINE_GAMEPLAY_TAG(Player_Event_HitPause, "Player.Event.HitPause");
 	UE_DEFINE_GAMEPLAY_TAG(Player_Event_SuccessfulBlock, "Player.Event.SuccessfulBlock");
+	UE_DEFINE_GAMEPLAY_TAG(Player_Event_Parry, "Player.Event.Parry");
 	UE_DEFINE_GAMEPLAY_TAG(Player_Event_ActivateRage, "Player.Event.ActivateRage");
 	UE_DEFINE_GAMEPLAY_TAG(Player_Event_Rage_AttachWeapon, "Player.Event.Rage.AttachWeapon");
 	UE_DEFINE_GAMEPLAY_TAG(Player_Event_SwitchTarget_Left, "Player.Event.SwitchTarget.Left");
@@ -58,6 +60,7 @@ namespace SL_GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Player_Status_JumpToFinisher, "Player.Status.JumpToFinisher");
 	UE_DEFINE_GAMEPLAY_TAG(Player_Status_Rolling, "Player.Status.Rolling");
 	UE_DEFINE_GAMEPLAY_TAG(Player_Status_Blocking, "Player.Status.Blocking");
+	UE_DEFINE_GAMEPLAY_TAG(Player_Status_Parrying, "Player.Status.Parrying");
 	UE_DEFINE_GAMEPLAY_TAG(Player_Status_TargetLock, "Player.Status.TargetLock");
 	UE_DEFINE_GAMEPLAY_TAG(Player_Status_Rage_Activating, "Player.Status.Rage.Activating");
 	UE_DEFINE_GAMEPLAY_TAG(Player_Status_Rage_Active, "Player.Status.Rage.Active");
@@ -77,17 +80,20 @@ namespace SL_GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Enemy_Ability_SideDodge, "Enemy.Ability.SideDodge");
 	UE_DEFINE_GAMEPLAY_TAG(Enemy_Ability_DashAttack, "Enemy.Ability.DashAttack");
 	UE_DEFINE_GAMEPLAY_TAG(Enemy_Ability_Combo, "Enemy.Ability.Combo");
+	UE_DEFINE_GAMEPLAY_TAG(Enemy_Ability_ParryRebound, "Enemy.Ability.ParryRebound");
 	
 	UE_DEFINE_GAMEPLAY_TAG(Enemy_Weapon, "Enemy.Weapon");
 	
 	UE_DEFINE_GAMEPLAY_TAG(Enemy_Event_SummonEnemies, "Enemy.Event.SummonEnemies");
 	UE_DEFINE_GAMEPLAY_TAG(Enemy_Event_SuccessfulBlock, "Enemy.Event.SuccessfulBlock");
+	UE_DEFINE_GAMEPLAY_TAG(Enemy_Event_ParryRebound, "Enemy.Event.ParryRebound");
 	
 	UE_DEFINE_GAMEPLAY_TAG(Enemy_Status_Strafing, "Enemy.Status.Strafing");
 	UE_DEFINE_GAMEPLAY_TAG(Enemy_Status_UnderAttack, "Enemy.Status.UnderAttack");
 	UE_DEFINE_GAMEPLAY_TAG(Enemy_Status_Unblockable, "Enemy.Status.Unblockable");
 	UE_DEFINE_GAMEPLAY_TAG(Enemy_Status_Attacking, "Enemy.Status.Attacking");
 	UE_DEFINE_GAMEPLAY_TAG(Enemy_Status_Blocking, "Enemy.Status.Blocking");
+	UE_DEFINE_GAMEPLAY_TAG(Enemy_Status_Rebounding, "Enemy.Status.Rebounding");
 	UE_DEFINE_GAMEPLAY_TAG(Enemy_Status_IncomingAttack, "Enemy.Status.IncomingAttack");
 	UE_DEFINE_GAMEPLAY_TAG(Enemy_Status_Dodging, "Enemy.Status.Dodging");
 	UE_DEFINE_GAMEPLAY_TAG(Enemy_Cooldown_Dodge, "Enemy.Cooldown.Dodge");
