@@ -18,6 +18,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Game")
 	void HandlePlayerLost();
 
+	void StopAllEnemyCombat();
+
 	void RegisterSummonedEnemy(ASL_EnemyCharacter* Enemy);
 	void NotifyEnemyRosterDeath(ASL_EnemyCharacter* Enemy);
 
