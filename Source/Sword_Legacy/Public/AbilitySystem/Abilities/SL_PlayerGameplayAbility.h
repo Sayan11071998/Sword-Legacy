@@ -87,6 +87,7 @@ private:
 	void OnMeleeWarpPreUpdate(UMotionWarpingComponent* MotionWarping);
 
 	TObjectPtr<AActor> FindMeleeWarpTarget(const ASL_PlayerCharacter* Player, float WarpDistance, float HalfAngle) const;
+	TObjectPtr<AActor> FindSoftLockTarget(const ASL_PlayerCharacter* Player, float WarpDistance, float HalfAngle) const;
 	TObjectPtr<AActor> FindLockedWarpTarget() const;
 	bool IsEnemyInMeleeWarpRange(const ASL_PlayerCharacter* Player, AActor* Enemy, float WarpDistance) const;
 
@@ -99,6 +100,8 @@ private:
 	float ActiveWarpDistance = 0.f;
 	float ActiveWarpStopDistance = 0.f;
 	float ActiveWarpHalfAngle = 0.f;
+	bool bHasSoftLock = false;
+	TWeakObjectPtr<AActor> SoftLockTarget;
 
 	TWeakObjectPtr<ASL_PlayerCharacter> CachedPlayerCharacter;
 	TWeakObjectPtr<ASL_PlayerController> CachedPlayerController;

@@ -149,6 +149,32 @@ void USL_PlayerGameplayAbility::SetupMeleeMotionWarp(FName WarpTargetName, float
 	ActiveWarpDistance = WarpDistance;
 	ActiveWarpStopDistance = StopDistance;
 	ActiveWarpHalfAngle = HalfAngle;
+	bHasSoftLock = false;
+	SoftLockTarget = nullptr;
+
+	if (ASL_PlayerCharacter* Player = GetPlayerCharacterFromActorInfo())
+	{
+		AActor* LockedTarget = FindLockedWarpTarget();
+
+		const bool bUsingHardLock = LockedTarget && IsEnemyInMeleeWarpRange(Player, LockedTarget, WarpDistance);
+
+		if (!bUsingHardLock)
+		{
+			if (AActor* CameraTarget = FindSoftLockTarget(Player, WarpDistance, HalfAngle))
+			{
+				bHasSoftLock = true;
+				SoftLockTarget = CameraTarget;
+
+				FVector ToTarget = CameraTarget->GetActorLocation() - Player->GetActorLocation();
+				ToTarget.Z = 0.f;
+
+				if (!ToTarget.IsNearlyZero())
+				{
+					Player->SetActorRotation(FRotator(0.f, ToTarget.Rotation().Yaw, 0.f));
+				}
+			}
+		}
+	}
 
 	ApplyMeleeMotionWarp();
 	MaintainMeleeSpacing();
@@ -210,6 +236,8 @@ void USL_PlayerGameplayAbility::ClearMeleeMotionWarp()
 	}
 
 	ActiveWarpTargetName = NAME_None;
+	bHasSoftLock = false;
+	SoftLockTarget = nullptr;
 }
 
 void USL_PlayerGameplayAbility::OnMeleeMovementUpdated(float /*DeltaSeconds*/, FVector /*OldLocation*/, FVector /*OldVelocity*/)
@@ -417,6 +445,18 @@ TObjectPtr<AActor> USL_PlayerGameplayAbility::FindMeleeWarpTarget(const ASL_Play
 		}
 	}
 
+	if (bHasSoftLock)
+	{
+		AActor* CommittedTarget = SoftLockTarget.Get();
+
+		if (CommittedTarget && IsEnemyInMeleeWarpRange(Player, CommittedTarget, WarpDistance))
+		{
+			return CommittedTarget;
+		}
+
+		return nullptr;
+	}
+
 	UWorld* World = Player->GetWorld();
 	if (!World) return nullptr;
 
@@ -453,6 +493,73 @@ TObjectPtr<AActor> USL_PlayerGameplayAbility::FindMeleeWarpTarget(const ASL_Play
 		if (DistanceSq < BestDistanceSq)
 		{
 			BestDistanceSq = DistanceSq;
+			BestEnemy = Enemy;
+		}
+	}
+
+	return BestEnemy;
+}
+
+TObjectPtr<AActor> USL_PlayerGameplayAbility::FindSoftLockTarget(const ASL_PlayerCharacter* Player, float WarpDistance, float HalfAngle) const
+{
+	if (!Player) return nullptr;
+
+	UWorld* World = Player->GetWorld();
+	if (!World) return nullptr;
+
+	const AController* Controller = Player->GetController();
+	FVector AimDirection = Controller
+		? Controller->GetControlRotation().Vector().GetSafeNormal2D()
+		: Player->GetActorForwardVector().GetSafeNormal2D();
+
+	if (AimDirection.IsNearlyZero())
+	{
+		AimDirection = Player->GetActorForwardVector().GetSafeNormal2D();
+	}
+
+	if (AimDirection.IsNearlyZero()) return nullptr;
+
+	TArray<FOverlapResult> Overlaps;
+	FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(MeleeSoftLock), false, Player);
+	FCollisionObjectQueryParams ObjectParams;
+	ObjectParams.AddObjectTypesToQuery(ECC_Pawn);
+
+	World->OverlapMultiByObjectType(
+		Overlaps,
+		Player->GetActorLocation(),
+		FQuat::Identity,
+		ObjectParams,
+		FCollisionShape::MakeSphere(WarpDistance),
+		QueryParams
+	);
+
+	const float CameraHalfAngle = FMath::Min(HalfAngle, 90.f);
+	AActor* BestEnemy = nullptr;
+	float BestScore = TNumericLimits<float>::Max();
+
+	for (const FOverlapResult& Overlap : Overlaps)
+	{
+		AActor* Enemy = Overlap.GetActor();
+
+		if (!IsEnemyInMeleeWarpRange(Player, Enemy, WarpDistance)) continue;
+
+		const FVector ToEnemy = Enemy->GetActorLocation() - Player->GetActorLocation();
+		const float Distance = ToEnemy.Size2D();
+		const FVector Direction = ToEnemy.GetSafeNormal2D();
+		
+		if (Direction.IsNearlyZero()) continue;
+
+		const float Dot = FVector::DotProduct(AimDirection, Direction);
+		const float AngleDegrees = FMath::RadiansToDegrees(FMath::Acos(FMath::Clamp(Dot, -1.f, 1.f)));
+
+		if (AngleDegrees > CameraHalfAngle) continue;
+
+		const float DistanceBias = WarpDistance > 0.f ? (Distance / WarpDistance) * 12.f : 0.f;
+		const float Score = AngleDegrees + DistanceBias;
+
+		if (Score < BestScore)
+		{
+			BestScore = Score;
 			BestEnemy = Enemy;
 		}
 	}
