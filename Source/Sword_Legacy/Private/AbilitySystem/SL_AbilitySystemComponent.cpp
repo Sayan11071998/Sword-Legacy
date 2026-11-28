@@ -85,11 +85,11 @@ void USL_AbilitySystemComponent::SetGrantedAbilityLevels(int32 NewLevel)
 
 void USL_AbilitySystemComponent::GrantPlayerWeaponAbilities(
 	const TArray<FSL_PlayerAbilitySet>& InDefaultWeaponAbilities,
-	const TArray<FSL_PlayerSpecialAbilitySet>& InSpecialWeaponAbilities, int32 ApplyLevel,
+	const TArray<FSL_PlayerSpecialAbilitySet>& InSpecialWeaponAbilities,
+	const TArray<TSubclassOf<USL_PlayerGameplayAbility>>& InReactiveWeaponAbilities,
+	int32 ApplyLevel,
 	TArray<FGameplayAbilitySpecHandle>& OutGrantedAbilitySpecHandles)
 {
-	if (InDefaultWeaponAbilities.IsEmpty()) return;
-	
 	for (const FSL_PlayerAbilitySet& AbilitySet : InDefaultWeaponAbilities)
 	{
 		if (!AbilitySet.IsValid()) continue;
@@ -111,6 +111,17 @@ void USL_AbilitySystemComponent::GrantPlayerWeaponAbilities(
 		AbilitySpec.Level = ApplyLevel;
 		AbilitySpec.GetDynamicSpecSourceTags().AddTag(AbilitySet.InputTag);
 		
+		OutGrantedAbilitySpecHandles.AddUnique(GiveAbility(AbilitySpec));
+	}
+
+	for (const TSubclassOf<USL_PlayerGameplayAbility>& AbilityClass : InReactiveWeaponAbilities)
+	{
+		if (!AbilityClass) continue;
+
+		FGameplayAbilitySpec AbilitySpec(AbilityClass);
+		AbilitySpec.SourceObject = GetAvatarActor();
+		AbilitySpec.Level = ApplyLevel;
+
 		OutGrantedAbilitySpecHandles.AddUnique(GiveAbility(AbilitySpec));
 	}
 }

@@ -95,6 +95,7 @@ void USL_GA_Player_EquipKatana::HandleEquipWeapon(ASL_PlayerWeapon* InWeapon)
 		ASCToGive->GrantPlayerWeaponAbilities(
 			WeaponData.DefaultWeaponAbilities,
 			WeaponData.SpecialWeaponAbilities,
+			WeaponData.ReactiveWeaponAbilities,
 			GetAbilityLevel(),
 			OutHandles	
 		);
