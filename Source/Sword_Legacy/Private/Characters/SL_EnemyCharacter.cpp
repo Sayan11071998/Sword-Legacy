@@ -5,6 +5,7 @@
 #include "Engine/AssetManager.h"
 #include "DataAssets/StartupData/SL_DataAsset_StartupData_Enemy.h"
 #include "Items/Weapons/SL_WeaponBase.h"
+#include "Components/MeshComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraSystem.h"
 #include "NiagaraComponent.h"

@@ -2,8 +2,10 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/Abilities/Player/SL_GA_Player_ComboAttack.h"
-#include "GameplayTags/SL_GameplayTags.h"
 #include "SL_GA_Player_LightAttackMaster.generated.h"
+
+class UAnimMontage;
+class UGameplayEffect;
 
 UCLASS()
 class SWORD_LEGACY_API USL_GA_Player_LightAttackMaster : public USL_GA_Player_ComboAttack

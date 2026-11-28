@@ -1,11 +1,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/MeshComponent.h"
 #include "GameFramework/Actor.h"
 #include "SL_WeaponBase.generated.h"
 
 class UBoxComponent;
+class UMeshComponent;
 class USkeletalMeshComponent;
 class UStaticMeshComponent;
 

@@ -1,5 +1,6 @@
 #include "Items/Weapons/SL_WeaponBase.h"
 #include "Components/BoxComponent.h"
+#include "Components/MeshComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Utilities/SL_FunctionLibrary.h"
