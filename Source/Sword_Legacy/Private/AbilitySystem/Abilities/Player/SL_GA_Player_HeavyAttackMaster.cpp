@@ -25,24 +25,45 @@ void USL_GA_Player_HeavyAttackMaster::ActivateAbility(const FGameplayAbilitySpec
 		USL_FunctionLibrary::NativeDoesActorHaveTag(AvatarActor, SL_GameplayTags::Player_Status_JumpToFinisher);
 
 	int32 ComboCount = GetComboCount();
+	UAnimMontage* MontageToPlay = nullptr;
 
-	if (bJumpToFinisher)
+	if (bJumpToFinisher && ParryCounterMontage)
 	{
-		ComboCount = HeavyAttackMontagesMap.Num();
+		MontageToPlay = ParryCounterMontage;
+		UsedComboCount = ParryCounterDamageCount;
+
+		ResetComboCount();
+	}
+	else
+	{
+		if (bJumpToFinisher)
+		{
+			ComboCount = HeavyAttackMontagesMap.Num();
+		}
+
+		UsedComboCount = ComboCount;
+
+		if (TObjectPtr<UAnimMontage>* FoundMontage = HeavyAttackMontagesMap.Find(ComboCount))
+		{
+			MontageToPlay = FoundMontage->Get();
+		}
 	}
 
-	UsedComboCount = ComboCount;
-	
-	TObjectPtr<UAnimMontage>* MontageToPlay = HeavyAttackMontagesMap.Find(ComboCount);
+	const bool bPlayedParryCounter = bJumpToFinisher && ParryCounterMontage;
 
-	if (!MontageToPlay || !(*MontageToPlay))
+	if (!MontageToPlay)
 	{
 		ComboCount = 1;
-		MontageToPlay = HeavyAttackMontagesMap.Find(ComboCount);
 
-		if (!MontageToPlay || !(*MontageToPlay))
+		if (TObjectPtr<UAnimMontage>* FoundMontage = HeavyAttackMontagesMap.Find(ComboCount))
+		{
+			MontageToPlay = FoundMontage->Get();
+		}
+
+		if (!MontageToPlay)
 		{
 			EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+
 			return;
 		}
 	}
@@ -60,20 +81,23 @@ void USL_GA_Player_HeavyAttackMaster::ActivateAbility(const FGameplayAbilitySpec
 	SetupMeleeMotionWarp(HeavyAttackWarpTargetName, HeavyAttackWarpDistance, HeavyAttackStopDistance, HeavyAttackWarpHalfAngle);
 
 	UAbilityTask_PlayMontageAndWait* PlayMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-		this, NAME_None, *MontageToPlay, 1.0f
+		this, NAME_None, MontageToPlay, 1.0f
 	);
-	BindComboMontage(PlayMontageTask, *MontageToPlay);
+	BindComboMontage(PlayMontageTask, MontageToPlay);
 	PlayMontageTask->ReadyForActivation();
-	
-	const int32 TotalMontages = HeavyAttackMontagesMap.Num();
 
-	if (ComboCount == TotalMontages)
+	if (!bPlayedParryCounter)
 	{
-		ResetComboCount();
-	}
-	else
-	{
-		SetComboCount(ComboCount + 1);
+		const int32 TotalMontages = HeavyAttackMontagesMap.Num();
+
+		if (ComboCount == TotalMontages)
+		{
+			ResetComboCount();
+		}
+		else
+		{
+			SetComboCount(ComboCount + 1);
+		}
 	}
 
 	if (AvatarActor && USL_FunctionLibrary::NativeDoesActorHaveTag(AvatarActor, SL_GameplayTags::Player_Status_Rage_Active))
@@ -97,6 +121,9 @@ void USL_GA_Player_HeavyAttackMaster::OnMeleeHitEventReceived(FGameplayEventData
 	);
 
 	AActor* TargetActor = const_cast<AActor*>(Payload.Target.Get());
+
+	if (USL_FunctionLibrary::NotifyEnemyBlockedAttack(GetAvatarActorFromActorInfo(), TargetActor)) return;
+
 	if (TargetActor && DamageSpecHandle.IsValid())
 	{
 		if (WeaponHitSoundGameplayCueTag.IsValid())

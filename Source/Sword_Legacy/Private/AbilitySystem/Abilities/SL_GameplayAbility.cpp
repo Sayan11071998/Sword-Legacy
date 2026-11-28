@@ -150,6 +150,8 @@ void USL_GameplayAbility::ApplyGameplayEffectSpecHandleToHitResults(const FGamep
 	{
 		if (APawn* HitPawn = Cast<APawn>(Hit.GetActor()))
 		{
+			if (USL_FunctionLibrary::NotifyEnemyBlockedAttack(OwningPawn, HitPawn)) continue;
+
 			if (USL_FunctionLibrary::IsTargetPawnHostile(OwningPawn, HitPawn))
 			{
 				FActiveGameplayEffectHandle ActiveGameplayEffectHandle = NativeApplyEffectSpecHandleToTarget(HitPawn, InSpecHandle);

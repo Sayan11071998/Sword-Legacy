@@ -1,9 +1,10 @@
 #include "AI/Services/SL_BTS_UpdateMotionWarpTarget.h"
+#include "AbilitySystem/Abilities/Enemy/SL_GA_Enemy_MeleeAttack_Base.h"
+#include "AbilitySystem/SL_AbilitySystemComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/BlackboardData.h"
 #include "AIController.h"
 #include "Characters/SL_EnemyCharacter.h"
-#include "MotionWarpingComponent.h"
 
 USL_BTS_UpdateMotionWarpTarget::USL_BTS_UpdateMotionWarpTarget()
 {
@@ -48,9 +49,18 @@ void USL_BTS_UpdateMotionWarpTarget::TickNode(UBehaviorTreeComponent& OwnerComp,
 		
 		if (EnemyCharacter && TargetActor)
 		{
-			if (UMotionWarpingComponent* MotionWarpComp = EnemyCharacter->GetMotionWarpingComponent())
+			if (USL_AbilitySystemComponent* AbilitySystemComponent = EnemyCharacter->GetCharacterAbilitySystemComponent())
 			{
-				MotionWarpComp->AddOrUpdateWarpTargetFromLocation(FName("AttackTarget"), TargetActor->GetActorLocation());
+				for (const FGameplayAbilitySpec& AbilitySpec : AbilitySystemComponent->GetActivatableAbilities())
+				{
+					if (!AbilitySpec.IsActive()) continue;
+
+					if (USL_GA_Enemy_MeleeAttack_Base* MeleeAttack = Cast<USL_GA_Enemy_MeleeAttack_Base>(AbilitySpec.GetPrimaryInstance()))
+					{
+						MeleeAttack->SetupMeleeMotionWarp(TargetActor);
+						return;
+					}
+				}
 			}
 		}
 	}

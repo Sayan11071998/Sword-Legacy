@@ -5,6 +5,7 @@
 #include "Engine/AssetManager.h"
 #include "DataAssets/StartupData/SL_DataAsset_StartupData_Enemy.h"
 #include "Items/Weapons/SL_WeaponBase.h"
+#include "Components/MeshComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraSystem.h"
 #include "NiagaraComponent.h"
@@ -16,8 +17,14 @@
 #include "Utilities/SL_FunctionLibrary.h"
 #include "Animation/AnimMontage.h"
 #include "AbilitySystem/SL_AbilitySystemComponent.h"
+#include "AbilitySystem/Abilities/Enemy/SL_GA_Enemy_DeathBase.h"
+#include "AbilitySystem/Abilities/Enemy/SL_GA_Enemy_ParryRebound.h"
+#include "AIController.h"
+#include "Animation/AnimInstance.h"
 #include "GameModes/SL_GameModeBase.h"
 #include "GameplayTags/SL_GameplayTags.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "TimerManager.h"
 
 ASL_EnemyCharacter::ASL_EnemyCharacter()
 {
@@ -368,6 +375,148 @@ void ASL_EnemyCharacter::HandleEntryRestoreFinished()
 {
 	bEntryRestoreFinished = true;
 	HandleEntryRestoreUpdate(0.f);
+}
+
+bool ASL_EnemyCharacter::WantsToBlockIncomingAttack(const AActor* Attacker) const
+{
+	if (!Attacker || BlockChance <= 0.f) return false;
+
+	if (USL_FunctionLibrary::NativeDoesActorHaveTag(const_cast<ASL_EnemyCharacter*>(this), SL_GameplayTags::Shared_Status_Death)) return false;
+
+	if (FVector::Dist2D(GetActorLocation(), Attacker->GetActorLocation()) > DefenseDistance) return false;
+
+	return FMath::FRand() <= BlockChance;
+}
+
+bool ASL_EnemyCharacter::RespondToIncomingAttack(const AActor* Attacker)
+{
+	if (!WantsToBlockIncomingAttack(Attacker)) return false;
+
+	USL_AbilitySystemComponent* AbilitySystemComponent = GetCharacterAbilitySystemComponent();
+	if (!AbilitySystemComponent) return false;
+
+	FGameplayTagContainer AttackTags;
+	AttackTags.AddTag(SL_GameplayTags::Enemy_Ability_Melee);
+	AttackTags.AddTag(SL_GameplayTags::Enemy_Ability_HeavyMelee);
+	AttackTags.AddTag(SL_GameplayTags::Enemy_Ability_Combo);
+	AbilitySystemComponent->CancelAbilities(&AttackTags);
+
+	if (!AbilitySystemComponent->TryActivateAbilityByTag(SL_GameplayTags::Enemy_Ability_Block)) return false;
+
+	USL_FunctionLibrary::AddGameplayTagToActorIfNone(this, SL_GameplayTags::Enemy_Status_IncomingAttack);
+
+	return true;
+}
+
+void ASL_EnemyCharacter::ForceParryRebound(AActor* InstigatorActor)
+{
+	USL_AbilitySystemComponent* AbilitySystemComponent = GetCharacterAbilitySystemComponent();
+
+	if (!AbilitySystemComponent) return;
+
+	GetWorldTimerManager().ClearTimer(ParryReboundLockTimer);
+
+	USL_FunctionLibrary::AddGameplayTagToActorIfNone(this, SL_GameplayTags::Enemy_Status_Rebounding);
+	USL_FunctionLibrary::AddGameplayTagToActorIfNone(this, SL_GameplayTags::Enemy_Status_UnderAttack);
+
+	if (InstigatorActor)
+	{
+		const FRotator LookAtRot = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), InstigatorActor->GetActorLocation());
+
+		SetActorRotation(FRotator(0.f, LookAtRot.Yaw, 0.f));
+	}
+
+	FGameplayAbilitySpecHandle ReboundHandle;
+	UAnimMontage* ReboundMontage = nullptr;
+
+	for (int32 Pass = 0; Pass < 2; ++Pass)
+	{
+		TArray<FGameplayAbilitySpecHandle> HandlesToCancel;
+
+		for (const FGameplayAbilitySpec& Spec : AbilitySystemComponent->GetActivatableAbilities())
+		{
+			if (!Spec.Ability) continue;
+
+			if (Spec.Ability->GetClass()->IsChildOf(USL_GA_Enemy_ParryRebound::StaticClass()))
+			{
+				ReboundHandle = Spec.Handle;
+
+				if (const USL_GA_Enemy_ParryRebound* ReboundAbility = Cast<USL_GA_Enemy_ParryRebound>(Spec.Ability))
+				{
+					ReboundMontage = ReboundAbility->GetReboundMontage();
+				}
+
+				continue;
+			}
+
+			if (Spec.Ability->GetClass()->IsChildOf(USL_GA_Enemy_DeathBase::StaticClass())) continue;
+
+			if (Spec.IsActive())
+			{
+				HandlesToCancel.Add(Spec.Handle);
+			}
+		}
+
+		if (HandlesToCancel.IsEmpty()) break;
+
+		for (const FGameplayAbilitySpecHandle& Handle : HandlesToCancel)
+		{
+			AbilitySystemComponent->CancelAbilityHandle(Handle);
+		}
+	}
+
+	if (USkeletalMeshComponent* CharacterMesh = GetMesh())
+	{
+		if (UAnimInstance* AnimInstance = CharacterMesh->GetAnimInstance())
+		{
+			AnimInstance->StopAllMontages(0.f);
+			AnimInstance->Montage_Stop(0.f);
+		}
+	}
+
+	if (UCharacterMovementComponent* Movement = GetCharacterMovement())
+	{
+		Movement->StopMovementImmediately();
+	}
+
+	if (AAIController* AIController = Cast<AAIController>(GetController()))
+	{
+		AIController->StopMovement();
+	}
+	
+	if (ReboundHandle.IsValid() && AbilitySystemComponent->TryActivateAbility(ReboundHandle)) return;
+
+	float ReboundLength = 0.2f;
+
+	if (ReboundMontage)
+	{
+		if (USkeletalMeshComponent* CharacterMesh = GetMesh())
+		{
+			if (UAnimInstance* AnimInstance = CharacterMesh->GetAnimInstance())
+			{
+				const float PlayedLength = AnimInstance->Montage_Play(ReboundMontage, 1.f, EMontagePlayReturnType::MontageLength, 0.f, true);
+				
+				if (PlayedLength > 0.f)
+				{
+					ReboundLength = PlayedLength;
+				}
+			}
+		}
+	}
+
+	GetWorldTimerManager().SetTimer(
+		ParryReboundLockTimer,
+		this,
+		&ASL_EnemyCharacter::ReleaseParryReboundLock,
+		ReboundLength,
+		false
+	);
+}
+
+void ASL_EnemyCharacter::ReleaseParryReboundLock()
+{
+	USL_FunctionLibrary::RemoveGameplayTagFromActorIfFound(this, SL_GameplayTags::Enemy_Status_Rebounding);
+	USL_FunctionLibrary::RemoveGameplayTagFromActorIfFound(this, SL_GameplayTags::Enemy_Status_UnderAttack);
 }
 
 float ASL_EnemyCharacter::GetSpawnedWeaponDissolveAmount() const

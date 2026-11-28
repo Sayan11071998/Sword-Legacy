@@ -11,6 +11,8 @@ class SWORD_LEGACY_API USL_GA_Enemy_MeleeAttack_Base : public USL_EnemyGameplayA
 	
 public:
 	USL_GA_Enemy_MeleeAttack_Base();
+
+	void SetupMeleeMotionWarp(AActor* Target);
 	
 protected:
 	// ~ Begin UGameplayAbility Interface
@@ -19,6 +21,14 @@ protected:
 		const FGameplayAbilityActorInfo* ActorInfo,
 		const FGameplayAbilityActivationInfo ActivationInfo,
 		const FGameplayEventData* TriggerEventData	
+	) override;
+
+	virtual void EndAbility(
+		const FGameplayAbilitySpecHandle Handle,
+		const FGameplayAbilityActorInfo* ActorInfo,
+		const FGameplayAbilityActivationInfo ActivationInfo,
+		bool bReplicateEndAbility,
+		bool bWasCancelled
 	) override;
 	// ~ End UGameplayAbility Interface
 	
@@ -39,14 +49,33 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Melee Attack")
 	float UnblockableWarningDelay = 0.2f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|MotionWarp")
+	FName AttackWarpTargetName = TEXT("AttackTarget");
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|MotionWarp", meta = (ClampMin = "0"))
+	float AttackWarpDistance = 350.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|MotionWarp", meta = (ClampMin = "0"))
+	float AttackStopDistance = 140.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|MotionWarp", meta = (ClampMin = "0", ClampMax = "180"))
+	float AttackWarpHalfAngle = 70.f;
 	
 	UFUNCTION(BlueprintCallable, Category = "Melee Attack")
 	void HandleApplyDamage(FGameplayEventData Payload);
 	
 private:
+	AActor* GetBlackboardAttackTarget() const;
+	void RefreshMeleeMotionWarp();
+	void ClearWarpModifiers() const;
+
 	UFUNCTION()
 	void PlayMeleeAttackMontage();
 
 	UFUNCTION()
 	void OnMeleeAttackFinished();
+
+	FTimerHandle MeleeWarpTimer;
+	FVector LastWarpDirection = FVector::ZeroVector;
 };

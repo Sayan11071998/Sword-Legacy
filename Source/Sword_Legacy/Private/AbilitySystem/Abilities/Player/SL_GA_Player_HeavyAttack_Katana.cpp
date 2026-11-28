@@ -1,75 +1,72 @@
 #include "AbilitySystem/Abilities/Player/SL_GA_Player_HeavyAttack_Katana.h"
-#include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
-#include "Components/Combat/SL_PlayerCombatComponent.h"
-#include "Items/Weapons/SL_PlayerWeapon.h"
-#include "Characters/SL_PlayerCharacter.h"
-#include "Items/Projectiles/SL_ProjectileBase.h"
+#include "AbilitySystem/Abilities/Player/SL_GA_Player_RageHeavyBlink.h"
+#include "AbilitySystem/SL_AbilitySystemComponent.h"
+#include "AbilitySystemComponent.h"
 #include "GameplayTags/SL_GameplayTags.h"
+#include "Utilities/SL_FunctionLibrary.h"
 
 USL_GA_Player_HeavyAttack_Katana::USL_GA_Player_HeavyAttack_Katana()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+}
+
+void USL_GA_Player_HeavyAttack_Katana::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+	const FGameplayEventData* TriggerEventData)
+{
+	AActor* AvatarActor = ActorInfo ? ActorInfo->AvatarActor.Get() : nullptr;
+
+	const bool bRageActive = AvatarActor &&
+		USL_FunctionLibrary::NativeDoesActorHaveTag(AvatarActor, SL_GameplayTags::Player_Status_Rage_Active);
 	
-	ProjectileSpawnSocketName = FName(TEXT("RageSlashSocket"));
-}
+	const bool bParryFollowUp = AvatarActor &&
+		USL_FunctionLibrary::NativeDoesActorHaveTag(AvatarActor, SL_GameplayTags::Player_Status_JumpToFinisher);
 
-void USL_GA_Player_HeavyAttack_Katana::WhileRageActive_Implementation()
-{
-	UAbilityTask_WaitGameplayEvent* WaitEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
-		this,
-		SL_GameplayTags::Shared_Event_SpawnProjectile,
-		nullptr,
-		true,
-		true
-	);
-	WaitEventTask->EventReceived.AddDynamic(this, &USL_GA_Player_HeavyAttack_Katana::OnSpawnProjectileEventReceived);
-	WaitEventTask->ReadyForActivation();
-}
-
-void USL_GA_Player_HeavyAttack_Katana::OnSpawnProjectileEventReceived(FGameplayEventData Payload)
-{
-	ASL_PlayerCharacter* PlayerCharacter = GetPlayerCharacterFromActorInfo();
-	if (!PlayerCharacter || !ProjectileClass) return;
-
-	USL_PlayerCombatComponent* CombatComponent = GetPlayerCombatComponentFromActorInfo();
-	if (!CombatComponent) return;
-
-	ASL_PlayerWeapon* EquippedWeapon = CombatComponent->GetPlayerCurrentEquippedWeapon();
-	if (!EquippedWeapon) return;
-
-	UStaticMeshComponent* WeaponMesh = EquippedWeapon->GetWeaponMesh();
-	if (!WeaponMesh) return;
-
-	FTransform SocketTransform = WeaponMesh->GetSocketTransform(ProjectileSpawnSocketName);
-	FVector SpawnLocation = SocketTransform.GetLocation();
-
-	FVector ForwardVector = PlayerCharacter->GetActorForwardVector();
-	FRotator SpawnRotation = ForwardVector.Rotation();
-
-	FTransform SpawnTransform(SpawnRotation, SpawnLocation);
-
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.Owner = PlayerCharacter;
-	SpawnParams.Instigator = PlayerCharacter;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-
-	ASL_ProjectileBase* SpawnedProjectile = GetWorld()->SpawnActor<ASL_ProjectileBase>(
-		ProjectileClass,
-		SpawnTransform,
-		SpawnParams
-	);
-
-	if (SpawnedProjectile && ProjectileDamageEffectClass)
+	if (bRageActive && !bParryFollowUp)
 	{
-		const float RawLevelDamage = CombatComponent->GetPlayerCurrentEquippedWeaponDamageAtLevel(static_cast<float>(GetAbilityLevel()) * RageDamageMultiplier);
+		UGameplayAbility::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+		
+		PrepareComboAttack();
+		ResetComboCount();
 
-		const FGameplayEffectSpecHandle DamageSpecHandle = MakePlayerDamageEffectSpecHandle(
-			ProjectileDamageEffectClass,
-			RawLevelDamage,
-			SL_GameplayTags::Player_SetByCaller_AttackType_Heavy,
-			RageComboCount
-		);
+		USL_AbilitySystemComponent* AbilitySystem = ActorInfo
+			? Cast<USL_AbilitySystemComponent>(ActorInfo->AbilitySystemComponent.Get())
+			: nullptr;
 
-		SpawnedProjectile->ProjectileDamageEffectSpecHandle = DamageSpecHandle;
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+
+		if (AbilitySystem)
+		{
+			TryStartRageHeavyBlink(ActorInfo);
+		}
+
+		return;
 	}
+
+	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+}
+
+bool USL_GA_Player_HeavyAttack_Katana::TryStartRageHeavyBlink(const FGameplayAbilityActorInfo* ActorInfo) const
+{
+	USL_AbilitySystemComponent* AbilitySystem = ActorInfo
+		? Cast<USL_AbilitySystemComponent>(ActorInfo->AbilitySystemComponent.Get())
+		: nullptr;
+	
+	if (!AbilitySystem) return false;
+
+	if (AbilitySystem->TryActivateAbilityByTag(SL_GameplayTags::Player_Ability_RageHeavyBlink))
+	{
+		return true;
+	}
+
+	for (const FGameplayAbilitySpec& Spec : AbilitySystem->GetActivatableAbilities())
+	{
+		if (!Spec.Ability || !Spec.Ability->GetClass()->IsChildOf(USL_GA_Player_RageHeavyBlink::StaticClass())) continue;
+		
+		if (Spec.IsActive()) return true;
+		
+		return AbilitySystem->TryActivateAbility(Spec.Handle);
+	}
+
+	return false;
 }

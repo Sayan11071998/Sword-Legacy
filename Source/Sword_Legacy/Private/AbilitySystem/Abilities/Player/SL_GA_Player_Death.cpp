@@ -15,6 +15,14 @@ void USL_GA_Player_Death::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 	const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+
+	if (UWorld* World = GetWorld())
+	{
+		if (ASL_GameModeBase* GameMode = World->GetAuthGameMode<ASL_GameModeBase>())
+		{
+			GameMode->StopAllEnemyCombat();
+		}
+	}
 	
 	if (!MontagesToPlay.IsEmpty())
 	{

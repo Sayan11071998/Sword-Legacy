@@ -2,8 +2,10 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/Abilities/Player/SL_GA_Player_ComboAttack.h"
-#include "GameplayTags/SL_GameplayTags.h"
 #include "SL_GA_Player_LightAttackMaster.generated.h"
+
+class UAnimMontage;
+class UGameplayEffect;
 
 UCLASS()
 class SWORD_LEGACY_API USL_GA_Player_LightAttackMaster : public USL_GA_Player_ComboAttack
@@ -26,6 +28,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	TMap<int32, TObjectPtr<UAnimMontage>> LightAttackMontagesMap;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Parry")
+	TObjectPtr<UAnimMontage> ParryCounterMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Parry", meta = (ClampMin = "1"))
+	int32 ParryCounterDamageCount = 1;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
 
@@ -39,13 +47,13 @@ protected:
 	FName LightAttackWarpTargetName = TEXT("LightAttackTarget");
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|MotionWarp", meta = (ClampMin = "0"))
-	float LightAttackWarpDistance = 350.f;
+	float LightAttackWarpDistance = 200.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|MotionWarp", meta = (ClampMin = "0"))
-	float LightAttackStopDistance = 140.f;
+	float LightAttackStopDistance = 130.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|MotionWarp", meta = (ClampMin = "0", ClampMax = "180"))
-	float LightAttackWarpHalfAngle = 70.f;
+	float LightAttackWarpHalfAngle = 80.f;
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Combat")
 	void WhileRageActive();

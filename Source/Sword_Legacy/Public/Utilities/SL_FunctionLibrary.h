@@ -22,6 +22,7 @@ public:
 	static TObjectPtr<USL_AbilitySystemComponent> NativeGetASCFromActor(TObjectPtr<AActor> InActor);
 	static bool NativeDoesActorHaveTag(TObjectPtr<AActor> InActor, FGameplayTag TagToCheck);
 	static TObjectPtr<USL_PawnCombatComponent> NativeGetPawnCombatComponentFromActor(TObjectPtr<AActor> InActor);
+	static bool NotifyEnemyBlockedAttack(AActor* InAttacker, AActor* InDefender);
 	
 	// Maps Options difficulty (Easy/Normal/Hard/Very Hard) to GAS ability level 1-4.
 	static int32 GetCurrentGameDifficultyAbilityLevel();
@@ -55,6 +56,9 @@ public:
 	
 	UFUNCTION(BlueprintPure, Category = "Pawn|Function Library")
 	static bool IsValidBlock(AActor* InAttacker, AActor* InDefender, float BlockFacingDotThreshold = -0.1f);
+
+	UFUNCTION(BlueprintPure, Category = "Pawn|Function Library")
+	static bool IsEnemyBlockingAttack(AActor* InAttacker, AActor* InDefender);
 	
 	UFUNCTION(BlueprintCallable, Category = "Pawn|Function Library")
 	static bool ApplyGameplayEffectSpecHandleToTargetActor(AActor* InInstigator, AActor* InTargetActor, const FGameplayEffectSpecHandle& InSpecHandle);

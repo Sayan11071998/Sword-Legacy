@@ -2,13 +2,21 @@
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Abilities/Tasks/AbilityTask_WaitDelay.h"
+#include "AIController.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "Characters/SL_BaseCharacter.h"
 #include "GameplayTags/SL_GameplayTags.h"
+#include "Utilities/SL_FunctionLibrary.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "MotionWarpingComponent.h"
+#include "RootMotionModifier.h"
+#include "TimerManager.h"
 
 USL_GA_Enemy_MeleeAttack_Base::USL_GA_Enemy_MeleeAttack_Base()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+	ActivationOwnedTags.AddTag(SL_GameplayTags::Enemy_Status_Attacking);
 	UnblockableAttackWarningSpawnOffset = 100.0f;
 }
 
@@ -17,6 +25,16 @@ void USL_GA_Enemy_MeleeAttack_Base::ActivateAbility(const FGameplayAbilitySpecHa
 	const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+
+	if (AActor* AvatarActor = GetAvatarActorFromActorInfo())
+	{
+		if (USL_FunctionLibrary::NativeDoesActorHaveTag(AvatarActor, SL_GameplayTags::Enemy_Status_Rebounding)
+			|| USL_FunctionLibrary::NativeDoesActorHaveTag(AvatarActor, SL_GameplayTags::Enemy_Status_UnderAttack))
+		{
+			EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+			return;
+		}
+	}
 	
 	UAbilityTask_WaitGameplayEvent* WaitGameplayEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 		this,
@@ -59,6 +77,19 @@ void USL_GA_Enemy_MeleeAttack_Base::ActivateAbility(const FGameplayAbilitySpecHa
 
 void USL_GA_Enemy_MeleeAttack_Base::PlayMeleeAttackMontage()
 {
+	ClearWarpModifiers();
+	SetupMeleeMotionWarp(GetBlackboardAttackTarget());
+
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().SetTimer(
+			MeleeWarpTimer,
+			FTimerDelegate::CreateUObject(this, &USL_GA_Enemy_MeleeAttack_Base::RefreshMeleeMotionWarp),
+			0.016f,
+			true
+		);
+	}
+
 	if (MontageToPlay)
 	{
 		UAbilityTask_PlayMontageAndWait* PlayMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
@@ -111,4 +142,105 @@ void USL_GA_Enemy_MeleeAttack_Base::HandleApplyDamage(FGameplayEventData Payload
 void USL_GA_Enemy_MeleeAttack_Base::OnMeleeAttackFinished()
 {
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+}
+
+void USL_GA_Enemy_MeleeAttack_Base::EndAbility(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+	bool bReplicateEndAbility, bool bWasCancelled)
+{
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(MeleeWarpTimer);
+	}
+
+	ClearWarpModifiers();
+
+	if (const ASL_BaseCharacter* Enemy = Cast<ASL_BaseCharacter>(GetAvatarActorFromActorInfo()))
+	{
+		if (UMotionWarpingComponent* MotionWarping = Enemy->GetMotionWarpingComponent())
+		{
+			MotionWarping->RemoveWarpTarget(AttackWarpTargetName);
+		}
+	}
+
+	LastWarpDirection = FVector::ZeroVector;
+
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+
+void USL_GA_Enemy_MeleeAttack_Base::RefreshMeleeMotionWarp()
+{
+	SetupMeleeMotionWarp(GetBlackboardAttackTarget());
+}
+
+void USL_GA_Enemy_MeleeAttack_Base::ClearWarpModifiers() const
+{
+	const ASL_BaseCharacter* Enemy = Cast<ASL_BaseCharacter>(GetAvatarActorFromActorInfo());
+	if (!Enemy) return;
+
+	UMotionWarpingComponent* MotionWarping = Enemy->GetMotionWarpingComponent();
+	if (!MotionWarping) return;
+
+	for (URootMotionModifier* Modifier : MotionWarping->GetModifiers())
+	{
+		if (!Modifier) continue;
+
+		Modifier->Animation = nullptr;
+		Modifier->StartTime = -1.f;
+		Modifier->EndTime = -1.f;
+		Modifier->SetState(ERootMotionModifierState::MarkedForRemoval);
+	}
+}
+
+void USL_GA_Enemy_MeleeAttack_Base::SetupMeleeMotionWarp(AActor* Target)
+{
+	const ASL_BaseCharacter* Enemy = Cast<ASL_BaseCharacter>(GetAvatarActorFromActorInfo());
+	if (!Enemy || AttackWarpTargetName.IsNone()) return;
+
+	UMotionWarpingComponent* MotionWarping = Enemy->GetMotionWarpingComponent();
+	if (!MotionWarping || !Target || Target == Enemy) return;
+
+	const FVector EnemyLocation = Enemy->GetActorLocation();
+	FVector ToTarget = Target->GetActorLocation() - EnemyLocation;
+	ToTarget.Z = 0.f;
+
+	FVector Direction = ToTarget.GetSafeNormal();
+	if (Direction.IsNearlyZero())
+	{
+		Direction = LastWarpDirection;
+	}
+	else
+	{
+		LastWarpDirection = Direction;
+	}
+
+	if (Direction.IsNearlyZero()) return;
+
+	const float Distance = ToTarget.Size();
+	FVector WarpLocation;
+	if (Distance > AttackStopDistance)
+	{
+		WarpLocation = Target->GetActorLocation() - Direction * AttackStopDistance;
+	}
+	else
+	{
+		const float LookDistance = FMath::Max(Distance, 30.f);
+		WarpLocation = EnemyLocation + Direction * LookDistance;
+	}
+
+	WarpLocation.Z = EnemyLocation.Z;
+
+	const FRotator WarpRotation(0.f, Direction.Rotation().Yaw, 0.f);
+	MotionWarping->AddOrUpdateWarpTargetFromLocationAndRotation(AttackWarpTargetName, WarpLocation, WarpRotation);
+}
+
+AActor* USL_GA_Enemy_MeleeAttack_Base::GetBlackboardAttackTarget() const
+{
+	const APawn* EnemyPawn = Cast<APawn>(GetAvatarActorFromActorInfo());
+	const AAIController* AIController = EnemyPawn ? Cast<AAIController>(EnemyPawn->GetController()) : nullptr;
+	const UBlackboardComponent* Blackboard = AIController ? AIController->GetBlackboardComponent() : nullptr;
+	
+	if (!Blackboard) return nullptr;
+
+	return Cast<AActor>(Blackboard->GetValueAsObject(TEXT("TargetActor")));
 }

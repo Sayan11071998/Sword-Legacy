@@ -94,7 +94,7 @@ void USL_GA_Player_LightWeaponAbility_Katana::OnMeleeHitEventReceived(FGameplayE
 
 		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
 			TargetActor,
-			SL_GameplayTags::Shared_Event_HitReact,
+			SL_GameplayTags::Shared_Event_UnblockableHitReact,
 			HitReactPayload
 		);
 	}

@@ -18,6 +18,8 @@ public:
 	// ~ Begin IGenericTeamAgentInterface Interface
 	virtual ETeamAttitude::Type GetTeamAttitudeTowards(const AActor& Other) const override;
 	// ~ End IGenericTeamAgentInterface Interface
+
+	void StopCombat();
 	
 protected:
 	virtual void BeginPlay() override;

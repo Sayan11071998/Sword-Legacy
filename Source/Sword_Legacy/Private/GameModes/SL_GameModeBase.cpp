@@ -3,6 +3,7 @@
 #include "AbilitySystemComponent.h"
 #include "Camera/PlayerCameraManager.h"
 #include "Characters/SL_EnemyCharacter.h"
+#include "Controllers/SL_AIController.h"
 #include "Controllers/SL_PlayerController.h"
 #include "Engine/GameInstance.h"
 #include "EngineUtils.h"
@@ -417,8 +418,25 @@ void ASL_GameModeBase::FadeGameHUD(float TargetOpacity)
 	}
 }
 
+void ASL_GameModeBase::StopAllEnemyCombat()
+{
+	UWorld* World = GetWorld();
+
+	if (!World) return;
+
+	for (FConstControllerIterator Iterator = World->GetControllerIterator(); Iterator; ++Iterator)
+	{
+		if (ASL_AIController* EnemyController = Cast<ASL_AIController>(Iterator->Get()))
+		{
+			EnemyController->StopCombat();
+		}
+	}
+}
+
 void ASL_GameModeBase::HandlePlayerLost()
 {
+	StopAllEnemyCombat();
+
 	if (bHasHandledPlayerLost || bHasHandledLevelCleared) return;
 	
 	bHasHandledPlayerLost = true;

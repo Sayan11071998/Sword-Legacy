@@ -3,7 +3,12 @@
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISense_Sight.h"
 #include "Perception/AISenseConfig_Sight.h"
+#include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemComponent.h"
+#include "Animation/AnimInstance.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "BrainComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Engine/GameInstance.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -152,6 +157,39 @@ void ASL_AIController::StartCombatLogic()
 			const float DefaultMaxWalkSpeed = PossessedCharacter->GetCharacterMovement()->MaxWalkSpeed;
 			BlackboardComp->SetValueAsFloat(FName("DefaultMaxWalkSpeed"), DefaultMaxWalkSpeed);
 		}
+	}
+}
+
+void ASL_AIController::StopCombat()
+{
+	if (UBrainComponent* Brain = GetBrainComponent())
+	{
+		Brain->StopLogic(TEXT("PlayerDeath"));
+	}
+
+	StopMovement();
+	SetEnemyPerceptionEnabled(false);
+
+	ACharacter* ControlledCharacter = Cast<ACharacter>(GetPawn());
+
+	if (!ControlledCharacter) return;
+
+	if (UCharacterMovementComponent* Movement = ControlledCharacter->GetCharacterMovement())
+	{
+		Movement->StopMovementImmediately();
+	}
+
+	if (USkeletalMeshComponent* CharacterMesh = ControlledCharacter->GetMesh())
+	{
+		if (UAnimInstance* AnimInstance = CharacterMesh->GetAnimInstance())
+		{
+			AnimInstance->StopAllMontages(0.1f);
+		}
+	}
+
+	if (UAbilitySystemComponent* AbilitySystem = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(ControlledCharacter))
+	{
+		AbilitySystem->CancelAllAbilities();
 	}
 }
 

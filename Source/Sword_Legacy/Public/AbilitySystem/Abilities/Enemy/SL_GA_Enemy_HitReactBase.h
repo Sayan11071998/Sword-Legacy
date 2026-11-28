@@ -31,8 +31,17 @@ protected:
 	// ~ End UGameplayAbility Interface
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Hit React")
-	TArray<TObjectPtr<UAnimMontage>> MontagesToPlay;
-	
+	TObjectPtr<UAnimMontage> FrontHitReactMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Hit React")
+	TObjectPtr<UAnimMontage> LeftHitReactMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Hit React")
+	TObjectPtr<UAnimMontage> RightHitReactMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Hit React")
+	TObjectPtr<UAnimMontage> BackHitReactMontage;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Hit React")
 	TSubclassOf<UGameplayEffect> HitReactEffectClass;
 	
@@ -47,10 +56,22 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Hit React")
 	float HitReactFallbackDuration = 0.2f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Hit React|Pushback", meta = (ClampMin = "0"))
+	float HitReactPushbackStrength = 200.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Hit React|Pushback", meta = (ClampMin = "0"))
+	float HitReactPushbackDuration = 0.25f;
 	
 private:
 	UFUNCTION()
 	void OnHitReactFinished();
+
+	UAnimMontage* SelectHitReactMontage(AActor* Attacker) const;
+
+	bool IsDirectionalHitReactMontage(const UAnimMontage* Montage) const;
+
+	void ApplyHitReactPushback(AActor* Attacker);
 	
 	FTimerHandle HitReactFallbackTimerHandle;
 	

@@ -5,6 +5,8 @@
 #include "PawnTypes/SL_PawnStructTypes.h"
 #include "SL_AbilitySystemComponent.generated.h"
 
+class USL_PlayerGameplayAbility;
+
 UCLASS()
 class SWORD_LEGACY_API USL_AbilitySystemComponent : public UAbilitySystemComponent
 {
@@ -20,6 +22,7 @@ public:
 	void GrantPlayerWeaponAbilities(
 		const TArray<FSL_PlayerAbilitySet>& InDefaultWeaponAbilities,
 		const TArray<FSL_PlayerSpecialAbilitySet>& InSpecialWeaponAbilities,
+		const TArray<TSubclassOf<USL_PlayerGameplayAbility>>& InReactiveWeaponAbilities,
 		int32 ApplyLevel,
 		TArray<FGameplayAbilitySpecHandle>& OutGrantedAbilitySpecHandles	
 	);

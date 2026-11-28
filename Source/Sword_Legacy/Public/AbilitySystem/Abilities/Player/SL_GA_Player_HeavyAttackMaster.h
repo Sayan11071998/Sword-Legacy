@@ -12,6 +12,9 @@ class SWORD_LEGACY_API USL_GA_Player_HeavyAttackMaster : public USL_GA_Player_Co
 public:
 	USL_GA_Player_HeavyAttackMaster();
 
+	TSubclassOf<UGameplayEffect> GetDamageEffectClass() const { return DamageEffectClass; }
+	FGameplayTag GetWeaponHitSoundGameplayCueTag() const { return WeaponHitSoundGameplayCueTag; }
+
 protected:
 	// ~ Begin UGameplayAbility Interface
 	virtual void ActivateAbility(
@@ -24,6 +27,12 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	TMap<int32, TObjectPtr<UAnimMontage>> HeavyAttackMontagesMap;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Parry")
+	TObjectPtr<UAnimMontage> ParryCounterMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Parry", meta = (ClampMin = "1"))
+	int32 ParryCounterDamageCount = 1;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
@@ -38,13 +47,13 @@ protected:
 	FName HeavyAttackWarpTargetName = TEXT("HeavyAttackTarget");
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|MotionWarp", meta = (ClampMin = "0"))
-	float HeavyAttackWarpDistance = 350.f;
+	float HeavyAttackWarpDistance = 200.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|MotionWarp", meta = (ClampMin = "0"))
-	float HeavyAttackStopDistance = 200.f;
+	float HeavyAttackStopDistance = 130.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|MotionWarp", meta = (ClampMin = "0", ClampMax = "180"))
-	float HeavyAttackWarpHalfAngle = 70.f;
+	float HeavyAttackWarpHalfAngle = 80.f;
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Combat")
 	void WhileRageActive();

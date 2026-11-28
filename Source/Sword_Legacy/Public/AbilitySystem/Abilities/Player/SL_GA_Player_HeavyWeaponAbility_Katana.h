@@ -59,13 +59,13 @@ protected:
 	FName SpecialHeavyWarpTargetName = TEXT("SpecialHeavyAttackTarget");
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|MotionWarp", meta = (ClampMin = "0"))
-	float SpecialHeavyWarpDistance = 350.f;
+	float SpecialHeavyWarpDistance = 600.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|MotionWarp", meta = (ClampMin = "0"))
-	float SpecialHeavyStopDistance = 200.f;
+	float SpecialHeavyStopDistance = 130.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|MotionWarp", meta = (ClampMin = "0", ClampMax = "180"))
-	float SpecialHeavyWarpHalfAngle = 70.f;
+	float SpecialHeavyWarpHalfAngle = 80.f;
 
 private:
 	UFUNCTION()
