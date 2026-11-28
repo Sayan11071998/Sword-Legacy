@@ -12,6 +12,9 @@ class SWORD_LEGACY_API USL_GA_Player_HeavyAttackMaster : public USL_GA_Player_Co
 public:
 	USL_GA_Player_HeavyAttackMaster();
 
+	TSubclassOf<UGameplayEffect> GetDamageEffectClass() const { return DamageEffectClass; }
+	FGameplayTag GetWeaponHitSoundGameplayCueTag() const { return WeaponHitSoundGameplayCueTag; }
+
 protected:
 	// ~ Begin UGameplayAbility Interface
 	virtual void ActivateAbility(
